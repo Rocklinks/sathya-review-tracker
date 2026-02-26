@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sathya Agencies — Review Tracker</title>
+<style>
+:root{
+  --navy:#0d1f35;--navy2:#132a47;--blue:#1d5fa8;--blue2:#2874c8;
+  --teal:#0ea5b0;--green:#1a9c5b;--gold:#e8a020;--red:#d93b3b;
+  --text:#e8edf4;--muted:#7a9ab8;--card:#152233;--border:#1e3352;
+  --radius:12px;--mono:"Courier New",monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--navy);color:var(--text);font-family:"Segoe UI",system-ui,sans-serif;font-size:14px;min-height:100vh}
+
+/* TOPBAR */
+.topbar{background:var(--navy2);border-bottom:1px solid var(--border);padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100}
+.topbar-left{display:flex;align-items:center;gap:12px}
+.logo{background:var(--blue);color:#fff;font-weight:700;font-size:11px;padding:4px 10px;border-radius:6px;letter-spacing:.5px}
+.topbar h1{font-size:16px;font-weight:600;color:#fff}
+.topbar-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+#clock{font-family:var(--mono);font-size:11px;color:var(--muted)}
+#last-update{font-size:11px;color:var(--muted)}
+.btn{padding:6px 14px;border-radius:8px;border:none;cursor:pointer;font-size:12px;font-weight:500;font-family:inherit;transition:.15s}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border)}
+.btn-ghost:hover{color:var(--text);border-color:var(--muted)}
+.btn-green{background:var(--green);color:#fff}
+.btn-green:hover{background:#20b368}
+
+/* LAYOUT */
+.layout{display:flex;min-height:calc(100vh - 56px)}
+.sidebar{width:200px;flex-shrink:0;background:var(--navy2);border-right:1px solid var(--border);padding:16px 0;display:flex;flex-direction:column}
+.s-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;padding:0 16px}
+.s-item{display:flex;align-items:center;gap:8px;padding:8px 16px;cursor:pointer;font-size:13px;color:var(--muted);transition:.12s;margin-bottom:1px}
+.s-item:hover,.s-item.active{background:rgba(29,95,168,.25);color:var(--text)}
+.s-item.active{color:var(--blue2)}
+.s-dot{width:7px;height:7px;border-radius:50%;background:var(--muted);flex-shrink:0}
+.s-item.active .s-dot{background:var(--blue2)}
+.main{flex:1;padding:20px;overflow:auto}
+
+/* KPI */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+@media(max-width:900px){.kpi-row{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:500px){.kpi-row{grid-template-columns:1fr}}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px}
+.kpi-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.kpi-value{font-size:26px;font-weight:700;color:#fff;font-family:var(--mono)}
+.kpi-sub{font-size:11px;color:var(--muted);margin-top:3px}
+.kpi-b{border-top:3px solid var(--blue2)}
+.kpi-g{border-top:3px solid var(--green)}
+.kpi-gold{border-top:3px solid var(--gold)}
+.kpi-t{border-top:3px solid var(--teal)}
+
+/* SECTION */
+.section{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:18px}
+.section-hdr{padding:14px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:8px}
+.section-title{font-weight:600;font-size:14px}
+.ctrls{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.sbox{background:var(--navy2);border:1px solid var(--border);border-radius:8px;padding:6px 10px;color:var(--text);font-family:inherit;font-size:12px;outline:none;width:180px}
+.sbox:focus{border-color:var(--blue2)}
+select.fsel{background:var(--navy2);border:1px solid var(--border);border-radius:8px;padding:6px 8px;color:var(--text);font-family:inherit;font-size:12px;outline:none;cursor:pointer}
+
+/* TABLE */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+thead th{background:var(--navy2);color:var(--muted);font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.6px;padding:10px 12px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--border);cursor:pointer;user-select:none}
+thead th:hover{color:var(--text)}
+thead th.sorted{color:var(--blue2)}
+tbody tr{border-bottom:1px solid rgba(30,51,82,.5);transition:.1s}
+tbody tr:hover{background:rgba(29,95,168,.08)}
+tbody td{padding:10px 12px;white-space:nowrap}
+.td-b{font-weight:500;color:#fff}
+.badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:11px;font-weight:600;font-family:var(--mono)}
+.b-blue{background:rgba(29,95,168,.25);color:#7ab4f5}
+.b-green{background:rgba(26,156,91,.2);color:#5ed49a}
+.b-gold{background:rgba(232,160,32,.2);color:#f5c65a}
+.b-gray{background:rgba(122,154,184,.15);color:var(--muted)}
+
+/* BARS */
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px}
+@media(max-width:700px){.charts-row{grid-template-columns:1fr}}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px}
+.chart-title{font-size:13px;font-weight:600;margin-bottom:14px;color:#fff}
+.bar-chart{display:flex;flex-direction:column;gap:5px}
+.bar-row{display:flex;align-items:center;gap:7px}
+.bar-lbl{width:120px;font-size:11px;color:var(--muted);text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar-track{flex:1;height:18px;background:rgba(30,51,82,.6);border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--blue),var(--teal));transition:width .5s}
+.bar-val{width:44px;font-size:11px;font-family:var(--mono);color:var(--muted)}
+
+/* DATE PICKER */
+.date-bar{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap}
+.date-bar label{font-size:12px;color:var(--muted)}
+input[type=date]{background:var(--navy2);border:1px solid var(--border);border-radius:8px;padding:6px 10px;color:var(--text);font-family:inherit;font-size:12px;outline:none;color-scheme:dark}
+input[type=date]:focus{border-color:var(--blue2)}
+#snap-info{font-size:11px;color:var(--muted)}
+
+/* LOGS */
+.log-list{padding:0 18px 14px}
+.log-item{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid rgba(30,51,82,.4);font-size:11px;flex-wrap:wrap}
+.log-item:last-child{border-bottom:none}
+.log-t{color:var(--muted);font-family:var(--mono);white-space:nowrap}
+.log-ok{color:var(--green)}
+.log-fail{color:var(--red)}
+
+/* TOAST */
+#toast{position:fixed;bottom:20px;right:20px;background:#152233;border:1px solid var(--border);border-radius:10px;padding:11px 16px;font-size:12px;color:var(--text);box-shadow:0 8px 32px rgba(0,0,0,.5);opacity:0;transform:translateY(8px);transition:.3s;pointer-events:none;z-index:999}
+#toast.show{opacity:1;transform:translateY(0)}
+
+/* STATUS */
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;margin-right:5px;animation:pulse 2s infinite;box-shadow:0 0 5px var(--green)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* LOADING */
+.loading{display:flex;align-items:center;justify-content:center;padding:60px;color:var(--muted);gap:10px}
+.spinner{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--blue2);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* STARS */
+.stars{color:var(--gold)}
+
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="logo">SATHYA</span>
+    <h1>Review Tracker</h1>
+    <span style="font-size:11px;color:var(--muted)"><span class="live-dot"></span>Auto-updated nightly</span>
+  </div>
+  <div class="topbar-right">
+    <span id="last-update"></span>
+    <span id="clock"></span>
+    <button class="btn btn-green" onclick="exportExcel()">&#x2B07; Excel</button>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="sidebar">
+    <div style="padding:0 16px 12px">
+      <div class="s-label">Views</div>
+      <div class="s-item active" onclick="showView('dashboard',this)"><span class="s-dot"></span>Dashboard</div>
+      <div class="s-item" onclick="showView('branches',this)"><span class="s-dot"></span>All Branches</div>
+      <div class="s-item" onclick="showView('agm',this)"><span class="s-dot"></span>By AGM</div>
+      <div class="s-item" onclick="showView('history',this)"><span class="s-dot"></span>Date History</div>
+      <div class="s-item" onclick="showView('logs',this)"><span class="s-dot"></span>Scrape Logs</div>
+    </div>
+    <div style="padding:0 16px;margin-top:8px">
+      <div class="s-label">Filter by AGM</div>
+      <div id="agm-sidebar"></div>
+    </div>
+  </div>
+
+  <div class="main" id="mc">
+    <div class="loading"><div class="spinner"></div>Loading&#8230;</div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ── CONFIG ────────────────────────────────────────────────
+// Path to your reviews.json in the same repo
+// When hosted on GitHub Pages this fetches from the raw file
+var DATA_URL = "data/reviews.json";
+
+// ── STATE ────────────────────────────────────────────────
+var D = null;           // full data object from reviews.json
+var ALL = [];           // flat branch array enriched with latest daily
+var currentView = "dashboard";
+var sortCol = "daily_count", sortAsc = false;
+var selectedDate = null;
+
+var AGM_COLORS = {
+  "John":"#2874c8","Siva":"#0ea5b0","Jeeva":"#1a9c5b",
+  "Seenivasan":"#e8a020","Muthuselvam":"#9b5cf6","Venkatesh":"#d93b3b"
+};
+
+// ── BOOT ─────────────────────────────────────────────────
+async function init(){
+  tickClock(); setInterval(tickClock, 1000);
+  await loadData();
+  setInterval(loadData, 300000); // refresh every 5 min
+}
+
+function tickClock(){
+  var now = new Date();
+  document.getElementById("clock").textContent =
+    now.toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"})+" "+
+    now.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+}
+
+async function loadData(){
+  try{
+    var r = await fetch(DATA_URL + "?t=" + Date.now());
+    D = await r.json();
+
+    // Build flat ALL array from branches + latest daily
+    var yesterday = isoYesterday();
+    selectedDate  = selectedDate || yesterday;
+    ALL = Object.values(D.branches || {}).map(function(b){
+      var day = (D.daily[selectedDate] || {})[String(b.id)] || {};
+      return Object.assign({}, b, {
+        daily_count: day.daily_count || 0,
+        day_stars:   day.star_rating  || b.star_rating || 0,
+        snap_date:   selectedDate
+      });
+    });
+
+    var lu = D.last_updated ? new Date(D.last_updated).toLocaleString("en-IN") : "—";
+    document.getElementById("last-update").textContent = "Updated: " + lu;
+
+    buildAgmSidebar();
+    renderView();
+  } catch(e){
+    document.getElementById("mc").innerHTML =
+      '<div class="loading">&#9888; Could not load data/reviews.json<br><small>Make sure GitHub Pages is enabled for this repo.</small></div>';
+  }
+}
+
+// ── VIEW ROUTER ───────────────────────────────────────────
+function showView(v, el){
+  currentView = v;
+  document.querySelectorAll(".s-item").forEach(function(i){i.classList.remove("active");});
+  if(el) el.classList.add("active");
+  renderView();
+}
+
+function renderView(){
+  var mc = document.getElementById("mc");
+  if(currentView==="dashboard")  mc.innerHTML = buildDashboard();
+  else if(currentView==="branches") mc.innerHTML = buildBranchesView();
+  else if(currentView==="agm")   mc.innerHTML = buildAgmView();
+  else if(currentView==="history") mc.innerHTML = buildHistoryView();
+  else if(currentView==="logs")  mc.innerHTML = buildLogsView();
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────
+function buildDashboard(){
+  if(!ALL.length) return '<div class="loading">No data yet.</div>';
+  var total   = ALL.reduce(function(a,b){return a+(b.overall||0);},0);
+  var daily   = ALL.reduce(function(a,b){return a+(b.daily_count||0);},0);
+  var monthly = ALL.reduce(function(a,b){return a+(b.monthly||0);},0);
+  var sb      = ALL.filter(function(b){return b.star_rating>0;});
+  var avgStar = sb.length ? (sb.reduce(function(a,b){return a+(b.star_rating||0);},0)/sb.length).toFixed(2) : "—";
+  var dispDate = formatDate(selectedDate);
+
+  var top8 = [].concat(ALL).sort(function(a,b){return (b.daily_count||0)-(a.daily_count||0);}).slice(0,8);
+  var maxD = Math.max(top8[0] ? top8[0].daily_count||0 : 0, 1);
+
+  var agmMap = {};
+  ALL.forEach(function(b){
+    if(!agmMap[b.agm]) agmMap[b.agm]={total:0,daily:0};
+    agmMap[b.agm].total  += b.overall||0;
+    agmMap[b.agm].daily  += b.daily_count||0;
+  });
+  var agmArr = Object.entries(agmMap).sort(function(a,b){return b[1].daily-a[1].daily;});
+  var maxAD  = Math.max(agmArr.length ? agmArr[0][1].daily : 0, 1);
+
+  return '<div class="kpi-row">'+
+    kpi("Total Reviews",fmt(total),"All 36 branches","kpi-b")+
+    kpi("Daily Reviews",fmt(daily),dispDate+" count","kpi-g")+
+    kpi("Monthly Reviews",fmt(monthly),"This month","kpi-gold")+
+    kpi("Avg &#11088; Rating",avgStar,"Across all branches","kpi-t")+
+    '</div>'+
+    '<div class="charts-row">'+
+    '<div class="chart-card"><div class="chart-title">Top Branches &#8212; '+dispDate+'</div><div class="bar-chart">'+
+    top8.map(function(b){
+      return bar(b.name, b.daily_count||0, maxD, "linear-gradient(90deg,var(--blue),var(--teal))");
+    }).join("")+'</div></div>'+
+    '<div class="chart-card"><div class="chart-title">AGM Summary &#8212; '+dispDate+'</div><div class="bar-chart">'+
+    agmArr.map(function(e){
+      return bar(e[0], e[1].daily, maxAD, AGM_COLORS[e[0]]||"var(--blue)");
+    }).join("")+'</div></div>'+
+    '</div>'+
+    buildBranchesView();
+}
+
+// ── BRANCHES VIEW ─────────────────────────────────────────
+function buildBranchesView(){
+  if(!ALL.length) return '<div class="loading">No data yet.</div>';
+  var rows = [].concat(ALL);
+  rows.sort(function(a,b){
+    var va=a[sortCol]||0, vb=b[sortCol]||0;
+    if(typeof va==="string"){va=va.toLowerCase();vb=vb.toLowerCase();}
+    return sortAsc?(va>vb?1:-1):(va<vb?1:-1);
+  });
+  var agmOpts = [...new Set(ALL.map(function(b){return b.agm;}))].sort()
+    .map(function(a){return '<option>'+a+'</option>';}).join("");
+  var dates = Object.keys(D.daily||{}).sort().reverse();
+  var dateOpts = dates.map(function(d){
+    return '<option value="'+d+'"'+(d===selectedDate?" selected":"")+'>'+ formatDate(d)+'</option>';
+  }).join("");
+
+  return '<div class="date-bar">'+
+    '<label>Date:</label>'+
+    '<select class="fsel" onchange="switchDate(this.value)">'+dateOpts+'</select>'+
+    '<span id="snap-info" style="font-size:11px;color:var(--muted)">Showing '+formatDate(selectedDate)+'</span>'+
+    '</div>'+
+    '<div class="section">'+
+    '<div class="section-hdr"><span class="section-title">All Branches ('+rows.length+')</span>'+
+    '<div class="ctrls">'+
+    '<input class="sbox" id="sbox" placeholder="Search..." oninput="ft()">'+
+    '<select class="fsel" id="asel" onchange="ft()"><option value="">All AGMs</option>'+agmOpts+'</select>'+
+    '</div></div>'+
+    '<div class="tbl-wrap"><table>'+
+    '<thead><tr>'+
+    th("id","#")+th("name","Branch")+th("agm","AGM")+
+    th("star_rating","&#11088; Rating")+th("overall","Overall")+
+    th("monthly","Monthly")+th("daily_count","Daily")+
+    '</tr></thead>'+
+    '<tbody id="tb">'+rows.map(rowHTML).join("")+'</tbody>'+
+    '</table></div></div>';
+}
+
+function th(key, label){
+  return '<th onclick="ds(\''+key+'\')" class="'+(sortCol===key?"sorted":"")+'">'+
+    label+(sortCol===key?(sortAsc?" &#9650;":" &#9660;"):"")+'</th>';
+}
+
+function rowHTML(b){
+  var stars = b.star_rating ? starsHTML(b.star_rating) : '<span style="color:var(--muted)">&#8212;</span>';
+  var d = b.daily_count||0;
+  var badge = d>5?"b-green":d>0?"b-blue":"b-gray";
+  var c = AGM_COLORS[b.agm]||"var(--muted)";
+  return '<tr data-n="'+(b.name||"").toLowerCase()+'" data-a="'+(b.agm||"").toLowerCase()+'">'+
+    '<td><span style="color:var(--muted);font-family:var(--mono)">'+b.id+'</span></td>'+
+    '<td class="td-b">'+b.name+'</td>'+
+    '<td><span style="color:'+c+';font-size:12px;font-weight:500">'+b.agm+'</span></td>'+
+    '<td>'+stars+'</td>'+
+    '<td><span class="badge b-blue">'+fmt(b.overall||0)+'</span></td>'+
+    '<td><span class="badge b-gold">'+fmt(b.monthly||0)+'</span></td>'+
+    '<td><span class="badge '+badge+'">+'+d+'</span></td>'+
+    '</tr>';
+}
+
+function starsHTML(r){
+  var f=Math.floor(r),s="";
+  for(var i=0;i<f;i++) s+="&#9733;";
+  if(r%1>=0.5) s+="&#189;";
+  return '<span class="stars">'+s+'</span> <span style="font-family:var(--mono);font-size:11px">'+r+'</span>';
+}
+
+// ── AGM VIEW ──────────────────────────────────────────────
+function buildAgmView(){
+  if(!ALL.length) return '<div class="loading">No data yet.</div>';
+  var agmMap = {};
+  ALL.forEach(function(b){
+    if(!agmMap[b.agm]) agmMap[b.agm]=[];
+    agmMap[b.agm].push(b);
+  });
+  return Object.entries(agmMap).sort().map(function(e){
+    var agm=e[0], branches=e[1];
+    var total  = branches.reduce(function(a,b){return a+(b.overall||0);},0);
+    var daily  = branches.reduce(function(a,b){return a+(b.daily_count||0);},0);
+    var monthly= branches.reduce(function(a,b){return a+(b.monthly||0);},0);
+    var sb     = branches.filter(function(b){return b.star_rating>0;});
+    var avg    = sb.length?(sb.reduce(function(a,b){return a+(b.star_rating||0);},0)/sb.length).toFixed(1):"—";
+    var c      = AGM_COLORS[agm]||"#7a9ab8";
+    return '<div class="section" style="margin-bottom:16px">'+
+      '<div class="section-hdr">'+
+      '<div style="display:flex;align-items:center;gap:10px">'+
+      '<span style="width:9px;height:9px;border-radius:50%;background:'+c+';display:inline-block"></span>'+
+      '<span class="section-title">'+agm+'</span>'+
+      '<span style="font-size:11px;color:var(--muted)">'+branches.length+' branches</span></div>'+
+      '<div style="display:flex;gap:14px;font-size:12px;flex-wrap:wrap">'+
+      '<span>Total: <b style="color:#fff">'+fmt(total)+'</b></span>'+
+      '<span>Daily: <b style="color:var(--green)">+'+daily+'</b></span>'+
+      '<span>Monthly: <b style="color:var(--gold)">'+fmt(monthly)+'</b></span>'+
+      '<span>Avg &#11088; <b style="color:var(--gold)">'+avg+'</b></span>'+
+      '</div></div>'+
+      '<div class="tbl-wrap"><table>'+
+      '<thead><tr><th>Branch</th><th>&#11088; Rating</th><th>Overall</th><th>Monthly</th><th>Daily</th></tr></thead>'+
+      '<tbody>'+
+      [].concat(branches).sort(function(a,b){return (b.daily_count||0)-(a.daily_count||0);}).map(function(b){
+        return '<tr><td class="td-b">'+b.name+'</td>'+
+          '<td>'+(b.star_rating?starsHTML(b.star_rating):"&#8212;")+'</td>'+
+          '<td><span class="badge b-blue">'+fmt(b.overall||0)+'</span></td>'+
+          '<td><span class="badge b-gold">'+fmt(b.monthly||0)+'</span></td>'+
+          '<td><span class="badge '+((b.daily_count||0)>0?"b-green":"b-gray")+'">+'+(b.daily_count||0)+'</span></td></tr>';
+      }).join("")+
+      '</tbody></table></div></div>';
+  }).join("");
+}
+
+// ── HISTORY VIEW ──────────────────────────────────────────
+function buildHistoryView(){
+  var daily = D.daily || {};
+  var dates = Object.keys(daily).sort().reverse();
+  if(!dates.length) return '<div class="loading">No history yet.</div>';
+  return '<div class="section"><div class="section-hdr"><span class="section-title">Daily History (all dates)</span></div>'+
+    '<div class="tbl-wrap"><table>'+
+    '<thead><tr><th>Date</th><th>Total New Reviews</th><th>Branches with Reviews</th></tr></thead><tbody>'+
+    dates.map(function(d){
+      var snap   = daily[d];
+      var total  = Object.values(snap).reduce(function(a,b){return a+(b.daily_count||0);},0);
+      var active = Object.values(snap).filter(function(b){return (b.daily_count||0)>0;}).length;
+      return '<tr><td><b style="color:#fff">'+formatDate(d)+'</b></td>'+
+        '<td><span class="badge b-green">+'+total+' reviews</span></td>'+
+        '<td><span class="badge b-blue">'+active+'/36 branches</span></td></tr>';
+    }).join("")+
+    '</tbody></table></div></div>';
+}
+
+// ── LOGS VIEW ─────────────────────────────────────────────
+function buildLogsView(){
+  var logs = D.logs || [];
+  if(!logs.length) return '<div class="section"><div class="loading">No logs yet.</div></div>';
+  return '<div class="section"><div class="section-hdr"><span class="section-title">Scrape Logs</span></div>'+
+    '<div class="log-list">'+
+    logs.map(function(l){
+      return '<div class="log-item">'+
+        '<span class="log-t">'+(l.ran_at||"").replace("T"," ").slice(0,19)+' UTC</span>'+
+        '<span>Snap: <b>'+l.snap_date+'</b></span>'+
+        '<span class="log-ok">&#10003; '+l.success+'</span>'+
+        (l.failed>0?'<span class="log-fail">&#10007; '+l.failed+'</span>':"")+
+        (l.failed_names&&l.failed_names.length?'<span style="color:var(--muted)">'+l.failed_names.join(", ")+'</span>':"")+
+        '</div>';
+    }).join("")+
+    '</div></div>';
+}
+
+// ── AGM SIDEBAR ───────────────────────────────────────────
+function buildAgmSidebar(){
+  if(!ALL.length) return;
+  var agms = [...new Set(ALL.map(function(b){return b.agm;}))].sort();
+  var el   = document.getElementById("agm-sidebar");
+  if(!el) return;
+  el.innerHTML = agms.map(function(agm){
+    var c     = AGM_COLORS[agm]||"var(--muted)";
+    var daily = ALL.filter(function(b){return b.agm===agm;}).reduce(function(a,b){return a+(b.daily_count||0);},0);
+    return '<div class="s-item" onclick="filterAgm(\''+agm+'\')">'+
+      '<span class="s-dot" style="background:'+c+'"></span>'+
+      '<span style="flex:1">'+agm+'</span>'+
+      '<span style="font-size:10px;font-family:var(--mono);color:'+c+'">+'+daily+'</span>'+
+      '</div>';
+  }).join("");
+}
+
+// ── INTERACTIONS ──────────────────────────────────────────
+function ft(){
+  var q = (document.getElementById("sbox")||{value:""}).value.toLowerCase();
+  var a = (document.getElementById("asel")||{value:""}).value.toLowerCase();
+  document.querySelectorAll("#tb tr").forEach(function(tr){
+    var show = (!q||tr.dataset.n.includes(q)||tr.dataset.a.includes(q)) && (!a||tr.dataset.a===a);
+    tr.style.display = show?"":"none";
+  });
+}
+
+function ds(col){
+  if(sortCol===col) sortAsc=!sortAsc; else{sortCol=col;sortAsc=false;}
+  renderView();
+}
+
+function filterAgm(agm){
+  currentView="branches";
+  document.querySelectorAll(".s-item").forEach(function(i){i.classList.remove("active");});
+  renderView();
+  setTimeout(function(){
+    var s=document.getElementById("asel");
+    if(s){s.value=agm;ft();}
+  },50);
+}
+
+function switchDate(d){
+  selectedDate = d;
+  // Re-enrich ALL with new date's daily data
+  ALL = Object.values(D.branches||{}).map(function(b){
+    var day = (D.daily[d]||{})[String(b.id)]||{};
+    return Object.assign({},b,{daily_count:day.daily_count||0,day_stars:day.star_rating||b.star_rating||0,snap_date:d});
+  });
+  buildAgmSidebar();
+  renderView();
+}
+
+// ── EXCEL EXPORT ──────────────────────────────────────────
+function exportExcel(){
+  if(!D){ showToast("No data loaded yet."); return; }
+  showToast("Generating Excel...");
+  setTimeout(function(){
+    try{
+      var rows = [];
+      var dates = Object.keys(D.daily||{}).sort();
+
+      // Header row
+      var hdr = ["#","Branch","AGM","Star Rating","Overall Reviews","Monthly Reviews"].concat(
+        dates.map(function(d){return formatDate(d)+" Daily";})
+      );
+      rows.push(hdr);
+
+      Object.values(D.branches||{}).forEach(function(b){
+        var row = [b.id,b.name,b.agm,b.star_rating||"",b.overall||0,b.monthly||0];
+        dates.forEach(function(d){
+          row.push((D.daily[d]||{})[String(b.id)]?((D.daily[d][String(b.id)].daily_count)||0):0);
+        });
+        rows.push(row);
+      });
+
+      // Totals row
+      var totals = ["","TOTAL","","",
+        rows.slice(1).reduce(function(a,r){return a+(r[4]||0);},0),
+        rows.slice(1).reduce(function(a,r){return a+(r[5]||0);},0)
+      ];
+      for(var i=0;i<dates.length;i++){
+        totals.push(rows.slice(1).reduce(function(a,r){return a+(r[6+i]||0);},0));
+      }
+      rows.push(totals);
+
+      // Convert to CSV (Excel opens CSV fine)
+      var csv = rows.map(function(r){
+        return r.map(function(c){
+          var s = String(c==null?"":c);
+          if(s.includes(",")|| s.includes('"')|| s.includes('\n'))
+            s = '"'+s.replace(/"/g,'""')+'"';
+          return s;
+        }).join(",");
+      }).join("\r\n");
+
+      var blob = new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8"});
+      var a    = document.createElement("a");
+      a.href   = URL.createObjectURL(blob);
+      a.download = "Sathya_Reviews_"+new Date().toISOString().slice(0,10)+".csv";
+      a.click();
+      showToast("Downloaded! Open with Excel.");
+    }catch(e){ showToast("Export failed: "+e.message); }
+  },100);
+}
+
+// ── HELPERS ───────────────────────────────────────────────
+function kpi(label,val,sub,cls){
+  return '<div class="kpi '+cls+'"><div class="kpi-label">'+label+'</div>'+
+    '<div class="kpi-value">'+val+'</div><div class="kpi-sub">'+sub+'</div></div>';
+}
+function bar(label,val,max,color){
+  return '<div class="bar-row">'+
+    '<span class="bar-lbl" title="'+label+'">'+label+'</span>'+
+    '<div class="bar-track"><div class="bar-fill" style="width:'+Math.round(val/max*100)+'%;background:'+color+'"></div></div>'+
+    '<span class="bar-val">+'+val+'</span></div>';
+}
+function fmt(n){ return (n||0).toLocaleString("en-IN"); }
+function isoYesterday(){
+  var d=new Date(); d.setDate(d.getDate()-1); return d.toISOString().slice(0,10);
+}
+function formatDate(iso){
+  if(!iso) return "—";
+  var d=new Date(iso+"T00:00:00");
+  return d.toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"});
+}
+
+var tTimer=null;
+function showToast(msg){
+  var t=document.getElementById("toast");
+  t.textContent=msg; t.classList.add("show");
+  if(tTimer) clearTimeout(tTimer);
+  tTimer=setTimeout(function(){t.classList.remove("show");},3500);
+}
+
+init();
+</script>
+</body>
+</html>
