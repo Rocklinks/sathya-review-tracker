@@ -8,7 +8,7 @@ import re, time, json, os
 from datetime import date, datetime, timedelta
 from playwright.sync_api import sync_playwright
 
-DATA_FILE = os.path.join(os.path.dirname(__file__), "..", "data", "reviews.json")
+DATA_FILE = os.path.join(os.path.dirname(__file__), "..", "docs", "data", "reviews.json")
 
 BRANCHES = [
     {"id":1,  "name":"Tirunelveli-1",   "place_id":"ChIJ2RU2NvQRBDsRq-Fw7IVwx7k", "agm":"John"},
