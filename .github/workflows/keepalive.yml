@@ -1,0 +1,28 @@
+name: Keep Workflow Active
+
+on:
+  schedule:
+    # Runs every 45 days to prevent GitHub disabling the scheduled workflow
+    # GitHub disables cron jobs after 60 days of repo inactivity
+    - cron: '0 10 1,16 * *'   # 1st and 16th of every month at 10 AM UTC
+  workflow_dispatch:
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Keep workflow alive
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # Update a tiny keepalive file with current timestamp
+          echo "Last keepalive: $(date -u '+%Y-%m-%d %H:%M UTC')" > .keepalive
+          git add .keepalive
+          git diff --staged --quiet || git commit -m "chore: keepalive $(date -u '+%Y-%m-%d')"
+          git push
