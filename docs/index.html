@@ -119,6 +119,17 @@ input[type=date]{background:var(--surface2);border:1px solid var(--border2);bord
 .stars{color:var(--amber);letter-spacing:-1px}
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+.edit-form{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:20px}
+@media(max-width:600px){.edit-form{grid-template-columns:1fr}}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-group label{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.5px}
+.form-input{background:var(--surface2);border:1px solid var(--border2);border-radius:9px;padding:8px 12px;color:var(--text);font-family:inherit;font-size:13px;outline:none;transition:.15s}
+.form-input:focus{border-color:var(--indigo2);box-shadow:0 0 0 3px rgba(99,102,241,.12)}
+.edit-warning{background:rgba(217,119,6,.07);border:1px solid rgba(217,119,6,.2);border-radius:10px;padding:12px 16px;margin:14px 18px 0;font-size:12px;color:var(--amber);display:flex;gap:8px}
+.edit-table-row:hover{background:rgba(79,70,229,.04);cursor:pointer}
+.edit-table-row.editing{background:rgba(79,70,229,.08)}
+.inline-edit{width:70px;background:var(--surface);border:1px solid var(--indigo2);border-radius:6px;padding:3px 6px;font-size:12px;font-family:var(--mono);color:var(--text);outline:none}
+
 </style>
 </head>
 <body>
@@ -146,6 +157,7 @@ input[type=date]{background:var(--surface2);border:1px solid var(--border2);bord
       <div class="s-item" onclick="showView('history',this)"><span class="s-icon">&#x1F4C5;</span>History</div>
       <div class="s-item" onclick="showView('logs',this)"><span class="s-icon">&#x1F4CB;</span>Scrape Logs</div>
       <div class="s-item" onclick="showView('backups',this)"><span class="s-icon">&#x1F6E1;&#xFE0F;</span>Backups</div>
+      <div class="s-item" onclick="showView('edit',this)"><span class="s-icon">&#x270F;&#xFE0F;</span>Edit Data</div>
     </div>
     <div class="s-group">
       <div class="s-label">Filter by AGM</div>
@@ -253,6 +265,7 @@ function renderView() {
   else if (currentView === "history")   mc.innerHTML = buildHistoryView();
   else if (currentView === "logs")      mc.innerHTML = buildLogsView();
   else if (currentView === "backups")   buildBackupsView();
+  else if (currentView === "edit")      mc.innerHTML = buildEditView();
 }
 
 // ── DASHBOARD ─────────────────────────────────────────────────
@@ -615,6 +628,217 @@ function showToast(msg){
   t.textContent=msg; t.classList.add("show");
   if(tTimer) clearTimeout(tTimer);
   tTimer=setTimeout(function(){t.classList.remove("show");},3500);
+}
+
+// ── EDIT DATA VIEW ────────────────────────────────────────────
+// Edit any branch value for any date.
+// Each row shows: star rating, overall (total_snap), daily count, monthly.
+// When you change Overall → daily_count auto-recalculates from previous
+// date baseline. Monthly auto-recalculates from previous date monthly.
+// Save Changes → Download JSON → upload to GitHub to make permanent.
+
+var pendingEdits = {};   // { "bid": { field: newVal, ... } }
+var editDate     = null; // which date is being edited
+
+function buildEditView() {
+  if (!D) return '<div class="loading">No data yet.</div>';
+  var dates = Object.keys(D.daily || {}).sort().reverse();
+  if (!dates.length) return '<div class="loading">No data yet — run the workflow first.</div>';
+
+  // Default edit date to most recent
+  if (!editDate || !D.daily[editDate]) editDate = dates[0];
+
+  var dateOpts = dates.map(function(d) {
+    return '<option value="'+d+'"'+(d===editDate?' selected':'')+'>'+formatDate(d)+'</option>';
+  }).join('');
+
+  // Find the previous date (for baseline and prev monthly)
+  var sortedDates = dates.slice().sort();
+  var editIdx     = sortedDates.indexOf(editDate);
+  var prevDate    = editIdx > 0 ? sortedDates[editIdx - 1] : null;
+
+  var rows = Object.values(D.branches || {}).sort(function(a,b){return a.id-b.id;}).map(function(b) {
+    var bid  = String(b.id);
+    var snap = (D.daily[editDate] || {})[bid] || {};
+    var prev = prevDate ? (D.daily[prevDate] || {})[bid] : null;
+
+    var sr = snap.star_rating || b.star_rating || 0;
+    var ts = snap.total_snap  || 0;
+    var dc = snap.daily_count || 0;
+    var mo = snap.monthly     || 0;
+
+    var prevSnap = prev ? prev.total_snap  || 0 : 0;
+    var prevMo   = prev ? prev.monthly     || 0 : 0;
+
+    var cs = AGM_COLORS[b.agm] || {text:'var(--text2)'};
+
+    return '<tr class="edit-row" data-bid="'+bid+'">'+
+      '<td style="font-size:11px;color:var(--muted);font-family:var(--mono)">'+b.id+'</td>'+
+      '<td class="td-b" style="white-space:nowrap">'+b.name+'</td>'+
+      '<td><span style="font-size:11px;font-weight:600;color:'+cs.text+'">'+b.agm+'</span></td>'+
+      // Star rating
+      '<td><input class="inline-edit" id="sr-'+bid+'" type="number" step="0.1" min="1" max="5"'+
+        ' data-bid="'+bid+'" value="'+sr+'"'+
+        ' onchange="onEditChange(\'sr\',\''+bid+'\',this.value,\''+prevSnap+'\',\''+prevMo+'\')"'+
+        ' style="width:60px"></td>'+
+      // Overall (total_snap) — changing this auto-recalcs daily & monthly
+      '<td><input class="inline-edit" id="ts-'+bid+'" type="number" min="0"'+
+        ' data-bid="'+bid+'" value="'+ts+'"'+
+        ' onchange="onEditChange(\'ts\',\''+bid+'\',this.value,\''+prevSnap+'\',\''+prevMo+'\')"'+
+        ' style="width:85px"></td>'+
+      // Daily count — shown auto-calculated, but still editable
+      '<td><input class="inline-edit" id="dc-'+bid+'" type="number" min="0"'+
+        ' data-bid="'+bid+'" value="'+dc+'"'+
+        ' onchange="onEditChange(\'dc\',\''+bid+'\',this.value,\''+prevSnap+'\',\''+prevMo+'\')"'+
+        ' style="width:70px"></td>'+
+      // Monthly — shown auto-calculated, but still editable
+      '<td><input class="inline-edit" id="mo-'+bid+'" type="number" min="0"'+
+        ' data-bid="'+bid+'" value="'+mo+'"'+
+        ' onchange="onEditChange(\'mo\',\''+bid+'\',this.value,\''+prevSnap+'\',\''+prevMo+'\')"'+
+        ' style="width:75px"></td>'+
+      '</tr>';
+  }).join('');
+
+  var prevInfo = prevDate
+    ? '<span style="color:var(--muted)">Baseline from: <b>'+formatDate(prevDate)+'</b> &nbsp;·&nbsp; Changing Overall auto-recalculates Daily &amp; Monthly</span>'
+    : '<span style="color:var(--amber)">No previous date found — Daily &amp; Monthly will not auto-recalculate</span>';
+
+  return '<div class="section">'+
+    '<div class="section-hdr">'+
+      '<span class="section-title">&#x270F;&#xFE0F; Edit Data</span>'+
+      '<div class="ctrls">'+
+        '<label style="font-size:13px;font-weight:500;color:var(--text2)">Date:</label>'+
+        '<select class="fsel" onchange="editSwitchDate(this.value)">'+dateOpts+'</select>'+
+        '<button class="btn btn-primary" onclick="saveEdits()">&#x2713; Save Changes</button>'+
+        '<button class="btn btn-export" onclick="downloadEditedJSON()">&#x2B07; Download JSON</button>'+
+      '</div>'+
+    '</div>'+
+    '<div class="edit-warning">'+
+      '<span>&#x2139;&#xFE0F;</span>'+
+      '<div>'+
+        '<b>How to use:</b> Edit any value below &rarr; click <b>Save Changes</b> &rarr; click <b>Download JSON</b> &rarr; '+
+        'replace <code>docs/data/reviews.json</code> in your GitHub repo with the downloaded file &rarr; commit.<br>'+
+        prevInfo+
+      '</div>'+
+    '</div>'+
+    '<div class="tbl-wrap"><table>'+
+      '<thead><tr>'+
+        '<th>#</th><th>Branch</th><th>AGM</th>'+
+        '<th>&#11088; Stars</th>'+
+        '<th>Overall</th>'+
+        '<th>'+formatDateShort(editDate)+' Daily</th>'+
+        '<th>Monthly ('+formatDateShort(editDate)+')</th>'+
+      '</tr></thead>'+
+      '<tbody>'+rows+'</tbody>'+
+    '</table></div>'+
+    '<div style="padding:12px 20px;background:var(--surface2);border-top:1px solid var(--border);font-size:12px;color:var(--muted)">'+
+      'Editing: <b>'+formatDate(editDate)+'</b> &nbsp;|&nbsp; '+
+      'Changes stay in memory until you Download JSON and commit to GitHub'+
+    '</div>'+
+  '</div>';
+}
+
+function onEditChange(type, bid, rawVal, prevSnap, prevMo) {
+  var val = parseFloat(rawVal) || 0;
+  if (!pendingEdits[bid]) pendingEdits[bid] = {};
+
+  if (type === 'sr') {
+    pendingEdits[bid].star_rating = val;
+    highlightField('sr-'+bid);
+
+  } else if (type === 'ts') {
+    // Overall changed — auto-recalculate daily and monthly
+    var daily   = Math.max(0, val - parseFloat(prevSnap));
+    var monthly = parseFloat(prevMo) + daily;
+    pendingEdits[bid].total_snap  = val;
+    pendingEdits[bid].daily_count = daily;
+    pendingEdits[bid].monthly     = monthly;
+    // Update the other two fields visually
+    var dcEl = document.getElementById('dc-'+bid);
+    var moEl = document.getElementById('mo-'+bid);
+    if (dcEl) { dcEl.value = daily;   highlightField('dc-'+bid); }
+    if (moEl) { moEl.value = monthly; highlightField('mo-'+bid); }
+    highlightField('ts-'+bid);
+
+  } else if (type === 'dc') {
+    // Daily changed manually — recalc monthly only
+    var monthly2 = parseFloat(prevMo) + val;
+    pendingEdits[bid].daily_count = val;
+    pendingEdits[bid].monthly     = monthly2;
+    var moEl2 = document.getElementById('mo-'+bid);
+    if (moEl2) { moEl2.value = monthly2; highlightField('mo-'+bid); }
+    highlightField('dc-'+bid);
+
+  } else if (type === 'mo') {
+    // Monthly edited directly — just store it
+    pendingEdits[bid].monthly = val;
+    highlightField('mo-'+bid);
+  }
+}
+
+function highlightField(id) {
+  var el = document.getElementById(id);
+  if (el) {
+    el.style.borderColor = 'var(--amber)';
+    el.style.background  = 'rgba(217,119,6,.08)';
+  }
+}
+
+function editSwitchDate(d) {
+  if (Object.keys(pendingEdits).length > 0) {
+    if (!confirm('You have unsaved changes for '+formatDate(editDate)+'. Switch date and lose them?')) {
+      // Reset the select back
+      renderView();
+      return;
+    }
+  }
+  pendingEdits = {};
+  editDate     = d;
+  selectedDate = d;
+  enrichAll(d);
+  buildAgmSidebar();
+  renderView();
+}
+
+function saveEdits() {
+  var keys = Object.keys(pendingEdits);
+  if (!keys.length) { showToast('No changes to save.'); return; }
+
+  var count = 0;
+  keys.forEach(function(bid) {
+    var edits = pendingEdits[bid];
+    if (!D.daily[editDate])      D.daily[editDate]      = {};
+    if (!D.daily[editDate][bid]) D.daily[editDate][bid] = {};
+
+    // Write each edited field into the daily snapshot
+    Object.keys(edits).forEach(function(field) {
+      D.daily[editDate][bid][field] = edits[field];
+      count++;
+    });
+
+    // Keep branches{} in sync if this is the latest date
+    var latestDate = Object.keys(D.daily).sort().reverse()[0];
+    if (editDate === latestDate && D.branches[bid]) {
+      if (edits.total_snap  !== undefined) D.branches[bid].overall     = edits.total_snap;
+      if (edits.star_rating !== undefined) D.branches[bid].star_rating = edits.star_rating;
+      if (edits.monthly     !== undefined) D.branches[bid].monthly     = edits.monthly;
+    }
+  });
+
+  pendingEdits = {};
+  enrichAll(editDate);
+  buildAgmSidebar();
+  document.getElementById('mc').innerHTML = buildEditView();
+  showToast('Saved '+count+' field(s). Now click Download JSON to get the file.');
+}
+
+function downloadEditedJSON() {
+  var blob = new Blob([JSON.stringify(D, null, 2)], {type:'application/json'});
+  var a    = document.createElement('a');
+  a.href   = URL.createObjectURL(blob);
+  a.download = 'reviews.json';
+  a.click();
+  showToast('Downloaded! Replace docs/data/reviews.json in GitHub and commit.');
 }
 
 init();

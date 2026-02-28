@@ -238,52 +238,49 @@ def scrape_place(page, place_id, name, max_retries=3):
 
 def run():
     """
-    LOGIC — how dates work:
-    ─────────────────────────────────────────────────────────────
-    Scraper runs at 12:00 AM midnight on DATE X.
+    DATE LOGIC — critical to understand:
+    ──────────────────────────────────────────────────────────────
+    Workflow runs at 6:30 PM UTC = 12:00 AM IST (next day).
 
-    At that moment, Google shows the LIVE total which includes
-    everything up to 11:59 PM of DATE X-1.
+    When GitHub Actions runs on 2026-02-28 at 6:30 PM UTC:
+      - UTC date  = 2026-02-28
+      - IST date  = 2026-03-01 (already next day in IST)
 
-    So:
-      snap_date    = yesterday  (X-1)  → the day we are accounting for
-      baseline     = day before yesterday (X-2) total_snap
-      daily_count  = live_total_now  -  baseline_total
-                   = all reviews received during snap_date (12AM-11:59PM)
-      monthly      = sum of all daily_counts in same month up to snap_date
+    We want to capture reviews for the day just ended in IST.
+    So snap_date  = UTC date       = 2026-02-28
+       baseline   = UTC date - 1  = 2026-02-27 total_snap
 
-    Example running at midnight on 28-Feb-2026:
-      snap_date = 27-Feb-2026
-      baseline  = 26-Feb-2026 total_snap
-      daily     = reviews received on 27-Feb (12AM to 11:59PM)
+    daily_count(28-Feb) = live_total_scraped_now - total_snap(27-Feb)
+    monthly(28-Feb)     = monthly(27-Feb) + daily_count(28-Feb)
     """
-    snap_date      = (date.today() - timedelta(days=1)).strftime("%Y-%m-%d")
-    baseline_date  = (date.today() - timedelta(days=2)).strftime("%Y-%m-%d")
-    run_time       = datetime.utcnow().isoformat()
+    snap_date     = date.today().strftime("%Y-%m-%d")          # today in UTC
+    baseline_date = (date.today() - timedelta(days=1)).strftime("%Y-%m-%d")  # yesterday UTC
+    run_time      = datetime.utcnow().isoformat()
 
     print(f"=== Sathya Review Scraper ===")
-    print(f"Accounting for : {snap_date}  (12:00 AM to 11:59 PM)")
-    print(f"Baseline from  : {baseline_date}  (end-of-day total)")
+    print(f"Snap date      : {snap_date}  (creating/updating this date's entry)")
+    print(f"Baseline from  : {baseline_date}  (yesterday's total_snap for subtraction)")
     print(f"Run time       : {run_time} UTC")
     print()
 
     data = load_data()
 
-    # ── Freeze baseline BEFORE scraping ───────────────────────
-    # Use baseline_date total_snap as the subtraction point.
-    # Frozen upfront so mid-loop updates don't corrupt each other.
+    # ── Freeze baseline totals BEFORE scraping ────────────────
+    # baseline = yesterday's total_snap per branch.
+    # Frozen upfront so nothing corrupts mid-loop.
+    # If yesterday has no snapshot yet, fall back to branches.overall.
     baseline_snap = data.get("daily", {}).get(baseline_date, {})
     baseline = {}
-    for bid, b in data["branches"].items():
+    for b in BRANCHES:
+        bid = str(b["id"])
         if baseline_snap.get(bid, {}).get("total_snap", 0) > 0:
             baseline[bid] = baseline_snap[bid]["total_snap"]
         else:
-            # First ever run — no baseline_date snap yet
-            baseline[bid] = b.get("overall", 0)
+            baseline[bid] = data.get("branches", {}).get(bid, {}).get("overall", 0)
 
     success = 0
     failed  = []
-    results = {}   # collect ALL results before writing anything
+    results = {}   # collect ALL scraped values before writing anything
 
     with sync_playwright() as p:
         browser = p.chromium.launch(
@@ -291,18 +288,16 @@ def run():
             args=["--no-sandbox", "--disable-dev-shm-usage",
                   "--disable-blink-features=AutomationControlled", "--disable-gpu"]
         )
-        ctx  = browser.new_context(
+        ctx = browser.new_context(
             user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
             locale="en-IN", viewport={"width":1280,"height":800}
         )
         page = ctx.new_page()
 
-        # ── WARM-UP: dummy scrape to initialise the browser ───────
-        # The very first Google Maps request always fails or times out
-        # because the browser (cookies, JS engine, network) isn't
-        # ready yet. We scrape a well-known public Google Maps page,
-        # throw the result away, then start the real scraping.
-        # This means Tuticorin-1 (branch 1) gets a fair first attempt.
+        # ── WARM-UP ───────────────────────────────────────────
+        # Dummy load to fully initialise the browser before real scraping.
+        # Result discarded. Prevents Tuticorin-1 (first branch) from always
+        # failing due to cold browser.
         print("  [warm-up] Initialising browser...", end=" ", flush=True)
         try:
             page.goto("https://www.google.com/maps", wait_until="domcontentloaded", timeout=30000)
@@ -312,6 +307,7 @@ def run():
             print("skipped (timeout — continuing anyway)")
         time.sleep(1)
 
+        # ── SCRAPE ALL BRANCHES ───────────────────────────────
         for b in BRANCHES:
             bid  = str(b["id"])
             name = b["name"]
@@ -334,51 +330,44 @@ def run():
 
         browser.close()
 
-    # ── Write ALL results after scraping is fully done ─────────
-    # Rule: each date's snapshot is permanent.
-    #   total_snap  = overall reviews AS OF that date (never changes)
-    #   daily_count = reviews received ON that date   (never changes)
-    #   monthly     = cumulative month total UP TO that date (never changes)
-    #   star_rating = star rating as of that date
+    # ── WRITE ALL RESULTS (after all scraping is done) ─────────────
+    # Each date's snapshot is PERMANENT once written:
+    #   total_snap  = live overall reviews as of this date
+    #   daily_count = reviews received ON this date (total_snap - baseline)
+    #   monthly     = previous date monthly + daily_count  (cumulative)
+    #   star_rating = live star rating as of this date
     #
-    # monthly(today) = monthly(yesterday) + daily_count(today)
-    # This means once written, past snapshots are NEVER modified.
+    # Past snapshots are NEVER modified by future runs.
 
     if snap_date not in data["daily"]:
         data["daily"][snap_date] = {}
 
-    year_month = snap_date[:7]
+    # baseline_date is always the day before snap_date.
+    # Use its monthly as the base for today's monthly calculation.
+    # Works correctly across month boundaries:
+    #   snap=2026-02-28 → baseline=2026-02-27 → monthly chains from Feb
+    #   snap=2026-03-01 → baseline=2026-02-28 → monthly starts fresh at 0+daily
+    #   snap=2026-03-02 → baseline=2026-03-01 → monthly chains from Mar
+    baseline_daily_snap = data.get("daily", {}).get(baseline_date, {})
 
     for b in BRANCHES:
         bid = str(b["id"])
         if bid not in results:
-            continue   # failed — leave existing data unchanged
+            continue   # scrape failed — do not touch existing data for this branch
 
-        r         = results[bid]
-        live      = r["live"]
-        stars     = r["stars"]
-        daily     = r["daily_count"]
-        old_stars = data["branches"].get(bid, {}).get("star_rating", 0)
+        r           = results[bid]
+        live        = r["live"]
+        stars       = r["stars"]
+        daily       = r["daily_count"]
+        old_stars   = data["branches"].get(bid, {}).get("star_rating", 0)
         final_stars = stars if stars else old_stars
 
-        # monthly = previous date's monthly + today's daily_count
-        # Find the most recent past snapshot in same month for this branch
-        past_dates = sorted(
-            d for d in data["daily"]
-            if d.startswith(year_month) and d < snap_date
-        )
-        if past_dates:
-            prev_monthly = data["daily"][past_dates[-1]].get(bid, {}).get("monthly", 0)
-        else:
-            # No previous snapshot this month — sum all days we have
-            prev_monthly = sum(
-                data["daily"].get(d, {}).get(bid, {}).get("daily_count", 0)
-                for d in data["daily"]
-                if d.startswith(year_month) and d < snap_date
-            )
-        monthly = prev_monthly + daily
+        # monthly = baseline_date's monthly + today's daily_count
+        # baseline_date = yesterday, so this chains correctly every single day
+        prev_monthly = baseline_daily_snap.get(bid, {}).get("monthly", 0)
+        monthly      = prev_monthly + daily
 
-        # Write permanent daily snapshot for snap_date
+        # Write permanent snapshot for snap_date
         data["daily"][snap_date][bid] = {
             "total_snap":  live,
             "daily_count": daily,
@@ -386,7 +375,7 @@ def run():
             "star_rating": final_stars,
         }
 
-        # Update branches{} with latest values (for dashboard display)
+        # Update branches{} — just latest values for quick dashboard access
         data["branches"][bid] = {
             "id":          b["id"],
             "name":        b["name"],
