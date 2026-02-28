@@ -237,36 +237,53 @@ def scrape_place(page, place_id, name, max_retries=3):
 
 
 def run():
-    # snap_date = TODAY — we are capturing live totals right now at midnight
-    # daily_count = today's live total − yesterday's stored total
-    snap_date      = date.today().strftime("%Y-%m-%d")
-    yesterday_date = (date.today() - timedelta(days=1)).strftime("%Y-%m-%d")
+    """
+    LOGIC — how dates work:
+    ─────────────────────────────────────────────────────────────
+    Scraper runs at 12:00 AM midnight on DATE X.
+
+    At that moment, Google shows the LIVE total which includes
+    everything up to 11:59 PM of DATE X-1.
+
+    So:
+      snap_date    = yesterday  (X-1)  → the day we are accounting for
+      baseline     = day before yesterday (X-2) total_snap
+      daily_count  = live_total_now  -  baseline_total
+                   = all reviews received during snap_date (12AM-11:59PM)
+      monthly      = sum of all daily_counts in same month up to snap_date
+
+    Example running at midnight on 28-Feb-2026:
+      snap_date = 27-Feb-2026
+      baseline  = 26-Feb-2026 total_snap
+      daily     = reviews received on 27-Feb (12AM to 11:59PM)
+    """
+    snap_date      = (date.today() - timedelta(days=1)).strftime("%Y-%m-%d")
+    baseline_date  = (date.today() - timedelta(days=2)).strftime("%Y-%m-%d")
     run_time       = datetime.utcnow().isoformat()
 
     print(f"=== Sathya Review Scraper ===")
-    print(f"Snap date  : {snap_date}  (today — live totals as of now)")
-    print(f"Prev date  : {yesterday_date}  (baseline for daily count)")
-    print(f"Run time   : {run_time} UTC")
+    print(f"Accounting for : {snap_date}  (12:00 AM to 11:59 PM)")
+    print(f"Baseline from  : {baseline_date}  (end-of-day total)")
+    print(f"Run time       : {run_time} UTC")
     print()
 
     data = load_data()
 
-    # ── Freeze ALL previous totals BEFORE scraping starts ─────────
-    # Prevents mid-loop corruption: if we updated branches{} per branch,
-    # branch N+1 would use branch N's NEW total as its baseline — wrong.
-    # We snapshot everything upfront so every branch uses the same baseline.
-    prev_totals = {
-        bid: b.get("overall", 0)
-        for bid, b in data["branches"].items()
-    }
-    # Prefer yesterday's total_snap if available — more accurate than overall
-    for bid, snap in data.get("daily", {}).get(yesterday_date, {}).items():
-        if snap.get("total_snap", 0) > 0:
-            prev_totals[bid] = snap["total_snap"]
+    # ── Freeze baseline BEFORE scraping ───────────────────────
+    # Use baseline_date total_snap as the subtraction point.
+    # Frozen upfront so mid-loop updates don't corrupt each other.
+    baseline_snap = data.get("daily", {}).get(baseline_date, {})
+    baseline = {}
+    for bid, b in data["branches"].items():
+        if baseline_snap.get(bid, {}).get("total_snap", 0) > 0:
+            baseline[bid] = baseline_snap[bid]["total_snap"]
+        else:
+            # First ever run — no baseline_date snap yet
+            baseline[bid] = b.get("overall", 0)
 
     success = 0
     failed  = []
-    results = {}   # collect all scraped values first, write after
+    results = {}   # collect ALL results before writing anything
 
     with sync_playwright() as p:
         browser = p.chromium.launch(
@@ -280,6 +297,21 @@ def run():
         )
         page = ctx.new_page()
 
+        # ── WARM-UP: dummy scrape to initialise the browser ───────
+        # The very first Google Maps request always fails or times out
+        # because the browser (cookies, JS engine, network) isn't
+        # ready yet. We scrape a well-known public Google Maps page,
+        # throw the result away, then start the real scraping.
+        # This means Tuticorin-1 (branch 1) gets a fair first attempt.
+        print("  [warm-up] Initialising browser...", end=" ", flush=True)
+        try:
+            page.goto("https://www.google.com/maps", wait_until="domcontentloaded", timeout=30000)
+            page.wait_for_timeout(3000)
+            print("ready ✓")
+        except Exception:
+            print("skipped (timeout — continuing anyway)")
+        time.sleep(1)
+
         for b in BRANCHES:
             bid  = str(b["id"])
             name = b["name"]
@@ -288,7 +320,7 @@ def run():
             live, stars = scrape_place(page, b["place_id"], name)
 
             if live is not None:
-                prev  = prev_totals.get(bid, 0)
+                prev  = baseline.get(bid, 0)
                 daily = max(0, live - prev)
                 results[bid] = {"live": live, "stars": stars, "daily_count": daily}
                 stars_str = f"{stars}★" if stars else "—"
@@ -302,34 +334,38 @@ def run():
 
         browser.close()
 
-    # ── Write all results AFTER scraping is fully done ─────────────
-    # This way monthly sums are clean with no partial mid-loop entries
+    # ── Write ALL results after scraping is fully done ─────────
     if snap_date not in data["daily"]:
         data["daily"][snap_date] = {}
 
     for b in BRANCHES:
         bid = str(b["id"])
         if bid not in results:
-            continue  # failed branch — keep existing data unchanged
+            continue   # failed — leave existing data unchanged
+
         r     = results[bid]
         live  = r["live"]
         stars = r["stars"]
         daily = r["daily_count"]
+        old_stars = data["branches"].get(bid, {}).get("star_rating", 0)
 
+        # Update branch master record
         data["branches"][bid] = {
             "id":          b["id"],
             "name":        b["name"],
             "agm":         b["agm"],
             "overall":     live,
-            "star_rating": stars or data["branches"].get(bid, {}).get("star_rating", 0),
+            "star_rating": stars if stars else old_stars,
         }
+
+        # Write snap_date daily entry
         data["daily"][snap_date][bid] = {
             "daily_count": daily,
             "total_snap":  live,
-            "star_rating": stars or 0,
+            "star_rating": stars if stars else old_stars,
         }
 
-    # ── Monthly sum AFTER all entries are written ──────────────────
+    # ── Monthly = sum of daily_counts in same month ≤ snap_date ──
     year_month = snap_date[:7]
     for b in BRANCHES:
         bid = str(b["id"])
@@ -342,19 +378,18 @@ def run():
         )
 
     data.setdefault("logs", []).insert(0, {
-        "ran_at":       run_time,
-        "snap_date":    snap_date,
-        "prev_date":    yesterday_date,
-        "success":      success,
-        "failed":       len(failed),
-        "failed_names": failed,
+        "ran_at":        run_time,
+        "snap_date":     snap_date,
+        "baseline_date": baseline_date,
+        "success":       success,
+        "failed":        len(failed),
+        "failed_names":  failed,
     })
     data["logs"]         = data["logs"][:50]
     data["last_updated"] = run_time
 
     save_data(data)
     print(f"\nDone: {success}/36 saved for {snap_date}")
-
 
 if __name__ == "__main__":
     run()
