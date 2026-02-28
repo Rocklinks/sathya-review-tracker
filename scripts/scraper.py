@@ -335,47 +335,66 @@ def run():
         browser.close()
 
     # ── Write ALL results after scraping is fully done ─────────
+    # Rule: each date's snapshot is permanent.
+    #   total_snap  = overall reviews AS OF that date (never changes)
+    #   daily_count = reviews received ON that date   (never changes)
+    #   monthly     = cumulative month total UP TO that date (never changes)
+    #   star_rating = star rating as of that date
+    #
+    # monthly(today) = monthly(yesterday) + daily_count(today)
+    # This means once written, past snapshots are NEVER modified.
+
     if snap_date not in data["daily"]:
         data["daily"][snap_date] = {}
+
+    year_month = snap_date[:7]
 
     for b in BRANCHES:
         bid = str(b["id"])
         if bid not in results:
             continue   # failed — leave existing data unchanged
 
-        r     = results[bid]
-        live  = r["live"]
-        stars = r["stars"]
-        daily = r["daily_count"]
+        r         = results[bid]
+        live      = r["live"]
+        stars     = r["stars"]
+        daily     = r["daily_count"]
         old_stars = data["branches"].get(bid, {}).get("star_rating", 0)
+        final_stars = stars if stars else old_stars
 
-        # Update branch master record
+        # monthly = previous date's monthly + today's daily_count
+        # Find the most recent past snapshot in same month for this branch
+        past_dates = sorted(
+            d for d in data["daily"]
+            if d.startswith(year_month) and d < snap_date
+        )
+        if past_dates:
+            prev_monthly = data["daily"][past_dates[-1]].get(bid, {}).get("monthly", 0)
+        else:
+            # No previous snapshot this month — sum all days we have
+            prev_monthly = sum(
+                data["daily"].get(d, {}).get(bid, {}).get("daily_count", 0)
+                for d in data["daily"]
+                if d.startswith(year_month) and d < snap_date
+            )
+        monthly = prev_monthly + daily
+
+        # Write permanent daily snapshot for snap_date
+        data["daily"][snap_date][bid] = {
+            "total_snap":  live,
+            "daily_count": daily,
+            "monthly":     monthly,
+            "star_rating": final_stars,
+        }
+
+        # Update branches{} with latest values (for dashboard display)
         data["branches"][bid] = {
             "id":          b["id"],
             "name":        b["name"],
             "agm":         b["agm"],
             "overall":     live,
-            "star_rating": stars if stars else old_stars,
+            "star_rating": final_stars,
+            "monthly":     monthly,
         }
-
-        # Write snap_date daily entry
-        data["daily"][snap_date][bid] = {
-            "daily_count": daily,
-            "total_snap":  live,
-            "star_rating": stars if stars else old_stars,
-        }
-
-    # ── Monthly = sum of daily_counts in same month ≤ snap_date ──
-    year_month = snap_date[:7]
-    for b in BRANCHES:
-        bid = str(b["id"])
-        if bid not in data["branches"]:
-            continue
-        data["branches"][bid]["monthly"] = sum(
-            data["daily"].get(d, {}).get(bid, {}).get("daily_count", 0)
-            for d in data["daily"]
-            if d.startswith(year_month) and d <= snap_date
-        )
 
     data.setdefault("logs", []).insert(0, {
         "ran_at":        run_time,

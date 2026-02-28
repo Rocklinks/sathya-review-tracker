@@ -218,8 +218,21 @@ async function loadData() {
 
 function enrichAll(d) {
   ALL = Object.values(D.branches || {}).map(function(b) {
+    // ALWAYS read from the daily snapshot for date d.
+    // Never read from branches{} for overall/monthly —
+    // branches{} only holds the latest values and will
+    // overwrite historical dates if used.
     var day = (D.daily[d] || {})[String(b.id)] || {};
-    return Object.assign({}, b, { daily_count: day.daily_count || 0, snap_date: d });
+    return {
+      id:          b.id,
+      name:        b.name,
+      agm:         b.agm,
+      star_rating: day.star_rating  || b.star_rating || 0,
+      overall:     day.total_snap   || 0,   // overall AS OF this date
+      monthly:     day.monthly      || 0,   // monthly UP TO this date
+      daily_count: day.daily_count  || 0,   // reviews ON this date
+      snap_date:   d,
+    };
   });
 }
 
@@ -306,7 +319,7 @@ function buildBranchesView() {
     '</div></div>'+
     '<div class="tbl-wrap"><table><thead><tr>'+
     TH("id","#")+TH("name","Branch")+TH("agm","AGM")+TH("star_rating","&#11088;")+
-    TH("overall","Overall")+TH("monthly","Monthly")+TH("daily_count","Daily")+
+    TH("overall","Overall")+TH("monthly","Monthly ("+formatDateShort(selectedDate)+")")+TH("daily_count",formatDateShort(selectedDate)+" Reviews")+
     '</tr></thead><tbody id="tb">'+rows.map(rowHTML).join("")+'</tbody></table></div></div>';
 }
 function TH(k,l){
@@ -339,7 +352,7 @@ function buildAgmView() {
   ALL.forEach(function(b){if(!map[b.agm]) map[b.agm]=[];map[b.agm].push(b);});
   return Object.entries(map).sort().map(function(e){
     var agm=e[0],brs=e[1];
-    var total=brs.reduce(function(a,b){return a+(b.overall||0);},0);
+    var total  =brs.reduce(function(a,b){return a+(b.overall||0);},0);
     var daily=brs.reduce(function(a,b){return a+(b.daily_count||0);},0);
     var monthly=brs.reduce(function(a,b){return a+(b.monthly||0);},0);
     var sb=brs.filter(function(b){return b.star_rating>0;});
@@ -546,7 +559,10 @@ function exportExcel(){
       var rows=[["#","Branch","AGM","Star Rating","Overall Reviews","Monthly Reviews"]
         .concat(dates.map(function(d){return formatDate(d)+" Daily";}))];
       Object.values(D.branches||{}).sort(function(a,b){return a.id-b.id;}).forEach(function(b){
-        var row=[b.id,b.name,b.agm,b.star_rating||"",b.overall||0,b.monthly||0];
+        // For export, read overall/monthly from the most recent daily snapshot
+        var lastDate = Object.keys(D.daily||{}).sort().reverse()[0];
+        var lastSnap = lastDate ? (D.daily[lastDate][String(b.id)]||{}) : {};
+        var row=[b.id,b.name,b.agm,lastSnap.star_rating||b.star_rating||"",lastSnap.total_snap||b.overall||0,lastSnap.monthly||b.monthly||0];
         dates.forEach(function(d){row.push((D.daily[d]||{})[String(b.id)]?((D.daily[d][String(b.id)].daily_count)||0):0);});
         rows.push(row);
       });
@@ -584,6 +600,10 @@ function BR(label,val,max,color){
     '<span class="bar-val">+'+val+'</span></div>';
 }
 function fmt(n){return (n||0).toLocaleString("en-IN");}
+function formatDateShort(iso){
+  if(!iso) return "—";
+  return new Date(iso+"T00:00:00").toLocaleDateString("en-IN",{day:"2-digit",month:"short"});
+}
 function isoYesterday(){var d=new Date();d.setDate(d.getDate()-1);return d.toISOString().slice(0,10);}
 function formatDate(iso){
   if(!iso) return "—";
