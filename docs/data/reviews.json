@@ -165,8 +165,8 @@
       "name": "Sayalkudi-1",
       "agm": "Seenivasan",
       "overall": 246,
-      "star_rating": 4.8,
-      "monthly": 23
+      "star_rating": 5.0,
+      "monthly": 50
     },
     "22": {
       "id": 22,
@@ -174,7 +174,7 @@
       "agm": "Seenivasan",
       "overall": 482,
       "star_rating": 4.7,
-      "monthly": 286
+      "monthly": 25
     },
     "23": {
       "id": 23,
@@ -412,16 +412,16 @@
         "star_rating": 4.8
       },
       "21": {
-        "total_snap": 480,
-        "daily_count": 0,
-        "monthly": 23,
-        "star_rating": 4.7
-      },
-      "22": {
         "total_snap": 239,
         "daily_count": 1,
         "monthly": 43,
         "star_rating": 5.0
+      },
+      "22": {
+        "total_snap": 480,
+        "daily_count": 0,
+        "monthly": 23,
+        "star_rating": 4.7
       },
       "23": {
         "total_snap": 772,
@@ -630,16 +630,16 @@
         "star_rating": 4.8
       },
       "21": {
-        "total_snap": 480,
-        "daily_count": 0,
-        "monthly": 23,
-        "star_rating": 4.7
-      },
-      "22": {
         "total_snap": 246,
         "daily_count": 7,
         "monthly": 50,
         "star_rating": 5.0
+      },
+      "22": {
+        "total_snap": 480,
+        "daily_count": 0,
+        "monthly": 23,
+        "star_rating": 4.7
       },
       "23": {
         "total_snap": 776,
@@ -850,13 +850,13 @@
       "21": {
         "total_snap": 246,
         "daily_count": 0,
-        "monthly": 23,
-        "star_rating": 4.8
+        "monthly": 50,
+        "star_rating": 5.0
       },
       "22": {
         "total_snap": 482,
-        "daily_count": 236,
-        "monthly": 286,
+        "daily_count": 2,
+        "monthly": 25,
         "star_rating": 4.7
       },
       "23": {
