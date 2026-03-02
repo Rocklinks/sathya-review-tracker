@@ -363,9 +363,14 @@ def run():
         final_stars = stars if stars else old_stars
 
         # monthly = baseline_date's monthly + today's daily_count
-        # baseline_date = yesterday, so this chains correctly every single day
-        prev_monthly = baseline_daily_snap.get(bid, {}).get("monthly", 0)
-        monthly      = prev_monthly + daily
+        # BUT: if snap_date is a new month vs baseline_date, reset to 0.
+        # e.g. snap=2026-03-01, baseline=2026-02-28 → new month → monthly = daily only
+        # e.g. snap=2026-03-02, baseline=2026-03-01 → same month → monthly chains
+        if snap_date[:7] == baseline_date[:7]:
+            prev_monthly = baseline_daily_snap.get(bid, {}).get("monthly", 0)
+        else:
+            prev_monthly = 0  # new month — reset cumulative to zero
+        monthly = prev_monthly + daily
 
         # Write permanent snapshot for snap_date
         data["daily"][snap_date][bid] = {
