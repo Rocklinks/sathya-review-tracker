@@ -173,6 +173,7 @@ input[type=date]{background:var(--surface2);border:1px solid var(--border2);bord
 
 <div id="toast"></div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 var DATA_URL    = "data/reviews.json";
 var D           = null;
@@ -211,10 +212,18 @@ async function loadData() {
   try {
     var r = await fetch(DATA_URL + "?t=" + Date.now());
     D = await r.json();
-    // Default to most recent date that has data
+    // Default to the most recent snap_date from logs (most reliable source),
+    // falling back to most recent key in D.daily, then yesterday IST.
     if (!selectedDate) {
-      var dates = Object.keys(D.daily || {}).sort().reverse();
-      selectedDate = dates.length ? dates[0] : isoYesterday();
+      var logDate = (D.logs && D.logs.length) ? D.logs[0].snap_date : null;
+      var dates   = Object.keys(D.daily || {}).sort().reverse();
+      var dataDate = dates.length ? dates[0] : null;
+      // Use whichever is more recent: log snap_date or daily key
+      if (logDate && dataDate) {
+        selectedDate = logDate > dataDate ? logDate : dataDate;
+      } else {
+        selectedDate = logDate || dataDate || isoYesterday();
+      }
     }
     enrichAll(selectedDate);
     var lu = D.last_updated ? new Date(D.last_updated).toLocaleString("en-IN") : "—";
@@ -569,35 +578,50 @@ function exportExcel(){
   showToast("Generating Excel...");
   setTimeout(function(){
     try{
-      var dates=Object.keys(D.daily||{}).sort();
-      var rows=[["#","Branch","AGM","Star Rating","Overall Reviews","Monthly Reviews"]
-        .concat(dates.map(function(d){return formatDate(d)+" Daily";}))];
-      Object.values(D.branches||{}).sort(function(a,b){return a.id-b.id;}).forEach(function(b){
-        // For export, read overall/monthly from the most recent daily snapshot
-        var lastDate = Object.keys(D.daily||{}).sort().reverse()[0];
-        var lastSnap = lastDate ? (D.daily[lastDate][String(b.id)]||{}) : {};
-        var row=[b.id,b.name,b.agm,lastSnap.star_rating||b.star_rating||"",lastSnap.total_snap||b.overall||0,lastSnap.monthly||b.monthly||0];
-        dates.forEach(function(d){row.push((D.daily[d]||{})[String(b.id)]?((D.daily[d][String(b.id)].daily_count)||0):0);});
-        rows.push(row);
+      var dates   = Object.keys(D.daily||{}).sort();
+      var lastDate= dates[dates.length-1];
+      var branches= Object.values(D.branches||{}).sort(function(a,b){return a.id-b.id;});
+
+      // ── Build rows ────────────────────────────────────────────
+      var header = ["#","Branch","AGM","Star Rating","Overall Reviews","Monthly Reviews"]
+                   .concat(dates.map(function(d){return formatDate(d)+" Daily";}));
+      var dataRows = branches.map(function(b){
+        var bid     = String(b.id);
+        var lastSnap= lastDate ? (D.daily[lastDate][bid]||{}) : {};
+        var row     = [b.id, b.name, b.agm,
+                       lastSnap.star_rating||b.star_rating||"",
+                       lastSnap.total_snap||b.overall||0,
+                       lastSnap.monthly||b.monthly||0];
+        dates.forEach(function(d){
+          row.push((D.daily[d]&&D.daily[d][bid]) ? (D.daily[d][bid].daily_count||0) : 0);
+        });
+        return row;
       });
-      var tot=["","TOTAL","","",
-        rows.slice(1).reduce(function(a,r){return a+(r[4]||0);},0),
-        rows.slice(1).reduce(function(a,r){return a+(r[5]||0);},0)];
+
+      // Total row
+      var tot = ["","TOTAL","","",
+        dataRows.reduce(function(a,r){return a+(r[4]||0);},0),
+        dataRows.reduce(function(a,r){return a+(r[5]||0);},0)];
       for(var i=0;i<dates.length;i++)
-        tot.push(rows.slice(1).reduce(function(a,r){return a+(r[6+i]||0);},0));
-      rows.push(tot);
-      var csv=rows.map(function(r){
-        return r.map(function(c){
-          var s=String(c==null?"":c);
-          if(s.includes(",")||s.includes('"')||s.includes('\n')) s='"'+s.replace(/"/g,'""')+'"';
-          return s;
-        }).join(",");
-      }).join("\r\n");
-      var a=document.createElement("a");
-      a.href=URL.createObjectURL(new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8"}));
-      a.download="Sathya_Reviews_"+new Date().toISOString().slice(0,10)+".csv";
-      a.click();
-      showToast("Downloaded! Open with Excel.");
+        tot.push(dataRows.reduce(function(a,r){return a+(r[6+i]||0);},0));
+
+      var allRows = [header].concat(dataRows).concat([tot]);
+
+      // ── Build XLSX workbook with SheetJS ─────────────────────
+      var wb = XLSX.utils.book_new();
+      var ws = XLSX.utils.aoa_to_sheet(allRows);
+
+      // Column widths
+      var wscols = [{wch:4},{wch:22},{wch:14},{wch:12},{wch:16},{wch:16}];
+      dates.forEach(function(){wscols.push({wch:14});});
+      ws['!cols'] = wscols;
+
+      XLSX.utils.book_append_sheet(wb, ws, "Reviews");
+
+      // Download as .xlsx
+      var fname = "Sathya_Reviews_"+new Date().toISOString().slice(0,10)+".xlsx";
+      XLSX.writeFile(wb, fname);
+      showToast("Downloaded as Excel (.xlsx)!");
     }catch(e){showToast("Export failed: "+e.message);}
   },100);
 }
