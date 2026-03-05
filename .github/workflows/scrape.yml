@@ -28,7 +28,8 @@ jobs:
       - name: Install dependencies
         run: |
           pip install playwright
-          python -m playwright install --with-deps chromium
+          python -m playwright install chromium
+          sudo playwright install-deps chromium
 
       - name: Run scraper (attempt 1)
         id: attempt1
