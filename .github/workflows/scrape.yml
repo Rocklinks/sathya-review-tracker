@@ -5,7 +5,6 @@ on:
     # 6:30 PM UTC = 12:00 AM IST (midnight India time)
     - cron: '30 18 * * *'
   workflow_dispatch:
-    # Manual trigger from Actions tab anytime
 
 jobs:
   scrape:
@@ -25,11 +24,28 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
+      - name: Install Python package
+        run: pip install playwright
+
+      - name: Install Chromium browser + system deps
         run: |
-          pip install playwright
-          python -m playwright install chromium
-          sudo playwright install-deps chromium
+          # Try method 1: playwright's own installer (works on most ubuntu runners)
+          if python -m playwright install --with-deps chromium; then
+            echo "✓ Method 1 succeeded (playwright install --with-deps)"
+          else
+            echo "Method 1 failed — trying method 2 (separate sudo install-deps)..."
+            python -m playwright install chromium
+            sudo python -m playwright install-deps chromium || true
+          fi
+
+          # Verify chromium binary exists
+          python -c "
+from playwright.sync_api import sync_playwright
+with sync_playwright() as p:
+    b = p.chromium.launch(headless=True, args=['--no-sandbox'])
+    b.close()
+print('Chromium launch test: OK')
+"
 
       - name: Run scraper (attempt 1)
         id: attempt1
@@ -39,7 +55,7 @@ jobs:
       - name: Wait before retry
         if: steps.attempt1.outcome == 'failure'
         run: |
-          echo "Attempt 1 failed — waiting 60s before retry..."
+          echo "Attempt 1 failed — waiting 60s..."
           sleep 60
 
       - name: Run scraper (attempt 2)
@@ -51,7 +67,7 @@ jobs:
       - name: Wait before retry 2
         if: steps.attempt1.outcome == 'failure' && steps.attempt2.outcome == 'failure'
         run: |
-          echo "Attempt 2 failed — waiting 120s before final retry..."
+          echo "Attempt 2 failed — waiting 120s..."
           sleep 120
 
       - name: Run scraper (attempt 3)
@@ -62,7 +78,7 @@ jobs:
 
       - name: Check if all attempts failed
         if: steps.attempt1.outcome == 'failure' && steps.attempt2.outcome == 'failure' && steps.attempt3.outcome == 'failure'
-        run: echo "WARNING - All 3 attempts failed. Committing whatever data exists."
+        run: echo "WARNING — All 3 attempts failed. Committing whatever data exists."
 
       - name: Commit updated data
         run: |
