@@ -2,8 +2,7 @@ name: Nightly Review Scraper
 
 on:
   schedule:
-    # 6:30 PM UTC = 12:00 AM IST (midnight India time)
-    - cron: '30 18 * * *'
+    - cron: '30 18 * * *'   # 6:30 PM UTC = 12:00 AM IST
   workflow_dispatch:
 
 jobs:
@@ -24,28 +23,21 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install Python package
-        run: pip install playwright
-
-      - name: Install Chromium browser + system deps
+      - name: Install Chromium via apt (most reliable on Ubuntu runners)
         run: |
-          # Try method 1: playwright's own installer (works on most ubuntu runners)
-          if python -m playwright install --with-deps chromium; then
-            echo "✓ Method 1 succeeded (playwright install --with-deps)"
-          else
-            echo "Method 1 failed — trying method 2 (separate sudo install-deps)..."
-            python -m playwright install chromium
-            sudo python -m playwright install-deps chromium || true
-          fi
+          sudo apt-get update -qq
+          sudo apt-get install -y chromium-browser || sudo apt-get install -y chromium
+          which chromium-browser || which chromium
+          echo "Chromium installed ✓"
 
-          # Verify chromium binary exists
-          python -c "
-from playwright.sync_api import sync_playwright
-with sync_playwright() as p:
-    b = p.chromium.launch(headless=True, args=['--no-sandbox'])
-    b.close()
-print('Chromium launch test: OK')
-"
+      - name: Install Playwright (Python only, no browser download needed)
+        run: |
+          pip install playwright
+          # Point playwright to the system chromium — no download needed
+          python -m playwright install chromium || true
+
+      - name: Verify Chromium can launch
+        run: python -c "from playwright.sync_api import sync_playwright; p=sync_playwright().start(); b=p.chromium.launch(headless=True,args=['--no-sandbox','--disable-dev-shm-usage']); b.close(); p.stop(); print('Chromium launch test: OK')"
 
       - name: Run scraper (attempt 1)
         id: attempt1
@@ -54,9 +46,7 @@ print('Chromium launch test: OK')
 
       - name: Wait before retry
         if: steps.attempt1.outcome == 'failure'
-        run: |
-          echo "Attempt 1 failed — waiting 60s..."
-          sleep 60
+        run: sleep 60
 
       - name: Run scraper (attempt 2)
         id: attempt2
@@ -66,19 +56,13 @@ print('Chromium launch test: OK')
 
       - name: Wait before retry 2
         if: steps.attempt1.outcome == 'failure' && steps.attempt2.outcome == 'failure'
-        run: |
-          echo "Attempt 2 failed — waiting 120s..."
-          sleep 120
+        run: sleep 120
 
       - name: Run scraper (attempt 3)
         id: attempt3
         if: steps.attempt1.outcome == 'failure' && steps.attempt2.outcome == 'failure'
         run: python scripts/scraper.py
         continue-on-error: true
-
-      - name: Check if all attempts failed
-        if: steps.attempt1.outcome == 'failure' && steps.attempt2.outcome == 'failure' && steps.attempt3.outcome == 'failure'
-        run: echo "WARNING — All 3 attempts failed. Committing whatever data exists."
 
       - name: Commit updated data
         run: |
