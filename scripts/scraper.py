@@ -252,13 +252,12 @@ def run():
 
     daily_count(28-Feb) = live_total_scraped_now - total_snap(27-Feb)
     monthly(28-Feb)     = monthly(27-Feb) + daily_count(28-Feb)
+
+    NOTE: daily_count CAN be negative. This happens when Google removes
+    a review (spam removal, user deletion, etc.). We store the real delta
+    — never clamping to 0 — so the dashboard shows the true movement.
+    A negative daily_count means net reviews were lost on that day.
     """
-    # DATE LOGIC (IST-aware):
-    # Workflow scheduled at 6:30 PM UTC = 12:00 AM IST next day.
-    # Manual runs can happen at any IST time.
-    # snap_date = yesterday IST  → the full day we are recording
-    # baseline  = most recent daily entry before snap_date (walks back if a
-    #             day was missed due to workflow failure)
     IST_OFFSET    = timedelta(hours=5, minutes=30)
     now_ist       = datetime.utcnow() + IST_OFFSET
     snap_date     = (now_ist.date() - timedelta(days=1)).strftime("%Y-%m-%d")
@@ -273,9 +272,6 @@ def run():
     data = load_data()
 
     # ── Find the most recent date with data before snap_date ──────────
-    # Normally yesterday. But if a workflow run was missed
-    # (workflow failed on 02-Mar), a manual run on 04-Mar for
-    # snap_date=03-Mar should walk back to 01-Mar, not use empty 02-Mar.
     all_dates_before = sorted(
         [d for d in data.get("daily", {}) if d < snap_date],
         reverse=True
@@ -311,9 +307,6 @@ def run():
         page = ctx.new_page()
 
         # ── WARM-UP ───────────────────────────────────────────
-        # Dummy load to fully initialise the browser before real scraping.
-        # Result discarded. Prevents Tuticorin-1 (first branch) from always
-        # failing due to cold browser.
         print("  [warm-up] Initialising browser...", end=" ", flush=True)
         try:
             page.goto("https://www.google.com/maps", wait_until="domcontentloaded", timeout=30000)
@@ -333,10 +326,19 @@ def run():
 
             if live is not None:
                 prev  = baseline.get(bid, 0)
-                daily = max(0, live - prev)
+
+                # ── FIX: allow negative daily counts ──────────────────────────
+                # Do NOT clamp to 0. Google can remove reviews (spam, deleted
+                # accounts) which causes the live total to drop below the
+                # previous baseline. We store the real signed delta so the
+                # dashboard accurately shows review losses on those days.
+                daily = live - prev
+
                 results[bid] = {"live": live, "stars": stars, "daily_count": daily}
+
+                delta_str = f"+{daily}" if daily >= 0 else str(daily)
                 stars_str = f"{stars}★" if stars else "—"
-                print(f"→ {live:,} total  +{daily} new  {stars_str}  ✓")
+                print(f"→ {live:,} total  {delta_str} new  {stars_str}  ✓")
                 success += 1
             else:
                 failed.append(name)
@@ -347,28 +349,15 @@ def run():
         browser.close()
 
     # ── WRITE ALL RESULTS (after all scraping is done) ─────────────
-    # Each date's snapshot is PERMANENT once written:
-    #   total_snap  = live overall reviews as of this date
-    #   daily_count = reviews received ON this date (total_snap - baseline)
-    #   monthly     = previous date monthly + daily_count  (cumulative)
-    #   star_rating = live star rating as of this date
-    #
-    # Past snapshots are NEVER modified by future runs.
-
     if snap_date not in data["daily"]:
         data["daily"][snap_date] = {}
 
-    # ── Find the most recent same-month date for monthly chaining ──
-    # If baseline_date is in a previous month (month boundary) or missing,
-    # we need the most recent entry in snap_date's month for monthly.
-    # If no entry exists yet in this month, prev_monthly = 0 (fresh month start).
     snap_month = snap_date[:7]
     same_month_dates = sorted(
         [d for d in data.get("daily", {}) if d.startswith(snap_month) and d < snap_date],
         reverse=True
     )
     monthly_baseline_date = same_month_dates[0] if same_month_dates else None
-    baseline_daily_snap   = data["daily"].get(baseline_date, {}) if baseline_date else {}
     monthly_daily_snap    = data["daily"].get(monthly_baseline_date, {}) if monthly_baseline_date else {}
 
     for b in BRANCHES:
@@ -379,24 +368,24 @@ def run():
         r           = results[bid]
         live        = r["live"]
         stars       = r["stars"]
-        daily       = r["daily_count"]
+        daily       = r["daily_count"]   # may be negative — that's correct
         old_stars   = data["branches"].get(bid, {}).get("star_rating", 0)
         final_stars = stars if stars else old_stars
 
-        # monthly = most recent same-month entry's monthly + today's daily_count
-        # If no same-month entry exists yet → fresh month, start from 0
+        # monthly accumulates the real signed delta — so a day with -1
+        # correctly reduces the running monthly total too.
         prev_monthly = monthly_daily_snap.get(bid, {}).get("monthly", 0)
         monthly      = prev_monthly + daily
 
         # Write permanent snapshot for snap_date
         data["daily"][snap_date][bid] = {
             "total_snap":  live,
-            "daily_count": daily,
-            "monthly":     monthly,
+            "daily_count": daily,    # signed integer — negative means reviews lost
+            "monthly":     monthly,  # signed accumulation for the month
             "star_rating": final_stars,
         }
 
-        # Update branches{} — just latest values for quick dashboard access
+        # Update branches{} — latest values for quick dashboard access
         data["branches"][bid] = {
             "id":          b["id"],
             "name":        b["name"],
@@ -428,6 +417,4 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\n[FATAL] Scraper crashed: {e}")
         traceback.print_exc()
-        # Exit 0 so workflow doesn't mark as failure —
-        # the commit step will still run and save whatever data exists.
         sys.exit(0)
