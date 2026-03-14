@@ -73,7 +73,7 @@
     background:var(--white); padding:16px 28px;
     display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:14px;
     border-bottom:3px solid var(--red); box-shadow:var(--shadow-md);
-    position:sticky; top:0; z-index:150;
+    position:sticky; top:40px; z-index:150;
   }
   .logo-area { display:flex; align-items:center; gap:14px; }
   .logo-area img { height:42px; object-fit:contain; }
@@ -252,14 +252,39 @@
 
   @media(max-width:640px){
     header,.controls,.sec-head,.kerala-banner{padding-left:14px;padding-right:14px;}
-    .grid-section{padding-left:14px;padding-right:14px;}
+    .grid-section{padding-left:14px;padding-right:14px;grid-template-columns:1fr;}
     .stats-strip{display:none;}
-    .top-bar{padding:0 14px;}
+    .top-bar{padding:0 14px;height:44px;}
     #rain-panel{width:100%;right:-100%;}
+    .logo-area img{height:32px;}
+    header{padding:10px 14px;top:40px;}
+    .hbadge .hb-n{font-size:18px;}
+    .nav-bar-title{display:none;}
+  }
+  @media(max-width:480px){
+    .grid-section{grid-template-columns:1fr;}
+    .controls{padding:10px 14px;gap:8px;}
+    .dash-title h2{font-size:14px;}
+    #rain-panel{width:100%;}
   }
 </style>
 </head>
 <body>
+
+<!-- ── Site Nav Bar ── -->
+<div style="background:#1e293b;height:40px;display:flex;align-items:center;padding:0 16px;gap:0;position:sticky;top:0;z-index:300;box-shadow:0 2px 8px rgba(0,0,0,.25);flex-shrink:0;">
+  <div style="display:flex;align-items:center;gap:8px;padding-right:14px;border-right:1px solid rgba(255,255,255,.12);flex-shrink:0;">
+    <img src="https://www.sathya.store/new_frontend/assets/img/sathya.webp" alt="Sathya" style="height:24px;object-fit:contain;" onerror="this.style.display='none'">
+    <span class="nav-bar-title" style="font-size:11px;font-weight:700;color:#fff;letter-spacing:.5px;white-space:nowrap;">SATHYA AGENCIES</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:2px;padding-left:10px;">
+    <a href="index.html" style="display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:6px;text-decoration:none;font-size:12px;font-weight:600;color:rgba(255,255,255,.75);transition:all .15s;" onmouseover="this.style.background='rgba(255,255,255,.12)';this.style.color='#fff'" onmouseout="this.style.background='transparent';this.style.color='rgba(255,255,255,.75)'">🏠 Home</a>
+    <a href="sathya_jupyter.html" style="display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:6px;text-decoration:none;font-size:12px;font-weight:600;color:rgba(255,255,255,.75);transition:all .15s;" onmouseover="this.style.background='rgba(255,255,255,.12)';this.style.color='#fff'" onmouseout="this.style.background='transparent';this.style.color='rgba(255,255,255,.75)'">💻 Live Tracker</a>
+    <span style="display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:6px;font-size:12px;font-weight:600;background:rgba(255,255,255,.12);color:#fff;">⛅ Weather</span>
+  </div>
+  <div style="flex:1"></div>
+  <span style="font-size:10px;color:rgba(255,255,255,.35);letter-spacing:.5px;white-space:nowrap;" class="nav-bar-title">WEATHER REPORT</span>
+</div>
 
 <!-- Overlay -->
 <div id="overlay" onclick="closePanel()"></div>
