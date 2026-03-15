@@ -22,8 +22,7 @@ jobs:
           playwright install chromium --with-deps
 
       - name: Run scraper
-        working-directory: ../docs
-        run: python scraper.py
+        run: python ./docs/tracker.py
 
       - name: Commit results
         run: |
