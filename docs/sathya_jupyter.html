@@ -104,13 +104,7 @@ const KERNEL_COLORS = {
   Venkatesh:  "#db2777",
 };
 
-// ── SERVER URL ────────────────────────────────────────────────
-// After deploying live_scraper.py to Railway, paste your URL here:
-// e.g. "https://sathya-live-scraper.up.railway.app"
-// Leave as "" to use localhost (start.bat on your machine)
-const RAILWAY_URL = "web-production-e3a4d.up.railway.app";
-
-const SERVER = RAILWAY_URL || "http://localhost:5000";
+const SERVER = "https://web-production-e3a4d.up.railway.app";
 
 async function simulateRun(script, onLine) {
   const now       = new Date();
@@ -128,21 +122,14 @@ async function simulateRun(script, onLine) {
   await emit("=".repeat(60), "muted");
   await emit("", "normal");
 
-  // Check server is up
+  // Check server
   try {
-    const r = await fetch(`${SERVER}/status`, {signal: AbortSignal.timeout(4000)});
-    if (!r.ok) throw new Error();
-  } catch {
-    await emit("  ❌  Scraper server not reachable.", "error");
-    await emit("", "normal");
-    if (RAILWAY_URL) {
-      await emit(`  Railway URL set to: ${RAILWAY_URL}`, "muted");
-      await emit("  Check your Railway deployment is running.", "muted");
-    } else {
-      await emit("  Option 1 — Local: double-click start.bat", "muted");
-      await emit("  Option 2 — Online: deploy live_scraper.py to Railway", "muted");
-      await emit("             then set RAILWAY_URL at top of this file", "muted");
-    }
+    const r = await fetch(`${SERVER}/status`, {signal: AbortSignal.timeout(5000)});
+    if (!r.ok) throw new Error("status " + r.status);
+  } catch(e) {
+    await emit("  ❌  Railway server not reachable: " + e.message, "error");
+    await emit("  URL: " + SERVER, "muted");
+    await emit("  Check Railway dashboard — service may be sleeping.", "muted");
     await emit("=".repeat(60), "muted");
     return;
   }
@@ -162,7 +149,7 @@ async function simulateRun(script, onLine) {
 
     es.onerror = () => {
       es.close();
-      onLine({text: "  ⚠  Lost connection to scraper server.", type: "error"});
+      onLine({text: "  ⚠  Stream error — Railway may have timed out.", type: "error"});
       resolve();
     };
   });
