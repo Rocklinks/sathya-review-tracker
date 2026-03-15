@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sathya Agencies — Google Review Tracker</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.development.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.development.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+</head>
+<body style="margin:0;padding:0;">
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useRef, useEffect } = React;
+
+const SCRIPTS = [
+  {
+    id: "kovilpatti",
+    label: "kovilpatti.py",
+    agm: "Seenivasan",
+    branches: [
+      { name: "Ramnad",          place_id: "ChIJNVVVVaGiATsRnunSgOTvbE8" },
+      { name: "Kovilpatti",      place_id: "ChIJHY0o-26yBjsRt7wbXB1pDUE" },
+      { name: "Sattur-2",        place_id: "ChIJNVVVVcHKBjsR7xMX97RFn8Q" },
+      { name: "Kayathar-1",      place_id: "ChIJx5ebtUgRBDsRMquPZNUJVpw" },
+      { name: "Sayalkudi-1",     place_id: "ChIJRTqudn9lATsR2fYyMmxlOrw" },
+      { name: "Sankarankovil-1", place_id: "ChIJE1mKnhSXBjsRKMQ-9JKQf_c" },
+      { name: "Paramakudi",      place_id: "ChIJ-dgjBzQHATsRf27FWAJgmsA" },
+      { name: "Villathikullam",  place_id: "ChIJi_wAkwVbATsRtFl3_V5rGrY" },
+    ],
+  },
+  {
+    id: "nagercoil",
+    label: "nagercoil.py",
+    agm: "Jeeva",
+    branches: [
+      { name: "Kulasekharam-1", place_id: "ChIJw0Ep-kNXBDsRe5ad32jAeAk" },
+      { name: "Nagercoil",      place_id: "ChIJe1LZBiTxBDsRJFLjlbgZoIs" },
+      { name: "Thuckalay-1",    place_id: "ChIJc9QgEub4BDsRoyDR4Wd6tYA" },
+      { name: "Marthandam",     place_id: "ChIJcWptCRdVBDsRlJh2q0-rnfY" },
+      { name: "Karungal-1",     place_id: "ChIJfTP5ASr_BDsRgsBaeQltkw4" },
+      { name: "Colachel-1",     place_id: "ChIJgRkBLw39BDsR58D0lwNo5Ts" },
+      { name: "Monday Market",  place_id: "ChIJTceRGAD5BDsR65i3YNTcYHk" },
+    ],
+  },
+  {
+    id: "tenkasi",
+    label: "tenkasi.py",
+    agm: "Muthuselvam",
+    branches: [
+      { name: "Thenkasi",      place_id: "ChIJuaqqquEpBDsRVITw0MMYklc" },
+      { name: "Thenkasi-2",    place_id: "ChIJiwqLye6DBjsRo9v1mWXaycI" },
+      { name: "Surandai-1",    place_id: "ChIJPb1_eEOdBjsRjL9IVCVJhi8" },
+      { name: "Puliyankudi-1", place_id: "ChIJjZqoc46RBjsRQTGHnNC8xxA" },
+      { name: "Sengottai-1",   place_id: "ChIJw3zzKiaBBjsR9KDyGpn1nXU" },
+      { name: "Rajapalayam",   place_id: "ChIJW2ot-NDpBjsRMTfMF2IV-xE" },
+    ],
+  },
+  {
+    id: "tirunelveli",
+    label: "tirunelveli.py",
+    agm: "John",
+    branches: [
+      { name: "Tirunelveli-1",  place_id: "ChIJ2RU2NvQRBDsRq-Fw7IVwx7k" },
+      { name: "Ambasamudram-1", place_id: "ChIJ9SGeIi85BDsRZk4QdyW9BSY" },
+      { name: "Anjugramam-1",   place_id: "ChIJ4yeJebLtBDsRDceoxujdGyc" },
+      { name: "Valliyur-1",     place_id: "ChIJcVNk6TtnBDsRBoP4zpExt5k" },
+    ],
+  },
+  {
+    id: "tuticorin",
+    label: "tuticorin.py",
+    agm: "Siva",
+    branches: [
+      { name: "Tuticorin-1",     place_id: "ChIJ5zJNoJfvAzsR-bJE_3bbNYw" },
+      { name: "Tuticorin-2",     place_id: "ChIJH6gY4-PvAzsRJ50skTlx3cs" },
+      { name: "Thiruchendur-1",  place_id: "ChIJeXA4vJKRAzsRBovAtv6lMuQ" },
+      { name: "Udankudi",        place_id: "ChIJPQAAACyEAzsRgjznQ1GLom0" },
+      { name: "Eral-2",          place_id: "ChIJbwAA0KGMAzsRkQilW5PceeA" },
+      { name: "Thisayanvilai-1", place_id: "ChIJVWkvdfh_BDsRdvtimKCLS5Y" },
+    ],
+  },
+  {
+    id: "virudhunagar",
+    label: "virudungar.py",
+    agm: "Venkatesh",
+    branches: [
+      { name: "Virudhunagar-2",  place_id: "ChIJPezaX7wtATsR9sHhFOG6A1c" },
+      { name: "Aruppukottai",    place_id: "ChIJy6qqqgYwATsRbcp-hXnoruM" },
+      { name: "Aruppukottai -2", place_id: "ChIJY04wY58xATsRuoJSichVQQE" },
+      { name: "Sivakasi",        place_id: "ChIJI2JvEePOBjsREh8b-x4WF4U" },
+      { name: "Virudhunagar",    place_id: "ChIJN3jzNJgsATsRCU3nrB5ntKE" },
+    ],
+  },
+];
+
+const KERNEL_COLORS = {
+  Seenivasan: "#d97706",
+  Jeeva:      "#059669",
+  Muthuselvam:"#7c3aed",
+  John:       "#2563eb",
+  Siva:       "#dc2626",
+  Venkatesh:  "#db2777",
+};
+
+const SERVER = "https://web-production-e3a4d.up.railway.app";
+
+async function simulateRun(script, onLine) {
+  const now       = new Date();
+  const dateStr   = now.toISOString().replace("T"," ").substring(0,19);
+  const dateLabel = now.toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"}).toUpperCase();
+
+  const emit = (text, type="normal") =>
+    new Promise(r => setTimeout(() => { onLine({text, type}); r(); }, 0));
+
+  await emit("=".repeat(60), "muted");
+  await emit("  SATHYA AGENCIES — Live Review Tracker", "bold");
+  await emit(`  Script : ${script.label}`, "muted");
+  await emit(`  AGM    : ${script.agm}  (${script.branches.length} branches)`, "muted");
+  await emit(`  Time   : ${dateStr}`, "muted");
+  await emit("=".repeat(60), "muted");
+  await emit("", "normal");
+
+  try {
+    const r = await fetch(`${SERVER}/status`, {signal: AbortSignal.timeout(6000)});
+    if (!r.ok) throw new Error("HTTP " + r.status);
+  } catch(e) {
+    await emit("  ❌  Server not reachable: " + e.message, "error");
+    await emit("  Check: " + SERVER + "/status", "muted");
+    await emit("=".repeat(60), "muted");
+    return;
+  }
+
+  await emit(`  🌐 Playwright scraping ${script.agm} — ${script.branches.length} branches...`, "accent");
+  await emit("", "normal");
+
+  await new Promise(resolve => {
+    const es = new EventSource(`${SERVER}/scrape/${encodeURIComponent(script.agm)}`);
+    es.onmessage = e => {
+      let msg; try { msg = JSON.parse(e.data); } catch { return; }
+      if (msg.event === "log")  onLine({text: msg.text, type: msg.type || "normal"});
+      if (msg.event === "done") { es.close(); resolve(); }
+    };
+    es.onerror = () => {
+      es.close();
+      onLine({text: "  ⚠  Stream disconnected.", type: "error"});
+      resolve();
+    };
+  });
+}
+
+function OutputLine({ text, type }) {
+  const styles = {
+    normal:  { color: "#1e293b" },
+    muted:   { color: "#94a3b8" },
+    bold:    { color: "#0f172a", fontWeight: 700 },
+    success: { color: "#15803d" },
+    error:   { color: "#b91c1c" },
+    accent:  { color: "#1d4ed8" },
+  };
+  return (
+    <div style={{
+      fontFamily: "'Courier New', Courier, monospace",
+      fontSize: "12.5px",
+      lineHeight: "1.75",
+      whiteSpace: "pre",
+      ...styles[type || "normal"],
+    }}>
+      {text || "\u00a0"}
+    </div>
+  );
+}
+
+function Cell({ script, index, runCount }) {
+  const [status, setStatus] = useState("idle");
+  const [lines, setLines] = useState([]);
+  const [execNum, setExecNum] = useState(null);
+  const outputRef = useRef(null);
+  const globalCount = useRef(runCount);
+
+  const run = async () => {
+    if (status === "running") return;
+    setStatus("running");
+    setLines([]);
+    const num = ++globalCount.current;
+    setExecNum(num);
+
+    await simulateRun(script, (line) => {
+      setLines(prev => [...prev, line]);
+      setTimeout(() => {
+        if (outputRef.current) {
+          outputRef.current.scrollTop = outputRef.current.scrollHeight;
+        }
+      }, 10);
+    });
+
+    setStatus("done");
+  };
+
+  const accentColor = KERNEL_COLORS[script.agm] || "#6366f1";
+
+  return (
+    <div style={{ display: "flex", gap: 0, marginBottom: "0px" }}>
+      {/* Gutter */}
+      <div style={{
+        width: 56,
+        flexShrink: 0,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        paddingTop: 10,
+        gap: 4,
+      }}>
+        <button
+          onClick={run}
+          disabled={status === "running"}
+          style={{
+            width: 28,
+            height: 28,
+            borderRadius: "50%",
+            border: `1.5px solid ${status === "running" ? "#e2e8f0" : accentColor + "55"}`,
+            background: status === "running" ? "#f8fafc" : "white",
+            cursor: status === "running" ? "not-allowed" : "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: status === "running" ? "#94a3b8" : accentColor,
+            transition: "all 0.15s",
+            padding: 0,
+          }}
+        >
+          {status === "running" ? (
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none" style={{ animation: "jupy-spin 0.9s linear infinite" }}>
+              <circle cx="6.5" cy="6.5" r="5" stroke="currentColor" strokeWidth="1.5" strokeDasharray="18" strokeDashoffset="6" />
+            </svg>
+          ) : (
+            <svg width="10" height="11" viewBox="0 0 10 11" fill={accentColor}>
+              <path d="M1 1 L9 5.5 L1 10 Z" />
+            </svg>
+          )}
+        </button>
+
+        <span style={{
+          fontFamily: "monospace",
+          fontSize: "10px",
+          color: "#94a3b8",
+          letterSpacing: "0.3px",
+        }}>
+          {execNum ? `[${execNum}]` : "[ ]"}
+        </span>
+      </div>
+
+      {/* Cell body */}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        {/* Code area */}
+        <div style={{
+          border: `1px solid ${status === "running" ? accentColor : "#d1d5db"}`,
+          borderRadius: "4px 4px 0 0",
+          background: status === "running" ? "#fffbeb" : "#f8fafc",
+          padding: "10px 16px",
+          borderBottom: "none",
+          transition: "border-color 0.2s",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 12,
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <span style={{
+              fontFamily: "'Courier New', monospace",
+              fontSize: "13px",
+              color: "#1e3a5f",
+              fontWeight: 600,
+            }}>
+              <span style={{ color: "#7c3aed" }}>import</span>{" "}
+              <span style={{ color: "#0369a1" }}>playwright</span>
+              {"  # "}
+              <span style={{ color: "#64748b" }}>{script.label}</span>
+            </span>
+            <span style={{
+              fontSize: "10px",
+              background: accentColor + "18",
+              color: accentColor,
+              border: `1px solid ${accentColor}35`,
+              borderRadius: "4px",
+              padding: "1px 8px",
+              fontFamily: "monospace",
+              fontWeight: 600,
+            }}>
+              AGM: {script.agm}
+            </span>
+            <span style={{
+              fontSize: "10px",
+              color: "#94a3b8",
+              fontFamily: "monospace",
+            }}>
+              {script.branches.length} branches
+            </span>
+          </div>
+          <span style={{
+            fontSize: "10px",
+            color: status === "done" ? "#15803d" : status === "running" ? accentColor : "#94a3b8",
+            fontFamily: "monospace",
+            fontWeight: 600,
+          }}>
+            {status === "done" ? "● done" : status === "running" ? "● running" : "○ idle"}
+          </span>
+        </div>
+
+        {/* Output area */}
+        {(lines.length > 0 || status === "running") && (
+          <div
+            ref={outputRef}
+            style={{
+              border: "1px solid #d1d5db",
+              borderTop: "1px dashed #e5e7eb",
+              borderRadius: "0 0 4px 4px",
+              background: "white",
+              padding: "10px 16px",
+              maxHeight: "300px",
+              overflowY: "auto",
+            }}
+          >
+            {lines.length === 0 && status === "running" && (
+              <div style={{ color: "#94a3b8", fontFamily: "monospace", fontSize: "12px" }}>
+                Launching chromium...
+              </div>
+            )}
+            {lines.map((line, i) => (
+              <OutputLine key={i} text={line.text} type={line.type} />
+            ))}
+            {status === "running" && lines.length > 0 && (
+              <span style={{
+                display: "inline-block",
+                width: 7,
+                height: 13,
+                background: "#1e293b",
+                marginLeft: 2,
+                verticalAlign: "middle",
+                animation: "jupy-blink 1s step-end infinite",
+              }} />
+            )}
+          </div>
+        )}
+
+        {/* No output yet */}
+        {lines.length === 0 && status === "idle" && (
+          <div style={{
+            border: "1px solid #e5e7eb",
+            borderTop: "1px dashed #e5e7eb",
+            borderRadius: "0 0 4px 4px",
+            background: "white",
+            padding: "8px 16px",
+            color: "#cbd5e1",
+            fontFamily: "monospace",
+            fontSize: "11px",
+          }}>
+            # No output yet — click ▶ to run
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  const runCounter = useRef(0);
+
+  return (
+    <div style={{
+      minHeight: "100vh",
+      background: "#f9fafb",
+      fontFamily: "system-ui, -apple-system, sans-serif",
+    }}>
+      <style>{`
+        @keyframes jupy-spin {
+          from { transform: rotate(0deg); }
+          to   { transform: rotate(360deg); }
+        }
+        @keyframes jupy-blink {
+          0%, 100% { opacity: 1; }
+          50%       { opacity: 0; }
+        }
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+      `}</style>
+
+      {/* Top bar */}
+      <div style={{
+        background: "white",
+        borderBottom: "1px solid #e5e7eb",
+        padding: "0 24px",
+        display: "flex",
+        alignItems: "center",
+        height: "40px",
+      }}>
+        <div style={{ flex: 1 }} />
+        <div style={{
+          fontSize: "11px",
+          color: "#94a3b8",
+          fontFamily: "monospace",
+          display: "flex",
+          alignItems: "center",
+          gap: 6,
+        }}>
+          <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#22c55e" }} />
+          Python 3 (ipykernel)
+        </div>
+      </div>
+
+      {/* Notebook body */}
+      <div style={{
+        maxWidth: "960px",
+        margin: "0 auto",
+        padding: "24px 0 60px 0",
+      }}>
+        {/* Title cell */}
+        <div style={{ display: "flex", gap: 0, marginBottom: "0px" }}>
+          <div style={{ width: 56, flexShrink: 0 }} />
+          <div style={{
+            flex: 1,
+            padding: "10px 16px",
+            background: "white",
+            border: "1px solid #e5e7eb",
+            borderLeft: "4px solid #3b82f6",
+            borderRadius: "4px",
+            marginBottom: "2px",
+          }}>
+            <div style={{ fontSize: "18px", fontWeight: 700, color: "#0f172a", marginBottom: 4 }}>
+              🏪 Google Review Tracker
+            </div>
+            <div style={{ fontSize: "12.5px", color: "#64748b", fontFamily: "monospace" }}>
+              Playwright · Chromium Headless · Tamil Nadu Branches · Output-only mode
+            </div>
+          </div>
+        </div>
+
+        <div style={{ height: 12 }} />
+
+        {/* Code cells */}
+        {SCRIPTS.map((script, i) => (
+          <div key={script.id} style={{ marginBottom: "3px" }}>
+            <Cell
+              script={script}
+              index={i}
+              runCount={runCounter}
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
