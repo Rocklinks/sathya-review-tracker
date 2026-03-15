@@ -1,28 +1,21 @@
 #!/usr/bin/env python3
 """
 live_scraper.py
-===============
-Local server that sathya_jupyter.html talks to when you click ▶.
-Has NOTHING to do with scraper.py or reviews.json.
-
-Start it:
-  Windows  : double-click start.bat
-  Mac/Linux: ./start.sh
-
-Then open sathya_jupyter.html in your browser and click ▶ on any cell.
-It scrapes Google Maps live using Playwright and streams results back.
+Scraper server for sathya_jupyter.html.
+Flask + flask-cors so CORS always works from any origin (GitHub Pages etc).
 """
-
-import re, time, json, threading, sys, os, queue
-from socketserver import ThreadingMixIn
-from http.server import HTTPServer, BaseHTTPRequestHandler
-from urllib.parse import urlparse, unquote
+import re, time, json, threading, queue, os, sys
+from flask import Flask, Response, jsonify
+from flask_cors import CORS
 
 try:
     from playwright.sync_api import sync_playwright
     PLAYWRIGHT_OK = True
 except ImportError:
     PLAYWRIGHT_OK = False
+
+app = Flask(__name__)
+CORS(app)   # allows ALL origins — fixes the NetworkError completely
 
 PORT = int(os.environ.get("PORT", 5000))
 
@@ -36,7 +29,6 @@ BRANCHES = [
     {"name":"Sattur-2",        "place_id":"ChIJNVVVVcHKBjsR7xMX97RFn8Q", "agm":"Seenivasan"},
     {"name":"Sankarankovil-1", "place_id":"ChIJE1mKnhSXBjsRKMQ-9JKQf_c","agm":"Seenivasan"},
     {"name":"Kayathar-1",      "place_id":"ChIJx5ebtUgRBDsRMquPZNUJVpw", "agm":"Seenivasan"},
-
     {"name":"Nagercoil",       "place_id":"ChIJe1LZBiTxBDsRJFLjlbgZoIs", "agm":"Jeeva"},
     {"name":"Marthandam",      "place_id":"ChIJcWptCRdVBDsRlJh2q0-rnfY", "agm":"Jeeva"},
     {"name":"Thuckalay-1",     "place_id":"ChIJc9QgEub4BDsRoyDR4Wd6tYA", "agm":"Jeeva"},
@@ -44,46 +36,39 @@ BRANCHES = [
     {"name":"Kulasekharam-1",  "place_id":"ChIJw0Ep-kNXBDsRe5ad32jAeAk", "agm":"Jeeva"},
     {"name":"Monday Market",   "place_id":"ChIJTceRGAD5BDsR65i3YNTcYHk", "agm":"Jeeva"},
     {"name":"Karungal-1",      "place_id":"ChIJfTP5ASr_BDsRgsBaeQltkw4", "agm":"Jeeva"},
-
     {"name":"Thenkasi",        "place_id":"ChIJuaqqquEpBDsRVITw0MMYklc", "agm":"Muthuselvam"},
     {"name":"Thenkasi-2",      "place_id":"ChIJiwqLye6DBjsRo9v1mWXaycI", "agm":"Muthuselvam"},
     {"name":"Surandai-1",      "place_id":"ChIJPb1_eEOdBjsRjL9IVCVJhi8", "agm":"Muthuselvam"},
     {"name":"Puliyankudi-1",   "place_id":"ChIJjZqoc46RBjsRQTGHnNC8xxA", "agm":"Muthuselvam"},
     {"name":"Sengottai-1",     "place_id":"ChIJw3zzKiaBBjsR9KDyGpn1nXU", "agm":"Muthuselvam"},
     {"name":"Rajapalayam",     "place_id":"ChIJW2ot-NDpBjsRMTfMF2IV-xE", "agm":"Muthuselvam"},
-
     {"name":"Tirunelveli-1",   "place_id":"ChIJ2RU2NvQRBDsRq-Fw7IVwx7k", "agm":"John"},
     {"name":"Valliyur-1",      "place_id":"ChIJcVNk6TtnBDsRBoP4zpExt5k", "agm":"John"},
     {"name":"Ambasamudram-1",  "place_id":"ChIJ9SGeIi85BDsRZk4QdyW9BSY", "agm":"John"},
     {"name":"Anjugramam-1",    "place_id":"ChIJ4yeJebLtBDsRDceoxujdGyc", "agm":"John"},
-
     {"name":"Tuticorin-1",     "place_id":"ChIJ5zJNoJfvAzsR-bJE_3bbNYw", "agm":"Siva"},
     {"name":"Tuticorin-2",     "place_id":"ChIJH6gY4-PvAzsRJ50skTlx3cs", "agm":"Siva"},
     {"name":"Thiruchendur-1",  "place_id":"ChIJeXA4vJKRAzsRBovAtv6lMuQ", "agm":"Siva"},
     {"name":"Thisayanvilai-1", "place_id":"ChIJVWkvdfh_BDsRdvtimKCLS5Y", "agm":"Siva"},
     {"name":"Eral-2",          "place_id":"ChIJbwAA0KGMAzsRkQilW5PceeA",  "agm":"Siva"},
     {"name":"Udankudi",        "place_id":"ChIJPQAAACyEAzsRgjznQ1GLom0",  "agm":"Siva"},
-
     {"name":"Virudhunagar",    "place_id":"ChIJN3jzNJgsATsRCU3nrB5ntKE", "agm":"Venkatesh"},
     {"name":"Virudhunagar-2",  "place_id":"ChIJPezaX7wtATsR9sHhFOG6A1c", "agm":"Venkatesh"},
     {"name":"Aruppukottai",    "place_id":"ChIJy6qqqgYwATsRbcp-hXnoruM",  "agm":"Venkatesh"},
     {"name":"Aruppukottai-2",  "place_id":"ChIJY04wY58xATsRuoJSichVQQE", "agm":"Venkatesh"},
     {"name":"Sivakasi",        "place_id":"ChIJI2JvEePOBjsREh8b-x4WF4U", "agm":"Venkatesh"},
 ]
-
 VALID_AGMS = {b["agm"] for b in BRANCHES}
 
 
 # ── Playwright scraper ────────────────────────────────────────────────────────
 
 def _scrape_one(page, place_id, wait_ms=4000):
-    """Scrape one place. Returns (count, stars) — either may be None."""
     page.goto(
         f"https://www.google.com/maps/place/?q=place_id:{place_id}",
         wait_until="domcontentloaded", timeout=35000
     )
     page.wait_for_timeout(wait_ms)
-
     count, stars = None, None
 
     for sel in ['[aria-label*="reviews"]', '[aria-label*="Reviews"]',
@@ -94,65 +79,42 @@ def _scrape_one(page, place_id, wait_ms=4000):
                 m = re.search(r"([\d,]+)", lbl)
                 if m:
                     v = int(m.group(1).replace(",", ""))
-                    if v > 0:
-                        count = v
-                        break
-        except Exception:
-            pass
-        if count:
-            break
+                    if v > 0: count = v; break
+        except: pass
+        if count: break
 
-    for sel in ['[aria-label*="stars"]', 'span[aria-label*="stars"]',
-                '[aria-label*="star rating"]']:
+    for sel in ['[aria-label*="stars"]', 'span[aria-label*="stars"]']:
         try:
             for el in page.locator(sel).all():
                 lbl = el.get_attribute("aria-label") or ""
                 m = re.search(r"(\d[\.,]\d)", lbl)
-                if m:
-                    stars = float(m.group(1).replace(",", "."))
-                    break
-        except Exception:
-            pass
-        if stars:
-            break
+                if m: stars = float(m.group(1).replace(",", ".")); break
+        except: pass
+        if stars: break
 
-    # fallback from page source
     if not count or not stars:
         try:
             src = page.content()
             if not count:
-                for pat in [r'([\d,]+)\s*reviews?',
-                            r'"reviewCount"["\s:]+(\d+)']:
+                for pat in [r'([\d,]+)\s*reviews?', r'"reviewCount"["\s:]+(\d+)']:
                     m = re.search(pat, src, re.IGNORECASE)
                     if m:
                         v = int(m.group(1).replace(",", ""))
-                        if v > 5:
-                            count = v
-                            break
+                        if v > 5: count = v; break
             if not stars:
-                for pat in [r'"ratingValue"\s*:\s*"?([\d.]+)',
-                            r'(\d\.\d)\s*(?:stars|out of 5)']:
+                for pat in [r'"ratingValue"\s*:\s*"?([\d.]+)', r'(\d\.\d)\s*(?:stars|out of 5)']:
                     m = re.search(pat, src, re.IGNORECASE)
                     if m:
                         try:
                             v = float(m.group(1))
-                            if 1.0 <= v <= 5.0:
-                                stars = round(v, 1)
-                                break
-                        except ValueError:
-                            pass
-        except Exception:
-            pass
+                            if 1.0 <= v <= 5.0: stars = round(v, 1); break
+                        except: pass
+        except: pass
 
     return count, stars
 
 
-def scrape_agm(agm_name, q):
-    """
-    Scrape all branches for one AGM.
-    Puts JSON event strings into q.
-    Puts None when finished (sentinel).
-    """
+def scrape_agm_worker(agm_name, q):
     branches = [b for b in BRANCHES if b["agm"] == agm_name]
 
     def ev(etype, **kw):
@@ -161,240 +123,126 @@ def scrape_agm(agm_name, q):
 
     ev("log", text="=" * 54, type="muted")
     ev("log", text="  SATHYA AGENCIES — Live Scraper", type="bold")
-    ev("log", text=f"  AGM    : {agm_name}", type="muted")
-    ev("log", text=f"  Branches: {len(branches)}", type="muted")
+    ev("log", text=f"  AGM: {agm_name}  ({len(branches)} branches)", type="muted")
     ev("log", text="=" * 54, type="muted")
     ev("log", text="", type="normal")
     ev("log", text="  🌐 Launching Chromium...", type="accent")
 
     results = []
-
     try:
         with sync_playwright() as pw:
             browser = pw.chromium.launch(
                 headless=True,
-                args=["--no-sandbox", "--disable-dev-shm-usage",
-                      "--disable-blink-features=AutomationControlled",
-                      "--disable-gpu"]
+                args=["--no-sandbox","--disable-dev-shm-usage",
+                      "--disable-blink-features=AutomationControlled","--disable-gpu"]
             )
             ctx = browser.new_context(
-                user_agent=(
-                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                    "AppleWebKit/537.36 (KHTML, like Gecko) "
-                    "Chrome/122.0.0.0 Safari/537.36"
-                ),
-                locale="en-IN",
-                viewport={"width": 1280, "height": 800},
+                user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+                locale="en-IN", viewport={"width":1280,"height":800}
             )
             page = ctx.new_page()
 
-            # warm-up
             try:
-                page.goto("https://www.google.com/maps",
-                          wait_until="domcontentloaded", timeout=25000)
+                page.goto("https://www.google.com/maps", wait_until="domcontentloaded", timeout=25000)
                 page.wait_for_timeout(2000)
                 ev("log", text="  ✓ Browser ready\n", type="success")
-            except Exception:
+            except:
                 ev("log", text="  ⚠ Warm-up skipped\n", type="muted")
 
             for i, b in enumerate(branches):
                 name = b["name"]
-                pad  = str(i + 1).zfill(2)
-                ev("log",
-                   text=f"  [{pad}/{len(branches)}] {name:<22} → fetching...",
-                   type="normal")
+                pad  = str(i+1).zfill(2)
+                ev("log", text=f"  [{pad}/{len(branches)}] {name:<22} → fetching...", type="normal")
 
-                count, stars = None, None
-                ok = False
-
+                count, stars, ok = None, None, False
                 for attempt in range(1, 4):
                     try:
                         if attempt > 1:
-                            ev("log",
-                               text=f"    ↺ Retry {attempt}/3...",
-                               type="muted")
+                            ev("log", text=f"    ↺ Retry {attempt}/3...", type="muted")
                             time.sleep(3)
-                            try:
-                                page.goto("about:blank", timeout=5000)
-                            except Exception:
-                                pass
+                            try: page.goto("about:blank", timeout=5000)
+                            except: pass
                             time.sleep(1)
-
-                        wait = 4000 + (attempt - 1) * 2000
-                        count, stars = _scrape_one(page, b["place_id"], wait_ms=wait)
-
-                        if count:
-                            ok = True
-                            break
-
-                        ev("log",
-                           text=f"    ⚠ Attempt {attempt}: no data",
-                           type="muted")
+                        count, stars = _scrape_one(page, b["place_id"], wait_ms=4000+(attempt-1)*2000)
+                        if count: ok = True; break
+                        ev("log", text=f"    ⚠ Attempt {attempt}: no data", type="muted")
                     except Exception as e:
-                        ev("log",
-                           text=f"    ⚠ Attempt {attempt}: {str(e)[:60]}",
-                           type="muted")
+                        ev("log", text=f"    ⚠ Attempt {attempt}: {str(e)[:60]}", type="muted")
 
                 if ok:
                     star_str = f"{stars}⭐" if stars else "—"
-                    ev("log",
-                       text=f"  [{pad}/{len(branches)}] {name:<22} → {count:,} reviews  {star_str}  ✓",
-                       type="success")
-                    results.append({
-                        "name": name, "agm": agm_name,
-                        "reviews": count, "stars": stars or 0, "status": "ok"
-                    })
+                    ev("log", text=f"  [{pad}/{len(branches)}] {name:<22} → {count:,} reviews  {star_str}  ✓", type="success")
+                    results.append({"name":name,"agm":agm_name,"reviews":count,"stars":stars or 0,"status":"ok"})
                 else:
-                    ev("log",
-                       text=f"  [{pad}/{len(branches)}] {name:<22} → FAILED ✗",
-                       type="error")
-                    results.append({
-                        "name": name, "agm": agm_name,
-                        "reviews": 0, "stars": 0, "status": "failed"
-                    })
+                    ev("log", text=f"  [{pad}/{len(branches)}] {name:<22} → FAILED ✗", type="error")
+                    results.append({"name":name,"agm":agm_name,"reviews":0,"stars":0,"status":"failed"})
 
                 time.sleep(1.2)
-
             browser.close()
 
     except Exception as e:
         ev("log", text=f"  💥 Crashed: {e}", type="error")
 
-    ok_n   = sum(1 for r in results if r["status"] == "ok")
-    total  = sum(r["reviews"] for r in results)
-    failed = [r["name"] for r in results if r["status"] == "failed"]
-
+    ok_n  = sum(1 for r in results if r["status"]=="ok")
+    total = sum(r["reviews"] for r in results)
+    failed = [r["name"] for r in results if r["status"]=="failed"]
     ev("log", text="", type="normal")
-    ev("log", text="─" * 54, type="muted")
+    ev("log", text="─"*54, type="muted")
     ev("log", text=f"  ✅ Done: {ok_n}/{len(branches)} branches", type="success")
-    if failed:
-        ev("log", text=f"  ❌ Failed: {', '.join(failed)}", type="error")
+    if failed: ev("log", text=f"  ❌ Failed: {', '.join(failed)}", type="error")
     ev("log", text="", type="normal")
     ev("log", text="  🎉 ALL DONE!", type="bold")
     ev("log", text=f"  Total reviews: {total:,}", type="bold")
-    ev("log", text="=" * 54, type="muted")
-
-    q.put(json.dumps({"event": "result", "rows": results}))
-    q.put(None)  # sentinel — stream ends
-
-
-# ── Threaded HTTP server ──────────────────────────────────────────────────────
-# ThreadingMixIn = every request gets its own thread
-# so SSE stream from Playwright never blocks the server
-
-class ThreadingServer(ThreadingMixIn, HTTPServer):
-    daemon_threads = True
+    ev("log", text="="*54, type="muted")
+    q.put(json.dumps({"event":"result","rows":results}))
+    q.put(None)
 
 
-class Handler(BaseHTTPRequestHandler):
+# ── Flask routes ──────────────────────────────────────────────────────────────
 
-    def log_message(self, fmt, *args):
-        pass  # suppress default access log noise
+@app.route("/")
+def index():
+    return jsonify({"ok": True, "service": "Sathya Live Scraper"})
 
-    def do_OPTIONS(self):
-        self.send_response(200)
-        self._cors()
-        self.end_headers()
+@app.route("/status")
+def status():
+    return jsonify({"ok": True, "playwright": PLAYWRIGHT_OK})
 
-    def do_GET(self):
-        path = urlparse(self.path).path.rstrip("/") or "/"
+@app.route("/scrape/<agm_name>")
+def scrape(agm_name):
+    if agm_name not in VALID_AGMS:
+        return jsonify({"error": "Unknown AGM"}), 404
 
-        # / — Railway health check, keeps service awake
-        if path == "/":
-            body = b"OK"
-            self.send_response(200)
-            self.send_header("Content-Type", "text/plain")
-            self.send_header("Content-Length", "2")
-            self._cors()
-            self.end_headers()
-            self.wfile.write(body)
-            return
+    q = queue.Queue()
+    t = threading.Thread(target=scrape_agm_worker, args=(agm_name, q), daemon=True)
+    t.start()
 
-        # /status — called by sathya_jupyter.html
-        if path == "/status":
-            body = json.dumps({"ok": True, "playwright": PLAYWRIGHT_OK}).encode()
-            self.send_response(200)
-            self.send_header("Content-Type", "application/json")
-            self.send_header("Content-Length", str(len(body)))
-            self._cors()
-            self.end_headers()
-            self.wfile.write(body)
-            return
+    def stream():
+        while True:
+            try:
+                msg = q.get(timeout=180)
+            except queue.Empty:
+                yield ": keep-alive\n\n"
+                continue
+            if msg is None:
+                yield f'data: {json.dumps({"event":"done"})}\n\n'
+                break
+            yield f"data: {msg}\n\n"
 
-        # /scrape/<AGM> — SSE stream
-        if path.startswith("/scrape/"):
-            agm = unquote(path[len("/scrape/"):])
-            if agm not in VALID_AGMS:
-                self.send_response(404)
-                self.end_headers()
-                return
-            self._stream(agm)
-            return
+    return Response(
+        stream(),
+        mimetype="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "X-Accel-Buffering": "no",
+            "Access-Control-Allow-Origin": "*",
+        }
+    )
 
-        self.send_response(404)
-        self.end_headers()
-
-    def _stream(self, agm_name):
-        q = queue.Queue()
-        t = threading.Thread(target=scrape_agm, args=(agm_name, q), daemon=True)
-        t.start()
-
-        self.send_response(200)
-        self.send_header("Content-Type",     "text/event-stream; charset=utf-8")
-        self.send_header("Cache-Control",    "no-cache")
-        self.send_header("X-Accel-Buffering","no")
-        self._cors()
-        self.end_headers()
-
-        print(f"  [scrape] {agm_name} started")
-        try:
-            while True:
-                try:
-                    msg = q.get(timeout=180)
-                except queue.Empty:
-                    self.wfile.write(b": keep-alive\n\n")
-                    self.wfile.flush()
-                    continue
-
-                if msg is None:
-                    self.wfile.write(
-                        f'data: {json.dumps({"event":"done"})}\n\n'.encode()
-                    )
-                    self.wfile.flush()
-                    break
-
-                self.wfile.write(f"data: {msg}\n\n".encode())
-                self.wfile.flush()
-
-        except (BrokenPipeError, ConnectionResetError, OSError):
-            pass
-
-        print(f"  [scrape] {agm_name} done")
-
-    def _cors(self):
-        self.send_header("Access-Control-Allow-Origin",  "*")
-        self.send_header("Access-Control-Allow-Methods", "GET, OPTIONS")
-
-
-# ── Entry point ───────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
     if not PLAYWRIGHT_OK:
-        print("\n❌  Playwright not installed.")
-        print("    pip install playwright")
-        print("    playwright install chromium\n")
+        print("❌ Playwright not installed. Run: pip install playwright && playwright install chromium")
         sys.exit(1)
-
-    server = ThreadingServer(("0.0.0.0", PORT), Handler)
-
-    print("=" * 50)
-    print("  Sathya Live Scraper — ready")
-    print(f"  Listening on http://localhost:{PORT}")
-    print("  Open sathya_jupyter.html and click ▶")
-    print("  Ctrl+C to stop")
-    print("=" * 50)
-
-    try:
-        server.serve_forever()
-    except KeyboardInterrupt:
-        print("\n  Stopped.")
+    print(f"✅ Sathya Live Scraper running on port {PORT}")
+    app.run(host="0.0.0.0", port=PORT, threaded=True)
