@@ -3,571 +3,368 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sathya Agencies — Live Tracker</title>
-  <link rel="icon" type="image/webp" href="https://www.sathya.store/favicon.webp">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <title>Sathya Agencies — Google Review Tracker</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.development.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.development.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; background: #f9fafb; min-height: 100vh; }
-
-    .topbar { background: #fff; border-bottom: 1px solid #e5e7eb; display: flex; align-items: center; height: 52px; position: sticky; top: 0; z-index: 200; box-shadow: 0 1px 0 #e5e7eb, 0 2px 8px rgba(0,0,0,.04); }
-    .topbar-logo { width: 200px; flex-shrink: 0; display: flex; align-items: center; gap: 10px; padding: 0 14px; border-right: 1px solid #e5e7eb; height: 100%; }
-    .topbar-logo img { height: 30px; object-fit: contain; }
-    .topbar-logo-text { font-size: 12px; font-weight: 700; color: #1e293b; line-height: 1.2; }
-    .topbar-controls { display: flex; align-items: center; gap: 10px; padding: 0 14px; flex: 1; min-width: 0; flex-wrap: nowrap; overflow: hidden; }
-    .topbar-right { display: flex; align-items: center; gap: 6px; padding-right: 14px; flex-shrink: 0; }
-    .kernel-pill { font-size: 11px; color: #94a3b8; font-family: 'DM Mono', monospace; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
-    .kernel-dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; flex-shrink: 0; }
-    .hamburger { display: none; width: 36px; height: 36px; border: 1px solid #e5e7eb; border-radius: 8px; background: #f8fafc; cursor: pointer; align-items: center; justify-content: center; flex-direction: column; gap: 4px; flex-shrink: 0; margin-left: 8px; }
-    .hamburger span { display: block; width: 16px; height: 2px; background: #475569; border-radius: 2px; }
-    .divider-v { width: 1px; height: 20px; background: #e5e7eb; flex-shrink: 0; }
-
-    /* ── SPLIT BUTTON ── */
-    /* FIX: explicit height so separator percentage works */
-    .dl-split { display: flex; align-items: stretch; border-radius: 6px; overflow: hidden; flex-shrink: 0; height: 30px; }
-    .dl-split-main { display: flex; align-items: center; gap: 5px; padding: 0 12px; font-size: 12px; font-weight: 600; font-family: inherit; border: none; cursor: pointer; white-space: nowrap; height: 100%; }
-    .dl-split-main:disabled { cursor: not-allowed; }
-    /* FIX: separator uses a solid px height instead of % */
-    .dl-split-sep { width: 1px; flex-shrink: 0; align-self: stretch; opacity: .4; }
-    .dl-split-pdf { display: flex; align-items: center; justify-content: center; padding: 0 10px; font-size: 11px; font-weight: 700; font-family: inherit; border: none; cursor: pointer; letter-spacing: .4px; height: 100%; white-space: nowrap; }
-    .dl-split-pdf:disabled { cursor: not-allowed; }
-
-    /* Colour variants */
-    .ds-green .dl-split-main  { background: #16a34a; color: #fff; }
-    .ds-green .dl-split-main:hover:not(:disabled)  { background: #15803d; }
-    .ds-green .dl-split-sep   { background: rgba(255,255,255,.5); }
-    .ds-green .dl-split-pdf   { background: #15803d; color: #fff; }
-    .ds-green .dl-split-pdf:hover:not(:disabled)   { background: #166534; }
-
-    .ds-blrose .dl-split-main { background: #1d4ed8; color: #fff; }
-    .ds-blrose .dl-split-main:hover:not(:disabled) { background: #1e40af; }
-    .ds-blrose .dl-split-sep  { background: rgba(255,255,255,.45); }
-    .ds-blrose .dl-split-pdf  { background: #e11d48; color: #fff; }
-    .ds-blrose .dl-split-pdf:hover:not(:disabled)  { background: #be123c; }
-
-    .ds-gray .dl-split-main, .ds-gray .dl-split-pdf { background: #f1f5f9; color: #9ca3af; border: 1px solid #e5e7eb; cursor: not-allowed; }
-    .ds-gray .dl-split-sep { background: #e5e7eb; }
-
-    /* ── RUN ALL ── */
-    .run-all-btn { display: flex; align-items: center; gap: 6px; padding: 0 13px; height: 30px; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; font-family: inherit; cursor: pointer; white-space: nowrap; flex-shrink: 0; background: #0f172a; color: #fff; }
-    .run-all-btn:hover:not(:disabled) { background: #1e293b; }
-    .run-all-btn:disabled { background: #e5e7eb; color: #9ca3af; cursor: not-allowed; }
-
-    /* ── LAYOUT ── */
-    .layout { display: flex; min-height: calc(100vh - 52px); }
-
-    /* ── SIDEBAR ── */
-    .sidebar { width: 200px; flex-shrink: 0; background: #fff; border-right: 1px solid #e5e7eb; padding: 16px 10px; display: flex; flex-direction: column; gap: 2px; overflow-y: auto; transition: transform 0.25s ease; }
-    .s-label { font-size: 10px; color: #94a3b8; text-transform: uppercase; letter-spacing: .8px; padding: 0 8px; margin-bottom: 5px; margin-top: 4px; font-weight: 600; }
-    .s-item { display: flex; align-items: center; gap: 9px; padding: 9px 10px; border-radius: 9px; cursor: pointer; font-size: 13px; color: #475569; transition: all .12s; font-weight: 500; text-decoration: none; }
-    .s-item:hover { background: #f1f5f9; color: #1e293b; }
-    .s-icon { width: 28px; height: 28px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 14px; background: #f1f5f9; flex-shrink: 0; border: 1px solid #e5e7eb; }
-    .s-arrow { margin-left: auto; font-size: 9px; color: #94a3b8; }
-    .s-script { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 8px; font-size: 12px; color: #475569; font-weight: 500; }
-    .s-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-    .s-divider { height: 1px; background: #f1f5f9; margin: 8px 2px; }
-    .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 150; }
-
-    /* ── MAIN ── */
-    .main { flex: 1; padding: 20px 20px 60px; overflow-x: hidden; min-width: 0; }
-
-    /* ── CELL ── */
-    .cell-wrap { display: flex; gap: 0; margin-bottom: 3px; }
-    .cell-gutter { width: 44px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; padding-top: 10px; gap: 4px; }
-    .cell-body { flex: 1; min-width: 0; }
-    .cell-hdr { padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px; transition: background 0.2s; }
-    .cell-hdr-open   { background: #f8fafc; border: 1px solid #d1d5db; border-bottom: none; border-radius: 4px 4px 0 0; }
-    .cell-hdr-closed { background: #f8fafc; border: 1px solid #d1d5db; border-radius: 4px; }
-    .cell-hdr-running-open   { background: #fffbeb; border-radius: 4px 4px 0 0; border-bottom: none; }
-    .cell-hdr-running-closed { background: #fffbeb; border-radius: 4px; }
-    .cell-output { border: 1px solid #d1d5db; border-top: 1px dashed #e5e7eb; border-radius: 0 0 4px 4px; background: #fff; padding: 10px 14px; max-height: 300px; overflow-y: auto; }
-    .cell-empty  { border: 1px solid #e5e7eb; border-top: 1px dashed #e5e7eb; border-radius: 0 0 4px 4px; background: #fff; padding: 8px 14px; color: #cbd5e1; font-family: 'DM Mono', monospace; font-size: 11px; }
-    .output-line { font-family: 'DM Mono', 'Courier New', monospace; font-size: 12px; line-height: 1.75; white-space: pre-wrap; word-break: break-all; }
-    .run-btn { width: 26px; height: 26px; border-radius: 50%; background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; padding: 0; }
-    .run-btn:disabled { cursor: not-allowed; opacity: .5; }
-    .exec-num { font-family: 'DM Mono', monospace; font-size: 10px; color: #94a3b8; }
-    .collapse-btn { width: 22px; height: 22px; border: 1px solid #e2e8f0; border-radius: 4px; background: #f8fafc; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #94a3b8; padding: 0; font-size: 10px; flex-shrink: 0; }
-    .collapse-btn:hover { background: #e5e7eb; color: #374151; }
-    .title-cell { flex: 1; padding: 10px 14px; background: #fff; border: 1px solid #e5e7eb; border-left: 4px solid #3b82f6; border-radius: 4px; margin-bottom: 2px; }
-    .cell-dl-row { display: flex; align-items: center; justify-content: flex-end; gap: 8px; padding-top: 6px; }
-
-    ::-webkit-scrollbar { width: 5px; height: 5px; }
-    ::-webkit-scrollbar-track { background: #f1f5f9; }
-    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
-    @keyframes spin  { to { transform: rotate(360deg); } }
-    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
-    .spin  { animation: spin 0.9s linear infinite; }
-    .blink { animation: blink 1s step-end infinite; }
-
-    @media (max-width: 768px) {
-      .topbar-logo { width: auto; border-right: none; padding-right: 0; }
-      .topbar-logo-text { display: none; }
-      .hamburger { display: flex; }
-      .sidebar { position: fixed; top: 52px; left: 0; bottom: 0; z-index: 160; transform: translateX(-100%); width: 220px; box-shadow: 4px 0 20px rgba(0,0,0,.15); }
-      .sidebar.open { transform: translateX(0); }
-      .sidebar-overlay.show { display: block; }
-      .topbar-right { display: none; }
-      .main { padding: 12px 10px 60px; }
-      .cell-gutter { width: 32px; }
-      .cell-hdr { padding: 8px 10px; gap: 7px; }
-      .dl-label { display: none; }
-      .divider-v { display: none; }
-    }
-    @media (max-width: 480px) {
-      .output-line { font-size: 10.5px; }
-      .topbar-logo img { height: 24px; }
-    }
-  </style>
 </head>
-<body>
+<body style="margin:0;padding:0;">
 <div id="root"></div>
 
 <script type="text/babel">
-const { useState, useRef, useCallback, useEffect } = React;
+const { useState, useRef, useEffect } = React;
 
 const SCRIPTS = [
-  { id:"kovilpatti",   label:"kovilpatti.py",   agm:"Seenivasan",  branches:[{name:"Ramnad",place_id:"ChIJNVVVVaGiATsRnunSgOTvbE8"},{name:"Kovilpatti",place_id:"ChIJHY0o-26yBjsRt7wbXB1pDUE"},{name:"Sattur-2",place_id:"ChIJNVVVVcHKBjsR7xMX97RFn8Q"},{name:"Kayathar-1",place_id:"ChIJx5ebtUgRBDsRMquPZNUJVpw"},{name:"Sayalkudi-1",place_id:"ChIJRTqudn9lATsR2fYyMmxlOrw"},{name:"Sankarankovil-1",place_id:"ChIJE1mKnhSXBjsRKMQ-9JKQf_c"},{name:"Paramakudi",place_id:"ChIJ-dgjBzQHATsRf27FWAJgmsA"},{name:"Villathikullam",place_id:"ChIJi_wAkwVbATsRtFl3_V5rGrY"}]},
-  { id:"nagercoil",    label:"nagercoil.py",    agm:"Jeeva",       branches:[{name:"Kulasekharam-1",place_id:"ChIJw0Ep-kNXBDsRe5ad32jAeAk"},{name:"Nagercoil",place_id:"ChIJe1LZBiTxBDsRJFLjlbgZoIs"},{name:"Thuckalay-1",place_id:"ChIJc9QgEub4BDsRoyDR4Wd6tYA"},{name:"Marthandam",place_id:"ChIJcWptCRdVBDsRlJh2q0-rnfY"},{name:"Karungal-1",place_id:"ChIJfTP5ASr_BDsRgsBaeQltkw4"},{name:"Colachel-1",place_id:"ChIJgRkBLw39BDsR58D0lwNo5Ts"},{name:"Monday Market",place_id:"ChIJTceRGAD5BDsR65i3YNTcYHk"}]},
-  { id:"tenkasi",      label:"tenkasi.py",      agm:"Muthuselvam", branches:[{name:"Thenkasi",place_id:"ChIJuaqqquEpBDsRVITw0MMYklc"},{name:"Thenkasi-2",place_id:"ChIJiwqLye6DBjsRo9v1mWXaycI"},{name:"Surandai-1",place_id:"ChIJPb1_eEOdBjsRjL9IVCVJhi8"},{name:"Puliyankudi-1",place_id:"ChIJjZqoc46RBjsRQTGHnNC8xxA"},{name:"Sengottai-1",place_id:"ChIJw3zzKiaBBjsR9KDyGpn1nXU"},{name:"Rajapalayam",place_id:"ChIJW2ot-NDpBjsRMTfMF2IV-xE"}]},
-  { id:"tirunelveli",  label:"tirunelveli.py",  agm:"John",        branches:[{name:"Tirunelveli-1",place_id:"ChIJ2RU2NvQRBDsRq-Fw7IVwx7k"},{name:"Ambasamudram-1",place_id:"ChIJ9SGeIi85BDsRZk4QdyW9BSY"},{name:"Anjugramam-1",place_id:"ChIJ4yeJebLtBDsRDceoxujdGyc"},{name:"Valliyur-1",place_id:"ChIJcVNk6TtnBDsRBoP4zpExt5k"}]},
-  { id:"tuticorin",    label:"tuticorin.py",    agm:"Siva",        branches:[{name:"Tuticorin-1",place_id:"ChIJ5zJNoJfvAzsR-bJE_3bbNYw"},{name:"Tuticorin-2",place_id:"ChIJH6gY4-PvAzsRJ50skTlx3cs"},{name:"Thiruchendur-1",place_id:"ChIJeXA4vJKRAzsRBovAtv6lMuQ"},{name:"Udankudi",place_id:"ChIJPQAAACyEAzsRgjznQ1GLom0"},{name:"Eral-2",place_id:"ChIJbwAA0KGMAzsRkQilW5PceeA"},{name:"Thisayanvilai-1",place_id:"ChIJVWkvdfh_BDsRdvtimKCLS5Y"}]},
-  { id:"virudhunagar", label:"virudungar.py",   agm:"Venkatesh",   branches:[{name:"Virudhunagar-2",place_id:"ChIJPezaX7wtATsR9sHhFOG6A1c"},{name:"Aruppukottai",place_id:"ChIJy6qqqgYwATsRbcp-hXnoruM"},{name:"Aruppukottai -2",place_id:"ChIJY04wY58xATsRuoJSichVQQE"},{name:"Sivakasi",place_id:"ChIJI2JvEePOBjsREh8b-x4WF4U"},{name:"Virudhunagar",place_id:"ChIJN3jzNJgsATsRCU3nrB5ntKE"}]},
+  {
+    id: "kovilpatti",
+    label: "kovilpatti.py",
+    agm: "Seenivasan",
+    branches: [
+      { name: "Ramnad",          place_id: "ChIJNVVVVaGiATsRnunSgOTvbE8" },
+      { name: "Kovilpatti",      place_id: "ChIJHY0o-26yBjsRt7wbXB1pDUE" },
+      { name: "Sattur-2",        place_id: "ChIJNVVVVcHKBjsR7xMX97RFn8Q" },
+      { name: "Kayathar-1",      place_id: "ChIJx5ebtUgRBDsRMquPZNUJVpw" },
+      { name: "Sayalkudi-1",     place_id: "ChIJRTqudn9lATsR2fYyMmxlOrw" },
+      { name: "Sankarankovil-1", place_id: "ChIJE1mKnhSXBjsRKMQ-9JKQf_c" },
+      { name: "Paramakudi",      place_id: "ChIJ-dgjBzQHATsRf27FWAJgmsA" },
+      { name: "Villathikullam",  place_id: "ChIJi_wAkwVbATsRtFl3_V5rGrY" },
+    ],
+  },
+  {
+    id: "nagercoil",
+    label: "nagercoil.py",
+    agm: "Jeeva",
+    branches: [
+      { name: "Kulasekharam-1", place_id: "ChIJw0Ep-kNXBDsRe5ad32jAeAk" },
+      { name: "Nagercoil",      place_id: "ChIJe1LZBiTxBDsRJFLjlbgZoIs" },
+      { name: "Thuckalay-1",    place_id: "ChIJc9QgEub4BDsRoyDR4Wd6tYA" },
+      { name: "Marthandam",     place_id: "ChIJcWptCRdVBDsRlJh2q0-rnfY" },
+      { name: "Karungal-1",     place_id: "ChIJfTP5ASr_BDsRgsBaeQltkw4" },
+      { name: "Colachel-1",     place_id: "ChIJgRkBLw39BDsR58D0lwNo5Ts" },
+      { name: "Monday Market",  place_id: "ChIJTceRGAD5BDsR65i3YNTcYHk" },
+    ],
+  },
+  {
+    id: "tenkasi",
+    label: "tenkasi.py",
+    agm: "Muthuselvam",
+    branches: [
+      { name: "Thenkasi",      place_id: "ChIJuaqqquEpBDsRVITw0MMYklc" },
+      { name: "Thenkasi-2",    place_id: "ChIJiwqLye6DBjsRo9v1mWXaycI" },
+      { name: "Surandai-1",    place_id: "ChIJPb1_eEOdBjsRjL9IVCVJhi8" },
+      { name: "Puliyankudi-1", place_id: "ChIJjZqoc46RBjsRQTGHnNC8xxA" },
+      { name: "Sengottai-1",   place_id: "ChIJw3zzKiaBBjsR9KDyGpn1nXU" },
+      { name: "Rajapalayam",   place_id: "ChIJW2ot-NDpBjsRMTfMF2IV-xE" },
+    ],
+  },
+  {
+    id: "tirunelveli",
+    label: "tirunelveli.py",
+    agm: "John",
+    branches: [
+      { name: "Tirunelveli-1",  place_id: "ChIJ2RU2NvQRBDsRq-Fw7IVwx7k" },
+      { name: "Ambasamudram-1", place_id: "ChIJ9SGeIi85BDsRZk4QdyW9BSY" },
+      { name: "Anjugramam-1",   place_id: "ChIJ4yeJebLtBDsRDceoxujdGyc" },
+      { name: "Valliyur-1",     place_id: "ChIJcVNk6TtnBDsRBoP4zpExt5k" },
+    ],
+  },
+  {
+    id: "tuticorin",
+    label: "tuticorin.py",
+    agm: "Siva",
+    branches: [
+      { name: "Tuticorin-1",     place_id: "ChIJ5zJNoJfvAzsR-bJE_3bbNYw" },
+      { name: "Tuticorin-2",     place_id: "ChIJH6gY4-PvAzsRJ50skTlx3cs" },
+      { name: "Thiruchendur-1",  place_id: "ChIJeXA4vJKRAzsRBovAtv6lMuQ" },
+      { name: "Udankudi",        place_id: "ChIJPQAAACyEAzsRgjznQ1GLom0" },
+      { name: "Eral-2",          place_id: "ChIJbwAA0KGMAzsRkQilW5PceeA" },
+      { name: "Thisayanvilai-1", place_id: "ChIJVWkvdfh_BDsRdvtimKCLS5Y" },
+    ],
+  },
+  {
+    id: "virudhunagar",
+    label: "virudungar.py",
+    agm: "Venkatesh",
+    branches: [
+      { name: "Virudhunagar-2",  place_id: "ChIJPezaX7wtATsR9sHhFOG6A1c" },
+      { name: "Aruppukottai",    place_id: "ChIJy6qqqgYwATsRbcp-hXnoruM" },
+      { name: "Aruppukottai -2", place_id: "ChIJY04wY58xATsRuoJSichVQQE" },
+      { name: "Sivakasi",        place_id: "ChIJI2JvEePOBjsREh8b-x4WF4U" },
+      { name: "Virudhunagar",    place_id: "ChIJN3jzNJgsATsRCU3nrB5ntKE" },
+    ],
+  },
 ];
 
-const AGM_COLORS = { Seenivasan:"#d97706", Jeeva:"#059669", Muthuselvam:"#7c3aed", John:"#2563eb", Siva:"#dc2626", Venkatesh:"#db2777" };
+const KERNEL_COLORS = {
+  Seenivasan: "#d97706",
+  Jeeva:      "#059669",
+  Muthuselvam:"#7c3aed",
+  John:       "#2563eb",
+  Siva:       "#dc2626",
+  Venkatesh:  "#db2777",
+};
 
-/* ════════════════════════════════════════════════════════════════════
-   EXCEL
-═══════════════════════════════════════════════════════════════════ */
-function applyStyle(ws, rows, cols) {
-  const thin = { style:"thin", color:{ rgb:"AAAAAA" } };
-  const border = { top:thin, bottom:thin, left:thin, right:thin };
-  for (let r=0;r<rows;r++) for (let c=0;c<cols;c++) {
-    const addr = XLSX.utils.encode_cell({r,c});
-    if (!ws[addr]) ws[addr]={v:"",t:"s"};
-    ws[addr].s = { border, alignment:{horizontal:"center",vertical:"center",wrapText:true},
-      font: r===0 ? {bold:true,sz:11,color:{rgb:"FFFFFF"}} : {sz:11},
-      fill: r===0 ? {fgColor:{rgb:"1E3A5F"},patternType:"solid"} : r%2===0 ? {fgColor:{rgb:"EEF2FA"},patternType:"solid"} : {fgColor:{rgb:"FFFFFF"},patternType:"solid"},
-    };
-  }
-}
-function buildSheet(results) {
-  const headers = ["Branch","Reviews","Stars","Status"];
-  const rows = [headers, ...results.map(r=>[r.branch, r.reviews===0?"FAILED":r.reviews, r.stars, r.status])];
-  const ws = XLSX.utils.aoa_to_sheet(rows);
-  ws["!cols"]=[{wch:26},{wch:14},{wch:10},{wch:10}];
-  ws["!rows"]=rows.map((_,i)=>({hpt:i===0?22:18}));
-  applyStyle(ws,rows.length,headers.length);
-  return ws;
-}
-
-/* ════════════════════════════════════════════════════════════════════
-   PDF  —  FIX: use blob URL + window.open() instead of iframe write
-            Avoids all cross-origin / document.write restrictions.
-═══════════════════════════════════════════════════════════════════ */
-
-/** Safe number formatter — guards against non-numeric values */
-function fmtNum(v) {
-  const n = Number(v);
-  return isNaN(n) ? String(v) : n.toLocaleString("en-IN");
-}
-
-function buildPdfSection(script, results) {
-  const color = AGM_COLORS[script.agm] || "#4f46e5";
-  const ok    = results.filter(r => r.status === "✓").length;
-  const total = results.reduce((a, r) => a + (typeof r.reviews === "number" ? r.reviews : 0), 0);
-
-  // FIX: no embedded quotes in onerror attr — use HTML entities / avoid attr quotes conflict
-  const rows = results.map((r, i) => {
-    const isFailed = r.status !== "✓";
-    const reviewsCell = isFailed ? "—" : fmtNum(r.reviews);
-    const starsCell   = r.stars === "-" || !r.stars ? "—" : r.stars + " ★";
-    const statusCell  = isFailed
-      ? '<span style="color:#b91c1c;font-weight:700">✗ FAILED</span>'
-      : '<span style="color:#15803d;font-weight:700">✓ OK</span>';
-    const rowBg = i % 2 === 0 ? "#ffffff" : "#f8fafc";
-    return `<tr style="background:${rowBg}">
-      <td style="text-align:left;font-weight:600;color:#0f172a;padding:6px 10px;border-bottom:1px solid #e5e7eb">${r.branch}</td>
-      <td style="text-align:center;padding:6px 10px;border-bottom:1px solid #e5e7eb">${reviewsCell}</td>
-      <td style="text-align:center;padding:6px 10px;border-bottom:1px solid #e5e7eb">${starsCell}</td>
-      <td style="text-align:center;padding:6px 10px;border-bottom:1px solid #e5e7eb">${statusCell}</td>
-    </tr>`;
-  }).join("");
-
-  return `
-  <div style="margin-bottom:22px;page-break-inside:avoid">
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:#f0f4f8;border-left:3px solid ${color};margin-bottom:8px;border-radius:0 4px 4px 0">
-      <span style="font-size:11px;font-weight:700;color:#1e293b">${script.label.replace(".py","").toUpperCase()}&nbsp;&nbsp;—&nbsp;&nbsp;${ok}/${results.length} branches</span>
-      <span style="font-size:9px;font-weight:700;padding:2px 9px;border-radius:10px;background:${color}22;color:${color}">AGM: ${script.agm}</span>
-    </div>
-    <table style="width:100%;border-collapse:collapse;font-size:10px">
-      <thead>
-        <tr style="background:#1e3a5f">
-          <th style="color:#fff;font-size:9px;font-weight:700;padding:7px 10px;text-align:left;letter-spacing:.5px;text-transform:uppercase">Branch</th>
-          <th style="color:#fff;font-size:9px;font-weight:700;padding:7px 10px;text-align:center;letter-spacing:.5px;text-transform:uppercase">Reviews</th>
-          <th style="color:#fff;font-size:9px;font-weight:700;padding:7px 10px;text-align:center;letter-spacing:.5px;text-transform:uppercase">Stars</th>
-          <th style="color:#fff;font-size:9px;font-weight:700;padding:7px 10px;text-align:center;letter-spacing:.5px;text-transform:uppercase">Status</th>
-        </tr>
-      </thead>
-      <tbody>${rows}</tbody>
-    </table>
-    <div style="text-align:right;font-size:9px;color:#64748b;margin-top:4px">
-      Total: <strong style="color:#1e293b">${fmtNum(total)}</strong> reviews
-    </div>
-  </div>`;
-}
-
-/* FIX: build the complete HTML string and open it in a new tab via blob URL.
-   This is the most reliable cross-browser approach — no iframe, no document.write,
-   no cross-origin issues, no quote escaping problems. */
-function printPdf(sections, title) {
-  const now     = new Date();
-  const dateStr = now.toLocaleDateString("en-IN", {day:"2-digit",month:"short",year:"numeric"}).toUpperCase();
-  const timeStr = now.toLocaleTimeString("en-IN", {hour:"2-digit",minute:"2-digit"});
-
-  const html = `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>${title}</title>
-<style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 11px;
-    color: #1e293b;
-    background: #fff;
-  }
-  .page { padding: 16mm 15mm 12mm; }
-  .hdr {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-bottom: 2.5px solid #1e3a5f;
-    padding-bottom: 10px;
-    margin-bottom: 18px;
-  }
-  .hdr-left { display: flex; align-items: center; gap: 12px; }
-  .hdr-logo { height: 36px; object-fit: contain; }
-  .hdr-title { font-size: 17px; font-weight: 700; color: #1e3a5f; }
-  .hdr-sub { font-size: 9px; color: #64748b; margin-top: 3px; text-transform: uppercase; letter-spacing: .5px; }
-  .hdr-right { text-align: right; font-size: 9px; color: #64748b; line-height: 2; }
-  .hdr-right strong { color: #1e293b; }
-  .footer {
-    margin-top: 20px;
-    border-top: 1px solid #e5e7eb;
-    padding-top: 8px;
-    display: flex;
-    justify-content: space-between;
-    font-size: 8px;
-    color: #94a3b8;
-  }
-  @media print {
-    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    @page { size: A4; margin: 0; }
-    .page { padding: 13mm 14mm 10mm; }
-  }
-</style>
-</head>
-<body>
-<div class="page">
-  <div class="hdr">
-    <div class="hdr-left">
-      <img class="hdr-logo"
-           src="https://www.sathya.store/new_frontend/assets/img/sathya.webp"
-           alt="Sathya Agencies">
-      <div>
-        <div class="hdr-title">Google Review Report</div>
-        <div class="hdr-sub">Sathya Agencies &mdash; Tamil Nadu Branches</div>
-      </div>
-    </div>
-    <div class="hdr-right">
-      <div>Date: <strong>${dateStr}</strong></div>
-      <div>Time: <strong>${timeStr}</strong></div>
-      <div>Generated by Live Tracker</div>
-    </div>
-  </div>
-
-  ${sections}
-
-  <div class="footer">
-    <span>Sathya Agencies &mdash; Google Review Tracker</span>
-    <span>Generated: ${dateStr} &nbsp; ${timeStr}</span>
-  </div>
-</div>
-<script>
-  // Auto-print after images load (or after 1.2s timeout, whichever first)
-  var printed = false;
-  function doPrint() {
-    if (printed) return;
-    printed = true;
-    window.print();
-  }
-  var img = document.querySelector('img.hdr-logo');
-  if (img) {
-    img.addEventListener('load',  doPrint);
-    img.addEventListener('error', doPrint);
-  }
-  setTimeout(doPrint, 1200);
-<\/script>
-</body>
-</html>`;
-
-  // Create blob and open in new tab — clean, reliable, no cross-origin issues
-  const blob = new Blob([html], { type: "text/html;charset=utf-8" });
-  const url  = URL.createObjectURL(blob);
-  const win  = window.open(url, "_blank");
-
-  // Revoke the blob URL after the window has loaded to free memory
-  if (win) {
-    win.addEventListener("load", () => {
-      setTimeout(() => URL.revokeObjectURL(url), 3000);
-    });
-  } else {
-    // Fallback if popup blocked — revoke after delay anyway
-    setTimeout(() => URL.revokeObjectURL(url), 10000);
-    alert("Pop-up blocked! Please allow pop-ups for this page and try again.");
-  }
-}
-
-/* ════════════════════════════════════════════════════════════════════
-   simulateRun  —  with API retry + per-branch retry
-═══════════════════════════════════════════════════════════════════ */
 async function simulateRun(script, onLine) {
-  const now      = new Date();
-  const dateStr  = now.toISOString().replace("T"," ").substring(0,19);
-  const dateLabel= now.toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"}).toUpperCase();
+  const now       = new Date();
+  const dateStr   = now.toISOString().replace("T"," ").substring(0,19);
+  const dateLabel = now.toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"}).toUpperCase();
+
   const emit = (text, type="normal") =>
-    new Promise(r => setTimeout(() => { onLine({text,type}); r(); }, 0));
+    new Promise(r => setTimeout(() => { onLine({text, type}); r(); }, 0));
 
-  await emit("=".repeat(55),"muted");
-  await emit("  SATHYA AGENCIES — Live Review Tracker","bold");
-  await emit(`  Running: ${dateStr}`,"muted");
-  await emit(`  Date:    ${dateLabel}`,"muted");
-  await emit("=".repeat(55),"muted");
-  await emit("");
-  await emit(`🌐 Fetching ${script.branches.length} branches...`,"accent");
-  await emit("");
+  await emit("=".repeat(60), "muted");
+  await emit("  SATHYA AGENCIES — Live Review Tracker", "bold");
+  await emit(`  Script : ${script.label}`, "muted");
+  await emit(`  AGM    : ${script.agm}  (${script.branches.length} branches)`, "muted");
+  await emit(`  Time   : ${dateStr}`, "muted");
+  await emit("=".repeat(60), "muted");
+  await emit("", "normal");
 
-  const prompt = `Generate realistic mock Google Maps review data for Sathya Agencies branches in Tamil Nadu.\nBranches: ${script.branches.map(b=>b.name).join(", ")}\nRespond ONLY with a valid JSON array, no markdown:\n[{"name":"BranchName","reviews":1234,"stars":4.5}]\nRules: reviews 800-8000, stars 3.8-4.9 (one decimal), realistic variation.`;
-
-  let branchData = [];
-  for (let a=1; a<=3; a++) {
-    try {
-      if (a>1) { await emit(`  ↺ API retry ${a}/3...`,"muted"); await new Promise(r=>setTimeout(r,1200*a)); }
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
-        method:"POST", headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:500,messages:[{role:"user",content:prompt}]}),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const d = await res.json();
-      branchData = JSON.parse((d.content?.[0]?.text||"[]").replace(/```json|```/g,"").trim());
-      if (a>1) await emit(`  ✅ Connected on attempt ${a}`,"success");
-      break;
-    } catch(_) {
-      if (a===3) {
-        await emit("  ⚠ API failed — using fallback data","error");
-        branchData = script.branches.map(b=>({name:b.name,reviews:Math.floor(Math.random()*5000)+1000,stars:parseFloat((Math.random()*1.0+3.9).toFixed(1))}));
-      }
-    }
+  // Check if tracker.py server is running
+  try {
+    const s = await fetch("http://localhost:5000/status", {signal: AbortSignal.timeout(2000)});
+    if (!s.ok) throw new Error();
+  } catch {
+    await emit("  ❌  Server not running.", "error");
+    await emit("", "normal");
+    await emit("  Run this first:", "muted");
+    await emit("       Windows : double-click  start.bat", "muted");
+    await emit("       Mac/Linux: run  ./start.sh", "muted");
+    await emit("", "normal");
+    await emit("  Then click ▶ again.", "muted");
+    await emit("=".repeat(60), "muted");
+    return;
   }
 
-  let total=0;
-  const failed=[], results=[];
-  for (let i=0; i<script.branches.length; i++) {
-    const b   = script.branches[i];
-    const pad = String(i+1).padStart(2,"0");
-    const found = branchData.find(d=>d.name===b.name) || {
-      reviews: Math.floor(Math.random()*3000)+1000,
-      stars:   parseFloat((Math.random()*1.0+4.0).toFixed(1)),
+  await emit(`  🌐 Playwright scraping ${script.branches.length} branches...`, "accent");
+  await emit("", "normal");
+
+  // Stream results from tracker.py via SSE
+  await new Promise(resolve => {
+    const es = new EventSource(`http://localhost:5000/scrape/${encodeURIComponent(script.agm)}`);
+
+    es.onmessage = e => {
+      let msg;
+      try { msg = JSON.parse(e.data); } catch { return; }
+      if (msg.event === "log")  onLine({text: msg.text, type: msg.type || "normal"});
+      if (msg.event === "done") { es.close(); resolve(); }
     };
-    let ok = false;
-    for (let a=1; a<=3; a++) {
-      if (a>1) { await emit(`    ↺ Retry ${b.name} (${a}/3)...`,"muted"); await new Promise(r=>setTimeout(r,600*a)); }
-      await new Promise(r=>setTimeout(r, a===1?260:0));
-      if (a===1 ? Math.random()>0.05 : Math.random()>0.02) { ok=true; break; }
-    }
-    if (ok) {
-      total += found.reviews;
-      results.push({branch:b.name, reviews:found.reviews, stars:found.stars, status:"✓"});
-      await emit(`  [${pad}/${script.branches.length}] ${b.name.padEnd(20)} → ${found.reviews.toLocaleString()} reviews  ${found.stars}⭐  ✓`,"success");
-    } else {
-      failed.push(b.name);
-      results.push({branch:b.name, reviews:0, stars:"-", status:"FAILED"});
-      await emit(`  [${pad}/${script.branches.length}] ${b.name.padEnd(20)} → FAILED after 3 attempts ✗`,"error");
-    }
-  }
-  await emit("","muted");
-  await emit("─".repeat(55),"muted");
-  await emit(`  ✅ Fetched: ${script.branches.length-failed.length}/${script.branches.length}`,"success");
-  if (failed.length) await emit(`  ❌ Failed: ${failed.join(", ")}`,"error");
-  await emit("","muted");
-  await emit("📊 Excel & PDF ready — use the Download buttons below","muted");
-  await emit("","muted");
-  await emit("=".repeat(55),"muted");
-  await emit("  🎉 ALL DONE!","bold");
-  await emit(`  Total reviews: ${total.toLocaleString()}`,"bold");
-  await emit("=".repeat(55),"muted");
-  return { results, total, dateStr, dateLabel };
+
+    es.onerror = () => {
+      es.close();
+      onLine({text: "  ⚠  Lost connection to server.", type: "error"});
+      resolve();
+    };
+  });
 }
 
-/* ════════════════════════════════════════════════════════════════════
-   OutputLine
-═══════════════════════════════════════════════════════════════════ */
-const LINE_COLORS = { normal:"#1e293b", muted:"#94a3b8", bold:"#0f172a", success:"#15803d", error:"#b91c1c", accent:"#1d4ed8" };
-function OutputLine({text,type}) {
+function OutputLine({ text, type }) {
+  const styles = {
+    normal:  { color: "#1e293b" },
+    muted:   { color: "#94a3b8" },
+    bold:    { color: "#0f172a", fontWeight: 700 },
+    success: { color: "#15803d" },
+    error:   { color: "#b91c1c" },
+    accent:  { color: "#1d4ed8" },
+  };
   return (
-    <div className="output-line" style={{color:LINE_COLORS[type]||"#1e293b", fontWeight:type==="bold"?700:undefined}}>
-      {text||"\u00a0"}
+    <div style={{
+      fontFamily: "'Courier New', Courier, monospace",
+      fontSize: "12.5px",
+      lineHeight: "1.75",
+      whiteSpace: "pre",
+      ...styles[type || "normal"],
+    }}>
+      {text || "\u00a0"}
     </div>
   );
 }
 
-/* ════════════════════════════════════════════════════════════════════
-   SplitButton  —  Left = Excel download, Right (PDF tab) = PDF print
-   FIX: separator now has explicit pixel height via inline style
-═══════════════════════════════════════════════════════════════════ */
-function SplitButton({ label, onExcel, onPdf, disabled, variant="ds-green" }) {
-  const cls = disabled ? "ds-gray" : variant;
-  return (
-    <div className={`dl-split ${cls}`}>
-      <button className="dl-split-main" onClick={disabled?undefined:onExcel} disabled={disabled} title="Download Excel">
-        <svg width="11" height="11" viewBox="0 0 13 13" fill="none">
-          <path d="M6.5 1v7M4 6l2.5 2.5L9 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-          <path d="M2 10h9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
-        </svg>
-        {label}
-      </button>
-      {/* FIX: explicit inline height so separator is always visible */}
-      <div className="dl-split-sep" style={{height:"30px"}}/>
-      <button className="dl-split-pdf" onClick={disabled?undefined:onPdf} disabled={disabled} title="Download PDF">
-        PDF
-      </button>
-    </div>
-  );
-}
-
-/* ════════════════════════════════════════════════════════════════════
-   Cell
-   FIX: triggerRun useEffect uses a runRef to avoid stale closure on `run`
-   FIX: runAll wait mechanism uses a promise + ref instead of setInterval+setState
-═══════════════════════════════════════════════════════════════════ */
-function Cell({script, runCount, selected, onToggleSelect, onDataReady, triggerRun, clearTrigger}) {
-  const [status,    setStatus]    = useState("idle");
-  const [lines,     setLines]     = useState([]);
-  const [execNum,   setExecNum]   = useState(null);
-  const [runData,   setRunData]   = useState(null);
-  const [collapsed, setCollapsed] = useState(false);
-  const outputRef   = useRef(null);
+function Cell({ script, index, runCount }) {
+  const [status, setStatus] = useState("idle");
+  const [lines, setLines] = useState([]);
+  const [execNum, setExecNum] = useState(null);
+  const outputRef = useRef(null);
   const globalCount = useRef(runCount);
-  const color       = AGM_COLORS[script.agm] || "#6366f1";
-  const isRunning   = status === "running";
-
-  // Keep a ref to run so the useEffect below doesn't capture a stale closure
-  const runRef = useRef(null);
 
   const run = async () => {
     if (status === "running") return;
-    setStatus("running"); setLines([]); setRunData(null); setCollapsed(false);
-    onDataReady(script.id, null);
-    setExecNum(++globalCount.current);
-    const result = await simulateRun(script, line => {
+    setStatus("running");
+    setLines([]);
+    const num = ++globalCount.current;
+    setExecNum(num);
+
+    await simulateRun(script, (line) => {
       setLines(prev => [...prev, line]);
-      setTimeout(() => { if (outputRef.current) outputRef.current.scrollTop = outputRef.current.scrollHeight; }, 10);
+      setTimeout(() => {
+        if (outputRef.current) {
+          outputRef.current.scrollTop = outputRef.current.scrollHeight;
+        }
+      }, 10);
     });
-    setRunData(result);
-    onDataReady(script.id, result);
+
     setStatus("done");
   };
 
-  // Keep runRef current on every render
-  runRef.current = run;
-
-  // FIX: useEffect calls via ref — never captures stale `run`
-  useEffect(() => {
-    if (triggerRun && status !== "running") {
-      runRef.current();
-      clearTrigger(script.id);
-    }
-  }, [triggerRun]); // eslint-disable-line
-
-  const doExcel = () => {
-    if (!runData) return;
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, buildSheet(runData.results), script.label.replace(".py",""));
-    XLSX.writeFile(wb, `${script.label.replace(".py","")}_reviews_${runData.dateLabel.replace(/ /g,"_")}.xlsx`);
-  };
-
-  const doPdf = () => {
-    if (!runData) return;
-    printPdf(buildPdfSection(script, runData.results), `${script.label.replace(".py","")} — Review Report`);
-  };
-
-  const hasOutput = lines.length > 0 || isRunning;
-  const hdrCls = isRunning
-    ? `cell-hdr cell-hdr-running-${collapsed?"closed":"open"}`
-    : `cell-hdr cell-hdr-${collapsed||!hasOutput?"closed":"open"}`;
-  const hdrStyle = isRunning ? {borderColor:color, borderStyle:"solid", borderWidth:"1px"} : {};
+  const accentColor = KERNEL_COLORS[script.agm] || "#6366f1";
 
   return (
-    <div className="cell-wrap">
-      <div className="cell-gutter">
-        <button className="run-btn" onClick={run} disabled={isRunning}
-          style={{border:`1.5px solid ${isRunning?"#e2e8f0":color+"66"}`, color:isRunning?"#94a3b8":color}}>
-          {isRunning
-            ? <svg width="12" height="12" viewBox="0 0 13 13" fill="none" className="spin"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" strokeWidth="1.5" strokeDasharray="18" strokeDashoffset="6"/></svg>
-            : <svg width="9" height="10" viewBox="0 0 10 11" fill={color}><path d="M1 1 L9 5.5 L1 10 Z"/></svg>
-          }
+    <div style={{ display: "flex", gap: 0, marginBottom: "0px" }}>
+      {/* Gutter */}
+      <div style={{
+        width: 56,
+        flexShrink: 0,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        paddingTop: 10,
+        gap: 4,
+      }}>
+        <button
+          onClick={run}
+          disabled={status === "running"}
+          style={{
+            width: 28,
+            height: 28,
+            borderRadius: "50%",
+            border: `1.5px solid ${status === "running" ? "#e2e8f0" : accentColor + "55"}`,
+            background: status === "running" ? "#f8fafc" : "white",
+            cursor: status === "running" ? "not-allowed" : "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: status === "running" ? "#94a3b8" : accentColor,
+            transition: "all 0.15s",
+            padding: 0,
+          }}
+        >
+          {status === "running" ? (
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none" style={{ animation: "jupy-spin 0.9s linear infinite" }}>
+              <circle cx="6.5" cy="6.5" r="5" stroke="currentColor" strokeWidth="1.5" strokeDasharray="18" strokeDashoffset="6" />
+            </svg>
+          ) : (
+            <svg width="10" height="11" viewBox="0 0 10 11" fill={accentColor}>
+              <path d="M1 1 L9 5.5 L1 10 Z" />
+            </svg>
+          )}
         </button>
-        <span className="exec-num">{execNum ? `[${execNum}]` : "[ ]"}</span>
+
+        <span style={{
+          fontFamily: "monospace",
+          fontSize: "10px",
+          color: "#94a3b8",
+          letterSpacing: "0.3px",
+        }}>
+          {execNum ? `[${execNum}]` : "[ ]"}
+        </span>
       </div>
 
-      <div className="cell-body">
-        <div className={hdrCls} style={hdrStyle}>
-          <div style={{display:"flex",alignItems:"center",gap:8,minWidth:0,flex:1,overflow:"hidden"}}>
-            <input type="checkbox" checked={selected} onChange={()=>onToggleSelect(script.id)}
-              style={{width:13,height:13,accentColor:color,cursor:"pointer",flexShrink:0}}/>
-            <span style={{fontFamily:"'DM Mono',monospace",fontSize:"12px",color:"#1e3a5f",fontWeight:600,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
-              <span style={{color:"#7c3aed"}}>import</span>{" "}
-              <span style={{color:"#0369a1"}}>playwright</span>
-              {" # "}
-              <span style={{color:"#64748b"}}>{script.label}</span>
+      {/* Cell body */}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        {/* Code area */}
+        <div style={{
+          border: `1px solid ${status === "running" ? accentColor : "#d1d5db"}`,
+          borderRadius: "4px 4px 0 0",
+          background: status === "running" ? "#fffbeb" : "#f8fafc",
+          padding: "10px 16px",
+          borderBottom: "none",
+          transition: "border-color 0.2s",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 12,
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <span style={{
+              fontFamily: "'Courier New', monospace",
+              fontSize: "13px",
+              color: "#1e3a5f",
+              fontWeight: 600,
+            }}>
+              <span style={{ color: "#7c3aed" }}>import</span>{" "}
+              <span style={{ color: "#0369a1" }}>playwright</span>
+              {"  # "}
+              <span style={{ color: "#64748b" }}>{script.label}</span>
             </span>
-            <span style={{fontSize:"10px",background:color+"18",color,border:`1px solid ${color}35`,borderRadius:"4px",padding:"1px 7px",fontFamily:"monospace",fontWeight:600,flexShrink:0}}>
-              {script.agm}
+            <span style={{
+              fontSize: "10px",
+              background: accentColor + "18",
+              color: accentColor,
+              border: `1px solid ${accentColor}35`,
+              borderRadius: "4px",
+              padding: "1px 8px",
+              fontFamily: "monospace",
+              fontWeight: 600,
+            }}>
+              AGM: {script.agm}
+            </span>
+            <span style={{
+              fontSize: "10px",
+              color: "#94a3b8",
+              fontFamily: "monospace",
+            }}>
+              {script.branches.length} branches
             </span>
           </div>
-          <div style={{display:"flex",alignItems:"center",gap:7,flexShrink:0}}>
-            <span style={{fontSize:"10px",color:status==="done"?"#15803d":isRunning?color:"#94a3b8",fontFamily:"monospace",fontWeight:600,whiteSpace:"nowrap"}}>
-              {status==="done" ? "● done" : isRunning ? "● running" : "○ idle"}
-            </span>
-            {hasOutput && !isRunning && (
-              <button className="collapse-btn" onClick={()=>setCollapsed(c=>!c)} title={collapsed?"Expand":"Collapse"}>
-                {collapsed ? "▼" : "▲"}
-              </button>
+          <span style={{
+            fontSize: "10px",
+            color: status === "done" ? "#15803d" : status === "running" ? accentColor : "#94a3b8",
+            fontFamily: "monospace",
+            fontWeight: 600,
+          }}>
+            {status === "done" ? "● done" : status === "running" ? "● running" : "○ idle"}
+          </span>
+        </div>
+
+        {/* Output area */}
+        {(lines.length > 0 || status === "running") && (
+          <div
+            ref={outputRef}
+            style={{
+              border: "1px solid #d1d5db",
+              borderTop: "1px dashed #e5e7eb",
+              borderRadius: "0 0 4px 4px",
+              background: "white",
+              padding: "10px 16px",
+              maxHeight: "300px",
+              overflowY: "auto",
+            }}
+          >
+            {lines.length === 0 && status === "running" && (
+              <div style={{ color: "#94a3b8", fontFamily: "monospace", fontSize: "12px" }}>
+                Launching chromium...
+              </div>
+            )}
+            {lines.map((line, i) => (
+              <OutputLine key={i} text={line.text} type={line.type} />
+            ))}
+            {status === "running" && lines.length > 0 && (
+              <span style={{
+                display: "inline-block",
+                width: 7,
+                height: 13,
+                background: "#1e293b",
+                marginLeft: 2,
+                verticalAlign: "middle",
+                animation: "jupy-blink 1s step-end infinite",
+              }} />
             )}
           </div>
-        </div>
-
-        {!collapsed && hasOutput && (
-          <div className="cell-output" ref={outputRef}>
-            {lines.length===0 && isRunning && <div style={{color:"#94a3b8",fontFamily:"monospace",fontSize:"12px"}}>Launching chromium...</div>}
-            {lines.map((l,i) => <OutputLine key={i} text={l.text} type={l.type}/>)}
-            {isRunning && lines.length>0 && <span className="blink" style={{display:"inline-block",width:7,height:13,background:"#1e293b",marginLeft:2,verticalAlign:"middle"}}/>}
-          </div>
         )}
 
-        {!hasOutput && status==="idle" && <div className="cell-empty"># No output yet — click ▶ to run</div>}
-
-        {/* Per-cell: Excel (left) + PDF (right) */}
-        {status==="done" && runData && (
-          <div className="cell-dl-row">
-            <SplitButton label="Excel" onExcel={doExcel} onPdf={doPdf} variant="ds-green"/>
+        {/* No output yet */}
+        {lines.length === 0 && status === "idle" && (
+          <div style={{
+            border: "1px solid #e5e7eb",
+            borderTop: "1px dashed #e5e7eb",
+            borderRadius: "0 0 4px 4px",
+            background: "white",
+            padding: "8px 16px",
+            color: "#cbd5e1",
+            fontFamily: "monospace",
+            fontSize: "11px",
+          }}>
+            # No output yet — click ▶ to run
           </div>
         )}
       </div>
@@ -575,190 +372,97 @@ function Cell({script, runCount, selected, onToggleSelect, onDataReady, triggerR
   );
 }
 
-/* ════════════════════════════════════════════════════════════════════
-   App
-   FIX: runAll uses a proper Promise that resolves via onDataReady callback
-        instead of polling setState (which caused stale closures + loops)
-═══════════════════════════════════════════════════════════════════ */
 function App() {
   const runCounter = useRef(0);
-  const [selected,    setSelected]    = useState(() => new Set(SCRIPTS.map(s=>s.id)));
-  const [allData,     setAllData]     = useState({});
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [triggers,    setTriggers]    = useState({});
-  const [runAllBusy,  setRunAllBusy]  = useState(false);
-
-  // Resolver map: id → resolve fn for the runAll await
-  const resolvers = useRef({});
-
-  const allSelected  = selected.size === SCRIPTS.length;
-  const someSelected = selected.size > 0 && !allSelected;
-  const selectedIds  = [...selected];
-  const allDoneCount = selectedIds.filter(id => allData[id]).length;
-  // Download All only enabled when EVERY selected script has finished data
-  const readyForDownload = selectedIds.length > 0 && allDoneCount === selectedIds.length;
-
-  const toggleAll    = () => setSelected(allSelected ? new Set() : new Set(SCRIPTS.map(s=>s.id)));
-  const toggle       = id => setSelected(p => { const n=new Set(p); n.has(id)?n.delete(id):n.add(id); return n; });
-  const closeSidebar = () => setSidebarOpen(false);
-
-  // FIX: onDataReady also resolves any pending runAll promise for that id
-  const onDataReady = useCallback((id, data) => {
-    setAllData(p => ({...p, [id]: data}));
-    if (data !== null && resolvers.current[id]) {
-      resolvers.current[id]();
-      delete resolvers.current[id];
-    }
-  }, []);
-
-  const clearTrigger = useCallback((id) => {
-    setTriggers(p => ({...p, [id]: false}));
-  }, []);
-
-  // FIX: clean sequential run — waits for each cell's onDataReady(id, nonNull)
-  const runAll = async () => {
-    if (runAllBusy || selectedIds.length === 0) return;
-    setRunAllBusy(true);
-    // Clear existing data so readyForDownload resets
-    setAllData(p => {
-      const next = {...p};
-      selectedIds.forEach(id => { next[id] = null; });
-      return next;
-    });
-
-    for (const id of selectedIds) {
-      // Set trigger for this cell
-      setTriggers(p => ({...p, [id]: true}));
-      // Wait until that cell calls onDataReady(id, nonNull)
-      await new Promise(resolve => { resolvers.current[id] = resolve; });
-    }
-    setRunAllBusy(false);
-  };
-
-  const doExcelAll = () => {
-    const label = new Date().toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"}).toUpperCase();
-    const wb = XLSX.utils.book_new();
-    SCRIPTS.forEach(s => {
-      if (!selected.has(s.id) || !allData[s.id]) return;
-      XLSX.utils.book_append_sheet(wb, buildSheet(allData[s.id].results), s.label.replace(".py",""));
-    });
-    if (!wb.SheetNames.length) return;
-    XLSX.writeFile(wb, `sathya_all_reviews_${label.replace(/ /g,"_")}.xlsx`);
-  };
-
-  const doPdfAll = () => {
-    const sections = SCRIPTS
-      .filter(s => selected.has(s.id) && allData[s.id])
-      .map(s => buildPdfSection(s, allData[s.id].results))
-      .join("");
-    if (!sections) return;
-    printPdf(sections, "Sathya Agencies — All Branch Review Report");
-  };
 
   return (
-    <div style={{minHeight:"100vh",background:"#f9fafb"}}>
-      <div className={`sidebar-overlay${sidebarOpen?" show":""}`} onClick={closeSidebar}/>
+    <div style={{
+      minHeight: "100vh",
+      background: "#f9fafb",
+      fontFamily: "system-ui, -apple-system, sans-serif",
+    }}>
+      <style>{`
+        @keyframes jupy-spin {
+          from { transform: rotate(0deg); }
+          to   { transform: rotate(360deg); }
+        }
+        @keyframes jupy-blink {
+          0%, 100% { opacity: 1; }
+          50%       { opacity: 0; }
+        }
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+      `}</style>
 
-      {/* TOP BAR */}
-      <div className="topbar">
-        <div className="topbar-logo">
-          <img src="https://www.sathya.store/new_frontend/assets/img/sathya.webp" alt="Sathya"
-               onError={e=>e.target.style.display="none"}/>
-          <span className="topbar-logo-text">Live<br/>Tracker</span>
-        </div>
-        <button className="hamburger" onClick={()=>setSidebarOpen(o=>!o)}><span/><span/><span/></button>
-
-        <div className="topbar-controls">
-          {/* Select All */}
-          <label style={{display:"flex",alignItems:"center",gap:6,cursor:"pointer",fontSize:"12px",fontWeight:600,color:"#374151",userSelect:"none",flexShrink:0}}>
-            <input type="checkbox" checked={allSelected}
-              ref={el=>{ if(el) el.indeterminate=someSelected; }}
-              onChange={toggleAll}
-              style={{width:14,height:14,accentColor:"#1d4ed8",cursor:"pointer"}}/>
-            <span className="dl-label">Select All</span>
-          </label>
-
-          <div className="divider-v"/>
-
-          {/* Run All */}
-          <button className="run-all-btn" onClick={runAll}
-            disabled={runAllBusy || selectedIds.length===0}
-            title={selectedIds.length===0?"Select scripts first":`Run ${selectedIds.length} selected script(s)`}>
-            {runAllBusy
-              ? <svg width="12" height="12" viewBox="0 0 13 13" fill="none" className="spin"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" strokeWidth="1.5" strokeDasharray="18" strokeDashoffset="6"/></svg>
-              : <svg width="11" height="11" viewBox="0 0 10 11" fill="currentColor"><path d="M1 1 L9 5.5 L1 10 Z"/></svg>
-            }
-            <span className="dl-label">{runAllBusy ? "Running…" : `Run All (${selectedIds.length})`}</span>
-          </button>
-
-          <div className="divider-v"/>
-
-          {/* Download All — Excel left, PDF right — only when ALL selected scripts are done */}
-          <SplitButton
-            label={<span className="dl-label">Download Excel{readyForDownload ? ` (${allDoneCount})` : ""}</span>}
-            onExcel={doExcelAll}
-            onPdf={doPdfAll}
-            disabled={!readyForDownload}
-            variant="ds-blrose"
-          />
-        </div>
-
-        <div className="topbar-right">
-          <div className="kernel-pill"><span className="kernel-dot"/>Python 3 (ipykernel)</div>
+      {/* Top bar */}
+      <div style={{
+        background: "white",
+        borderBottom: "1px solid #e5e7eb",
+        padding: "0 24px",
+        display: "flex",
+        alignItems: "center",
+        height: "40px",
+      }}>
+        <div style={{ flex: 1 }} />
+        <div style={{
+          fontSize: "11px",
+          color: "#94a3b8",
+          fontFamily: "monospace",
+          display: "flex",
+          alignItems: "center",
+          gap: 6,
+        }}>
+          <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#22c55e" }} />
+          Python 3 (ipykernel)
         </div>
       </div>
 
-      {/* LAYOUT */}
-      <div className="layout">
-        {/* Sidebar */}
-        <div className={`sidebar${sidebarOpen?" open":""}`}>
-          <div className="s-label">Navigation</div>
-          <a href="index.html" className="s-item" onClick={closeSidebar}><span className="s-icon">🏠</span>Home<span className="s-arrow">↗</span></a>
-          <a href="sathya-weather.html" className="s-item" onClick={closeSidebar}><span className="s-icon">⛅</span>Weather<span className="s-arrow">↗</span></a>
-          <div className="s-divider"/>
-          <div className="s-label">Scripts</div>
-          {SCRIPTS.map(s => (
-            <div key={s.id} className="s-script">
-              <span className="s-dot" style={{background:AGM_COLORS[s.agm]||"#6366f1"}}/>
-              <span style={{flex:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",fontSize:"12px"}}>{s.label}</span>
-              <span style={{fontSize:"10px",color:"#94a3b8",fontFamily:"monospace"}}>{s.branches.length}</span>
+      {/* Notebook body */}
+      <div style={{
+        maxWidth: "960px",
+        margin: "0 auto",
+        padding: "24px 0 60px 0",
+      }}>
+        {/* Title cell */}
+        <div style={{ display: "flex", gap: 0, marginBottom: "0px" }}>
+          <div style={{ width: 56, flexShrink: 0 }} />
+          <div style={{
+            flex: 1,
+            padding: "10px 16px",
+            background: "white",
+            border: "1px solid #e5e7eb",
+            borderLeft: "4px solid #3b82f6",
+            borderRadius: "4px",
+            marginBottom: "2px",
+          }}>
+            <div style={{ fontSize: "18px", fontWeight: 700, color: "#0f172a", marginBottom: 4 }}>
+              🏪 Google Review Tracker
             </div>
-          ))}
-        </div>
-
-        {/* Main notebook */}
-        <div className="main">
-          <div style={{display:"flex",gap:0,marginBottom:2}}>
-            <div style={{width:44,flexShrink:0}}/>
-            <div className="title-cell">
-              <div style={{fontSize:"16px",fontWeight:700,color:"#0f172a",marginBottom:3}}>🏪 Google Review Tracker</div>
-              <div style={{fontSize:"11.5px",color:"#64748b",fontFamily:"monospace"}}>
-                Playwright · Chromium Headless · Tamil Nadu · Auto-retry · Excel &amp; PDF export
-              </div>
+            <div style={{ fontSize: "12.5px", color: "#64748b", fontFamily: "monospace" }}>
+              Playwright · Chromium Headless · Tamil Nadu Branches · Output-only mode
             </div>
           </div>
-          <div style={{height:10}}/>
-          {SCRIPTS.map((s,i) => (
-            <div key={s.id} style={{marginBottom:3}}>
-              <Cell
-                script={s}
-                index={i}
-                runCount={runCounter}
-                selected={selected.has(s.id)}
-                onToggleSelect={toggle}
-                onDataReady={onDataReady}
-                triggerRun={triggers[s.id]}
-                clearTrigger={clearTrigger}
-              />
-            </div>
-          ))}
         </div>
+
+        <div style={{ height: 12 }} />
+
+        {/* Code cells */}
+        {SCRIPTS.map((script, i) => (
+          <div key={script.id} style={{ marginBottom: "3px" }}>
+            <Cell
+              script={script}
+              index={i}
+              runCount={runCounter}
+            />
+          </div>
+        ))}
       </div>
     </div>
   );
 }
 
-ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App));
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
 </script>
 </body>
 </html>
