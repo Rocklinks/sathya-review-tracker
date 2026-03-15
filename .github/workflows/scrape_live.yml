@@ -1,7 +1,6 @@
-name: Run Live Tracker
-
+name: Run Live Scraper
 on:
-  workflow_dispatch:   # Run manually from GitHub Actions tab — click "Run workflow"
+  workflow_dispatch:
 
 jobs:
   scrape:
@@ -16,14 +15,25 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install dependencies
-        run: pip install playwright
+      - name: Make start.sh executable
+        run: chmod +x start.sh
 
-      - name: Install Playwright browser
-        run: playwright install chromium --with-deps
+      - name: Run start.sh (setup environment)
+        run: ./start.sh
 
-      - name: Run scraper
-        run: python ./docs/tracker.py
+      - name: Install Jupyter & dependencies
+        run: |
+          pip install jupyter playwright
+          playwright install chromium --with-deps
+
+      - name: Run sathya_jupyter.html (Playwright scraper)
+        run: |
+          # Convert HTML notebook to Python script & execute
+          jupyter nbconvert --to python sathya_jupyter.ipynb --stdout | python
+          
+      # Alternative if it's already a .py file:
+      # - name: Run sathya_jupyter
+      #   run: python sathya_jupyter.py
 
       - name: Commit results
         run: |
