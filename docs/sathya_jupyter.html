@@ -122,14 +122,12 @@ async function simulateRun(script, onLine) {
   await emit("=".repeat(60), "muted");
   await emit("", "normal");
 
-  // Check server
   try {
-    const r = await fetch(`${SERVER}/status`, {signal: AbortSignal.timeout(5000)});
-    if (!r.ok) throw new Error("status " + r.status);
+    const r = await fetch(`${SERVER}/status`, {signal: AbortSignal.timeout(6000)});
+    if (!r.ok) throw new Error("HTTP " + r.status);
   } catch(e) {
-    await emit("  ❌  Railway server not reachable: " + e.message, "error");
-    await emit("  URL: " + SERVER, "muted");
-    await emit("  Check Railway dashboard — service may be sleeping.", "muted");
+    await emit("  ❌  Server not reachable: " + e.message, "error");
+    await emit("  Check: " + SERVER + "/status", "muted");
     await emit("=".repeat(60), "muted");
     return;
   }
@@ -139,17 +137,14 @@ async function simulateRun(script, onLine) {
 
   await new Promise(resolve => {
     const es = new EventSource(`${SERVER}/scrape/${encodeURIComponent(script.agm)}`);
-
     es.onmessage = e => {
-      let msg;
-      try { msg = JSON.parse(e.data); } catch { return; }
+      let msg; try { msg = JSON.parse(e.data); } catch { return; }
       if (msg.event === "log")  onLine({text: msg.text, type: msg.type || "normal"});
       if (msg.event === "done") { es.close(); resolve(); }
     };
-
     es.onerror = () => {
       es.close();
-      onLine({text: "  ⚠  Stream error — Railway may have timed out.", type: "error"});
+      onLine({text: "  ⚠  Stream disconnected.", type: "error"});
       resolve();
     };
   });
