@@ -104,6 +104,14 @@ const KERNEL_COLORS = {
   Venkatesh:  "#db2777",
 };
 
+// ── SERVER URL ────────────────────────────────────────────────
+// After deploying live_scraper.py to Railway, paste your URL here:
+// e.g. "https://sathya-live-scraper.up.railway.app"
+// Leave as "" to use localhost (start.bat on your machine)
+const RAILWAY_URL = "web-production-e3a4d.up.railway.app";
+
+const SERVER = RAILWAY_URL || "http://localhost:5000";
+
 async function simulateRun(script, onLine) {
   const now       = new Date();
   const dateStr   = now.toISOString().replace("T"," ").substring(0,19);
@@ -120,28 +128,30 @@ async function simulateRun(script, onLine) {
   await emit("=".repeat(60), "muted");
   await emit("", "normal");
 
-  // Check if tracker.py server is running
+  // Check server is up
   try {
-    const s = await fetch("http://localhost:5000/status", {signal: AbortSignal.timeout(2000)});
-    if (!s.ok) throw new Error();
+    const r = await fetch(`${SERVER}/status`, {signal: AbortSignal.timeout(4000)});
+    if (!r.ok) throw new Error();
   } catch {
-    await emit("  ❌  Server not running.", "error");
+    await emit("  ❌  Scraper server not reachable.", "error");
     await emit("", "normal");
-    await emit("  Run this first:", "muted");
-    await emit("       Windows : double-click  start.bat", "muted");
-    await emit("       Mac/Linux: run  ./start.sh", "muted");
-    await emit("", "normal");
-    await emit("  Then click ▶ again.", "muted");
+    if (RAILWAY_URL) {
+      await emit(`  Railway URL set to: ${RAILWAY_URL}`, "muted");
+      await emit("  Check your Railway deployment is running.", "muted");
+    } else {
+      await emit("  Option 1 — Local: double-click start.bat", "muted");
+      await emit("  Option 2 — Online: deploy live_scraper.py to Railway", "muted");
+      await emit("             then set RAILWAY_URL at top of this file", "muted");
+    }
     await emit("=".repeat(60), "muted");
     return;
   }
 
-  await emit(`  🌐 Playwright scraping ${script.branches.length} branches...`, "accent");
+  await emit(`  🌐 Playwright scraping ${script.agm} — ${script.branches.length} branches...`, "accent");
   await emit("", "normal");
 
-  // Stream results from tracker.py via SSE
   await new Promise(resolve => {
-    const es = new EventSource(`http://localhost:5000/scrape/${encodeURIComponent(script.agm)}`);
+    const es = new EventSource(`${SERVER}/scrape/${encodeURIComponent(script.agm)}`);
 
     es.onmessage = e => {
       let msg;
@@ -152,7 +162,7 @@ async function simulateRun(script, onLine) {
 
     es.onerror = () => {
       es.close();
-      onLine({text: "  ⚠  Lost connection to server.", type: "error"});
+      onLine({text: "  ⚠  Lost connection to scraper server.", type: "error"});
       resolve();
     };
   });
