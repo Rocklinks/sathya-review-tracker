@@ -299,7 +299,18 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         path = urlparse(self.path).path.rstrip("/") or "/"
 
-        # /status — health check called by sathya_jupyter.html
+        # / — Railway health check, keeps service awake
+        if path == "/":
+            body = b"OK"
+            self.send_response(200)
+            self.send_header("Content-Type", "text/plain")
+            self.send_header("Content-Length", "2")
+            self._cors()
+            self.end_headers()
+            self.wfile.write(body)
+            return
+
+        # /status — called by sathya_jupyter.html
         if path == "/status":
             body = json.dumps({"ok": True, "playwright": PLAYWRIGHT_OK}).encode()
             self.send_response(200)
