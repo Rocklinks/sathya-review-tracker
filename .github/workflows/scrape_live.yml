@@ -16,10 +16,11 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install Playwright
-        run: |
-          pip install playwright
-          playwright install chromium --with-deps
+      - name: Install dependencies
+        run: pip install playwright
+
+      - name: Install Playwright browser
+        run: playwright install chromium --with-deps
 
       - name: Run scraper
         run: python ./docs/tracker.py
