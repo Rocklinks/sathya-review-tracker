@@ -3,12 +3,42 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sathya Agencies — Google Review Tracker</title>
+  <title>Sathya Agencies — Live Tracker</title>
+  <link rel="icon" type="image/webp" href="https://www.sathya.store/favicon.webp">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.development.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.development.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    .sa-nav{background:#1e293b;height:40px;display:flex;align-items:center;padding:0 16px;gap:0;position:sticky;top:0;z-index:300;box-shadow:0 2px 8px rgba(0,0,0,.25);}
+    .sa-nav-brand{display:flex;align-items:center;gap:8px;padding-right:14px;border-right:1px solid rgba(255,255,255,.12);flex-shrink:0;}
+    .sa-nav-brand img{height:24px;object-fit:contain;}
+    .sa-nav-brand span{font-size:11px;font-weight:700;color:#fff;letter-spacing:.5px;white-space:nowrap;}
+    .sa-nav-links{display:flex;align-items:center;gap:2px;padding-left:10px;}
+    .sa-nav-links a{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:6px;text-decoration:none;font-size:12px;font-weight:600;color:rgba(255,255,255,.75);transition:all .15s;}
+    .sa-nav-links a:hover{background:rgba(255,255,255,.12);color:#fff;}
+    .sa-nav-links .active{background:rgba(255,255,255,.12);color:#fff;}
+    .sa-nav-right{margin-left:auto;font-size:10px;color:rgba(255,255,255,.35);letter-spacing:.5px;white-space:nowrap;}
+    @media(max-width:480px){.sa-nav-brand span,.sa-nav-right{display:none;}}
+  </style>
 </head>
 <body style="margin:0;padding:0;">
+
+<!-- Site Nav -->
+<nav class="sa-nav">
+  <div class="sa-nav-brand">
+    <img src="https://www.sathya.store/new_frontend/assets/img/sathya.webp" alt="Sathya" onerror="this.style.display='none'">
+    <span>SATHYA AGENCIES</span>
+  </div>
+  <div class="sa-nav-links">
+    <a href="index.html">🏠 Home</a>
+    <a href="sathya_jupyter.html" class="active">💻 Live Tracker</a>
+    <a href="sathya-weather.html">⛅ Weather</a>
+    <a href="Enquiries_Filter_Tool.html">📊 Enquiries</a>
+  </div>
+  <span class="sa-nav-right">LIVE TRACKER</span>
+</nav>
+
 <div id="root"></div>
 
 <script type="text/babel">
@@ -104,7 +134,9 @@ const KERNEL_COLORS = {
   Venkatesh:  "#db2777",
 };
 
-const SERVER = "https://web-production-e3a4d.up.railway.app";
+// ── YOUR HUGGING FACE SPACE URL (set this after deploying) ──────
+// e.g. "https://YOUR-USERNAME-sathya-scraper.hf.space"
+const SERVER = "https://rocklincs-sathya-scraper.hf.space";
 
 async function simulateRun(script, onLine) {
   const now       = new Date();
@@ -123,11 +155,13 @@ async function simulateRun(script, onLine) {
   await emit("", "normal");
 
   try {
-    const r = await fetch(`${SERVER}/status`, {signal: AbortSignal.timeout(6000)});
+    const r = await fetch(`${SERVER}/status`, {signal: AbortSignal.timeout(8000)});
     if (!r.ok) throw new Error("HTTP " + r.status);
   } catch(e) {
-    await emit("  ❌  Server not reachable: " + e.message, "error");
-    await emit("  Check: " + SERVER + "/status", "muted");
+    await emit("  ❌  Scraper server not reachable.", "error");
+    await emit(`     ${e.message}`, "muted");
+    await emit("  Make sure your Hugging Face Space is running.", "muted");
+    await emit(`  Test: ${SERVER}/status`, "muted");
     await emit("=".repeat(60), "muted");
     return;
   }
@@ -172,191 +206,345 @@ function OutputLine({ text, type }) {
   );
 }
 
-function Cell({ script, index, runCount }) {
-  const [status, setStatus] = useState("idle");
-  const [lines, setLines] = useState([]);
+/* ── Excel helpers ─────────────────────────────────────────── */
+function buildSheet(rows, label) {
+  const headers = ["Branch", "Reviews", "Stars", "Status"];
+  const data = [headers, ...rows.map(r => [
+    r.name,
+    r.reviews || 0,
+    r.stars   || "—",
+    r.status === "ok" ? "✓" : "FAILED",
+  ])];
+  const ws = XLSX.utils.aoa_to_sheet(data);
+  ws["!cols"] = [{wch:24},{wch:12},{wch:8},{wch:10}];
+  const thin = {style:"thin",color:{rgb:"BBBBBB"}};
+  const border = {top:thin,bottom:thin,left:thin,right:thin};
+  for (let r=0;r<data.length;r++) for (let c=0;c<headers.length;c++) {
+    const addr = XLSX.utils.encode_cell({r,c});
+    if (!ws[addr]) ws[addr]={v:"",t:"s"};
+    ws[addr].s = {
+      border,
+      alignment:{horizontal:"center",vertical:"center"},
+      font: r===0 ? {bold:true,sz:11,color:{rgb:"FFFFFF"}} : {sz:11},
+      fill: r===0
+        ? {fgColor:{rgb:"1E3A5F"},patternType:"solid"}
+        : r%2===0
+          ? {fgColor:{rgb:"EEF2FA"},patternType:"solid"}
+          : {fgColor:{rgb:"FFFFFF"},patternType:"solid"},
+    };
+  }
+  return ws;
+}
+
+function downloadExcel(script, results) {
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, buildSheet(results), script.agm.substring(0,31));
+  XLSX.writeFile(wb, `${script.agm}_reviews_${new Date().toISOString().slice(0,10)}.xlsx`);
+}
+
+function downloadAllExcel(scripts, allResults) {
+  const wb = XLSX.utils.book_new();
+  scripts.forEach(s => {
+    const rows = allResults[s.id];
+    if (rows && rows.length) {
+      XLSX.utils.book_append_sheet(wb, buildSheet(rows), s.agm.substring(0,31));
+    }
+  });
+  if (!wb.SheetNames.length) return;
+  XLSX.writeFile(wb, `Sathya_All_Reviews_${new Date().toISOString().slice(0,10)}.xlsx`);
+}
+
+/* ── PDF helpers ───────────────────────────────────────────── */
+function buildPdfHtml(script, rows, dateStr) {
+  const color = {"Seenivasan":"#d97706","Jeeva":"#059669","Muthuselvam":"#7c3aed","John":"#2563eb","Siva":"#dc2626","Venkatesh":"#db2777"}[script.agm] || "#4f46e5";
+  const total = rows.reduce((a,r)=>a+(r.reviews||0),0);
+  const ok    = rows.filter(r=>r.status==="ok").length;
+  const trs   = rows.map((r,i)=>{
+    const bg = i%2===0?"#fff":"#f8fafc";
+    const rv = r.status==="ok" ? (r.reviews||0).toLocaleString("en-IN") : "FAILED";
+    const rc = r.status==="ok" ? "#1e293b" : "#b91c1c";
+    const st = r.stars ? r.stars+"★" : "—";
+    return `<tr style="background:${bg}">
+      <td style="text-align:left;font-weight:600;color:#0f172a;padding:6px 10px;border-bottom:1px solid #e5e7eb">${r.name}</td>
+      <td style="text-align:center;padding:6px 10px;border-bottom:1px solid #e5e7eb;color:#d97706">${st}</td>
+      <td style="text-align:center;padding:6px 10px;border-bottom:1px solid #e5e7eb;font-weight:600;color:${rc}">${rv}</td>
+    </tr>`;
+  }).join("");
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8">
+<title>${script.agm} Review Report</title>
+<style>*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,Helvetica,sans-serif;font-size:11px;color:#1e293b}
+.page{padding:16mm 15mm 12mm}
+.hdr{display:flex;align-items:center;justify-content:space-between;border-bottom:2.5px solid #1e3a5f;padding-bottom:10px;margin-bottom:18px}
+.hl{display:flex;align-items:center;gap:12px}
+.logo{height:36px;object-fit:contain}
+.ht{font-size:17px;font-weight:700;color:#1e3a5f}
+.hs{font-size:9px;color:#64748b;margin-top:3px;text-transform:uppercase;letter-spacing:.5px}
+.hr{text-align:right;font-size:9px;color:#64748b;line-height:2}
+.hr strong{color:#1e293b}
+.footer{margin-top:20px;border-top:1px solid #e5e7eb;padding-top:8px;display:flex;justify-content:space-between;font-size:8px;color:#94a3b8}
+@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}@page{size:A4;margin:0}.page{padding:13mm 14mm 10mm}}
+</style></head><body><div class="page">
+<div class="hdr"><div class="hl">
+<img class="logo" src="https://www.sathya.store/new_frontend/assets/img/sathya.webp" alt="Sathya">
+<div><div class="ht">Google Review Report</div>
+<div class="hs">Sathya Agencies — ${script.agm} — ${ok}/${rows.length} branches</div></div>
+</div>
+<div class="hr"><div>Date: <strong>${dateStr}</strong></div><div>AGM: <strong>${script.agm}</strong></div></div>
+</div>
+<div style="margin-bottom:22px">
+<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:#f0f4f8;border-left:3px solid ${color};margin-bottom:8px">
+<span style="font-size:11px;font-weight:700;color:#1e293b">${script.label.replace(".py","").toUpperCase()} — ${script.branches.length} branches</span>
+<span style="font-size:9px;font-weight:700;padding:2px 9px;border-radius:10px;background:${color}22;color:${color}">AGM: ${script.agm}</span>
+</div>
+<table style="width:100%;border-collapse:collapse;font-size:10px">
+<thead><tr style="background:#1e3a5f">
+<th style="color:#fff;font-size:9px;font-weight:700;padding:7px 10px;text-align:left;text-transform:uppercase;letter-spacing:.5px">Branch</th>
+<th style="color:#fff;font-size:9px;font-weight:700;padding:7px 10px;text-align:center;text-transform:uppercase;letter-spacing:.5px">Stars</th>
+<th style="color:#fff;font-size:9px;font-weight:700;padding:7px 10px;text-align:center;text-transform:uppercase;letter-spacing:.5px">Live Reviews</th>
+</tr></thead><tbody>${trs}</tbody>
+<tfoot><tr style="background:#f8fafc">
+<td colspan="2" style="padding:6px 10px;font-weight:700;color:#0f172a;font-size:10px">TOTAL</td>
+<td style="text-align:center;padding:6px 10px;font-weight:700;color:#4f46e5;font-size:10px">${total.toLocaleString("en-IN")}</td>
+</tr></tfoot></table></div>
+<div class="footer"><span>Sathya Agencies — Live Review Tracker</span><span>Generated: ${dateStr}</span></div>
+</div><script>var p=false;function go(){if(p)return;p=true;window.print();}
+var img=document.querySelector('.logo');if(img){img.addEventListener('load',go);img.addEventListener('error',go);}setTimeout(go,1200);<\/script>
+</body></html>`;
+}
+
+function openPdf(script, results) {
+  const dateStr = new Date().toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"}).toUpperCase();
+  const html    = buildPdfHtml(script, results, dateStr);
+  const blob    = new Blob([html],{type:"text/html;charset=utf-8"});
+  const url     = URL.createObjectURL(blob);
+  const win     = window.open(url,"_blank");
+  if (win) win.addEventListener("load",()=>setTimeout(()=>URL.revokeObjectURL(url),3000));
+  else { setTimeout(()=>URL.revokeObjectURL(url),10000); alert("Allow pop-ups and try again."); }
+}
+
+function openAllPdf(scripts, allResults) {
+  const dateStr = new Date().toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"}).toUpperCase();
+  const color   = {"Seenivasan":"#d97706","Jeeva":"#059669","Muthuselvam":"#7c3aed","John":"#2563eb","Siva":"#dc2626","Venkatesh":"#db2777"};
+  const sections = scripts.map(s => {
+    const rows = allResults[s.id];
+    if (!rows || !rows.length) return "";
+    const col   = color[s.agm] || "#4f46e5";
+    const total = rows.reduce((a,r)=>a+(r.reviews||0),0);
+    const ok    = rows.filter(r=>r.status==="ok").length;
+    const trs   = rows.map((r,i)=>{
+      const bg = i%2===0?"#fff":"#f8fafc";
+      const rv = r.status==="ok" ? (r.reviews||0).toLocaleString("en-IN") : "FAILED";
+      const rc = r.status==="ok" ? "#1e293b" : "#b91c1c";
+      const st = r.stars ? r.stars+"★" : "—";
+      return `<tr style="background:${bg}"><td style="text-align:left;font-weight:600;color:#0f172a;padding:6px 10px;border-bottom:1px solid #e5e7eb">${r.name}</td><td style="text-align:center;padding:6px 10px;border-bottom:1px solid #e5e7eb;color:#d97706">${st}</td><td style="text-align:center;padding:6px 10px;border-bottom:1px solid #e5e7eb;font-weight:600;color:${rc}">${rv}</td></tr>`;
+    }).join("");
+    return `<div style="margin-bottom:22px;page-break-inside:avoid">
+<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:#f0f4f8;border-left:3px solid ${col};margin-bottom:8px">
+<span style="font-size:11px;font-weight:700;color:#1e293b">${s.label.replace(".py","").toUpperCase()} — ${ok}/${rows.length} branches</span>
+<span style="font-size:9px;font-weight:700;padding:2px 9px;border-radius:10px;background:${col}22;color:${col}">AGM: ${s.agm}</span>
+</div>
+<table style="width:100%;border-collapse:collapse;font-size:10px">
+<thead><tr style="background:#1e3a5f"><th style="color:#fff;font-size:9px;font-weight:700;padding:7px 10px;text-align:left;text-transform:uppercase">Branch</th><th style="color:#fff;font-size:9px;font-weight:700;padding:7px 10px;text-align:center;text-transform:uppercase">Stars</th><th style="color:#fff;font-size:9px;font-weight:700;padding:7px 10px;text-align:center;text-transform:uppercase">Live Reviews</th></tr></thead>
+<tbody>${trs}</tbody>
+<tfoot><tr style="background:#f8fafc"><td colspan="2" style="padding:6px 10px;font-weight:700;color:#0f172a;font-size:10px">TOTAL</td><td style="text-align:center;padding:6px 10px;font-weight:700;color:#4f46e5;font-size:10px">${total.toLocaleString("en-IN")}</td></tr></tfoot>
+</table></div>`;
+  }).join("");
+
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>All Reviews Report</title>
+<style>*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,Helvetica,sans-serif;font-size:11px;color:#1e293b}
+.page{padding:16mm 15mm 12mm}.hdr{display:flex;align-items:center;justify-content:space-between;border-bottom:2.5px solid #1e3a5f;padding-bottom:10px;margin-bottom:18px}
+.hl{display:flex;align-items:center;gap:12px}.logo{height:36px;object-fit:contain}.ht{font-size:17px;font-weight:700;color:#1e3a5f}
+.hs{font-size:9px;color:#64748b;margin-top:3px;text-transform:uppercase;letter-spacing:.5px}.hr{text-align:right;font-size:9px;color:#64748b;line-height:2}
+.hr strong{color:#1e293b}.footer{margin-top:20px;border-top:1px solid #e5e7eb;padding-top:8px;display:flex;justify-content:space-between;font-size:8px;color:#94a3b8}
+@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}@page{size:A4;margin:0}.page{padding:13mm 14mm 10mm}}</style>
+</head><body><div class="page">
+<div class="hdr"><div class="hl"><img class="logo" src="https://www.sathya.store/new_frontend/assets/img/sathya.webp" alt="Sathya">
+<div><div class="ht">Google Review Report — All Branches</div><div class="hs">Sathya Agencies — Tamil Nadu</div></div></div>
+<div class="hr"><div>Date: <strong>${dateStr}</strong></div></div></div>
+${sections}
+<div class="footer"><span>Sathya Agencies — Live Review Tracker</span><span>Generated: ${dateStr}</span></div>
+</div><script>var p=false;function go(){if(p)return;p=true;window.print();}
+var img=document.querySelector('.logo');if(img){img.addEventListener('load',go);img.addEventListener('error',go);}setTimeout(go,1200);<\/script>
+</body></html>`;
+  const blob = new Blob([html],{type:"text/html;charset=utf-8"});
+  const url  = URL.createObjectURL(blob);
+  const win  = window.open(url,"_blank");
+  if (win) win.addEventListener("load",()=>setTimeout(()=>URL.revokeObjectURL(url),3000));
+  else { setTimeout(()=>URL.revokeObjectURL(url),10000); alert("Allow pop-ups and try again."); }
+}
+
+/* ── Btn styles ────────────────────────────────────────────── */
+const btnBase = {
+  display:"inline-flex", alignItems:"center", gap:5,
+  padding:"5px 12px", borderRadius:6, border:"none",
+  fontSize:12, fontWeight:600, cursor:"pointer",
+  fontFamily:"inherit", whiteSpace:"nowrap",
+};
+const btnGreen = {...btnBase, background:"#16a34a", color:"#fff"};
+const btnRose  = {...btnBase, background:"#e11d48", color:"#fff"};
+const btnDark  = {...btnBase, background:"#0f172a", color:"#fff"};
+const btnBlue  = {...btnBase, background:"#1d4ed8", color:"#fff"};
+const btnGray  = {...btnBase, background:"#e5e7eb", color:"#9ca3af", cursor:"not-allowed"};
+
+/* ── Cell ──────────────────────────────────────────────────── */
+function Cell({ script, runCount, selected, onSelect, onDone, runRef }) {
+  const [status,  setStatus]  = useState("idle");
+  const [lines,   setLines]   = useState([]);
   const [execNum, setExecNum] = useState(null);
-  const outputRef = useRef(null);
-  const globalCount = useRef(runCount);
+  const [results, setResults] = useState(null);
+  const outputRef  = useRef(null);
+  const globalCount= useRef(runCount);
+  const accentColor= KERNEL_COLORS[script.agm] || "#6366f1";
+
+  // expose run fn via runRef so Run All can call it
+  React.useEffect(()=>{ if(runRef) runRef.current = run; });
 
   const run = async () => {
     if (status === "running") return;
     setStatus("running");
     setLines([]);
+    setResults(null);
     const num = ++globalCount.current;
     setExecNum(num);
 
-    await simulateRun(script, (line) => {
-      setLines(prev => [...prev, line]);
-      setTimeout(() => {
-        if (outputRef.current) {
-          outputRef.current.scrollTop = outputRef.current.scrollHeight;
-        }
-      }, 10);
+    // expose run via ref so Run All can trigger it
+    if (runRef) runRef.current = run;
+
+    // Capture result rows from SSE
+    let capturedRows = [];
+    const origSimulate = simulateRun;
+
+    await new Promise(async (resolve) => {
+      const now       = new Date();
+      const dateStr   = now.toISOString().replace("T"," ").substring(0,19);
+      const dateLabel = now.toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"}).toUpperCase();
+      const emit = (text, type="normal") =>
+        new Promise(r => setTimeout(()=>{ onLineAdd({text,type}); r(); },0));
+
+      function onLineAdd(line) {
+        setLines(prev=>[...prev,line]);
+        setTimeout(()=>{if(outputRef.current)outputRef.current.scrollTop=outputRef.current.scrollHeight;},10);
+      }
+
+      const emit2 = (text, type="normal") => new Promise(r=>setTimeout(()=>{onLineAdd({text,type});r();},0));
+
+      await emit2("=".repeat(60),"muted");
+      await emit2("  SATHYA AGENCIES — Live Review Tracker","bold");
+      await emit2(`  Script : ${script.label}`,"muted");
+      await emit2(`  AGM    : ${script.agm}  (${script.branches.length} branches)`,"muted");
+      await emit2(`  Time   : ${dateStr}`,"muted");
+      await emit2("=".repeat(60),"muted");
+      await emit2("","normal");
+
+      try {
+        const r = await fetch(`${SERVER}/status`,{signal:AbortSignal.timeout(8000)});
+        if (!r.ok) throw new Error("HTTP "+r.status);
+      } catch(e) {
+        await emit2("  ❌  Scraper server not reachable.","error");
+        await emit2(`     ${e.message}`,"muted");
+        await emit2("  Make sure your Hugging Face Space is running.","muted");
+        await emit2(`  Test: ${SERVER}/status`,"muted");
+        await emit2("=".repeat(60),"muted");
+        resolve(); return;
+      }
+
+      await emit2(`  🌐 Playwright scraping ${script.agm} — ${script.branches.length} branches...`,"accent");
+      await emit2("","normal");
+
+      await new Promise(res2 => {
+        const es = new EventSource(`${SERVER}/scrape/${encodeURIComponent(script.agm)}`);
+        es.onmessage = e => {
+          let msg; try{msg=JSON.parse(e.data);}catch{return;}
+          if (msg.event==="log")    onLineAdd({text:msg.text,type:msg.type||"normal"});
+          if (msg.event==="result") capturedRows = msg.rows || [];
+          if (msg.event==="done")   { es.close(); res2(); }
+        };
+        es.onerror = ()=>{ es.close(); onLineAdd({text:"  ⚠  Stream disconnected.",type:"error"}); res2(); };
+      });
+      resolve();
     });
 
+    setResults(capturedRows);
     setStatus("done");
+    onDone(script.id, capturedRows);
   };
 
-  const accentColor = KERNEL_COLORS[script.agm] || "#6366f1";
-
   return (
-    <div style={{ display: "flex", gap: 0, marginBottom: "0px" }}>
+    <div style={{display:"flex",gap:0,marginBottom:"0px"}}>
       {/* Gutter */}
-      <div style={{
-        width: 56,
-        flexShrink: 0,
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        paddingTop: 10,
-        gap: 4,
-      }}>
-        <button
-          onClick={run}
-          disabled={status === "running"}
-          style={{
-            width: 28,
-            height: 28,
-            borderRadius: "50%",
-            border: `1.5px solid ${status === "running" ? "#e2e8f0" : accentColor + "55"}`,
-            background: status === "running" ? "#f8fafc" : "white",
-            cursor: status === "running" ? "not-allowed" : "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: status === "running" ? "#94a3b8" : accentColor,
-            transition: "all 0.15s",
-            padding: 0,
-          }}
-        >
-          {status === "running" ? (
-            <svg width="13" height="13" viewBox="0 0 13 13" fill="none" style={{ animation: "jupy-spin 0.9s linear infinite" }}>
-              <circle cx="6.5" cy="6.5" r="5" stroke="currentColor" strokeWidth="1.5" strokeDasharray="18" strokeDashoffset="6" />
-            </svg>
-          ) : (
-            <svg width="10" height="11" viewBox="0 0 10 11" fill={accentColor}>
-              <path d="M1 1 L9 5.5 L1 10 Z" />
-            </svg>
-          )}
-        </button>
-
-        <span style={{
-          fontFamily: "monospace",
-          fontSize: "10px",
-          color: "#94a3b8",
-          letterSpacing: "0.3px",
+      <div style={{width:56,flexShrink:0,display:"flex",flexDirection:"column",alignItems:"center",paddingTop:10,gap:4}}>
+        {/* Checkbox */}
+        <input type="checkbox" checked={selected} onChange={()=>onSelect(script.id)}
+          style={{width:14,height:14,accentColor:accentColor,cursor:"pointer",marginBottom:2}}/>
+        {/* Run button */}
+        <button onClick={run} disabled={status==="running"} style={{
+          width:28,height:28,borderRadius:"50%",
+          border:`1.5px solid ${status==="running"?"#e2e8f0":accentColor+"55"}`,
+          background:status==="running"?"#f8fafc":"white",
+          cursor:status==="running"?"not-allowed":"pointer",
+          display:"flex",alignItems:"center",justifyContent:"center",
+          color:status==="running"?"#94a3b8":accentColor,
+          transition:"all 0.15s",padding:0,
         }}>
-          {execNum ? `[${execNum}]` : "[ ]"}
-        </span>
+          {status==="running"
+            ? <svg width="13" height="13" viewBox="0 0 13 13" fill="none" style={{animation:"jupy-spin 0.9s linear infinite"}}><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" strokeWidth="1.5" strokeDasharray="18" strokeDashoffset="6"/></svg>
+            : <svg width="10" height="11" viewBox="0 0 10 11" fill={accentColor}><path d="M1 1 L9 5.5 L1 10 Z"/></svg>
+          }
+        </button>
+        <span style={{fontFamily:"monospace",fontSize:"10px",color:"#94a3b8"}}>{execNum?`[${execNum}]`:"[ ]"}</span>
       </div>
 
       {/* Cell body */}
-      <div style={{ flex: 1, minWidth: 0 }}>
-        {/* Code area */}
+      <div style={{flex:1,minWidth:0}}>
+        {/* Header bar */}
         <div style={{
-          border: `1px solid ${status === "running" ? accentColor : "#d1d5db"}`,
-          borderRadius: "4px 4px 0 0",
-          background: status === "running" ? "#fffbeb" : "#f8fafc",
-          padding: "10px 16px",
-          borderBottom: "none",
-          transition: "border-color 0.2s",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: 12,
+          border:`1px solid ${status==="running"?accentColor:"#d1d5db"}`,
+          borderRadius:"4px 4px 0 0", background:status==="running"?"#fffbeb":"#f8fafc",
+          padding:"10px 16px", borderBottom:"none", transition:"border-color 0.2s",
+          display:"flex", alignItems:"center", justifyContent:"space-between", gap:12,
         }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <span style={{
-              fontFamily: "'Courier New', monospace",
-              fontSize: "13px",
-              color: "#1e3a5f",
-              fontWeight: 600,
-            }}>
-              <span style={{ color: "#7c3aed" }}>import</span>{" "}
-              <span style={{ color: "#0369a1" }}>playwright</span>
+          <div style={{display:"flex",alignItems:"center",gap:10}}>
+            <span style={{fontFamily:"'Courier New',monospace",fontSize:"13px",color:"#1e3a5f",fontWeight:600}}>
+              <span style={{color:"#7c3aed"}}>import</span>{" "}
+              <span style={{color:"#0369a1"}}>playwright</span>
               {"  # "}
-              <span style={{ color: "#64748b" }}>{script.label}</span>
+              <span style={{color:"#64748b"}}>{script.label}</span>
             </span>
-            <span style={{
-              fontSize: "10px",
-              background: accentColor + "18",
-              color: accentColor,
-              border: `1px solid ${accentColor}35`,
-              borderRadius: "4px",
-              padding: "1px 8px",
-              fontFamily: "monospace",
-              fontWeight: 600,
-            }}>
+            <span style={{fontSize:"10px",background:accentColor+"18",color:accentColor,border:`1px solid ${accentColor}35`,borderRadius:"4px",padding:"1px 8px",fontFamily:"monospace",fontWeight:600}}>
               AGM: {script.agm}
             </span>
-            <span style={{
-              fontSize: "10px",
-              color: "#94a3b8",
-              fontFamily: "monospace",
-            }}>
-              {script.branches.length} branches
-            </span>
+            <span style={{fontSize:"10px",color:"#94a3b8",fontFamily:"monospace"}}>{script.branches.length} branches</span>
           </div>
-          <span style={{
-            fontSize: "10px",
-            color: status === "done" ? "#15803d" : status === "running" ? accentColor : "#94a3b8",
-            fontFamily: "monospace",
-            fontWeight: 600,
-          }}>
-            {status === "done" ? "● done" : status === "running" ? "● running" : "○ idle"}
+          <span style={{fontSize:"10px",color:status==="done"?"#15803d":status==="running"?accentColor:"#94a3b8",fontFamily:"monospace",fontWeight:600}}>
+            {status==="done"?"● done":status==="running"?"● running":"○ idle"}
           </span>
         </div>
 
-        {/* Output area */}
-        {(lines.length > 0 || status === "running") && (
-          <div
-            ref={outputRef}
-            style={{
-              border: "1px solid #d1d5db",
-              borderTop: "1px dashed #e5e7eb",
-              borderRadius: "0 0 4px 4px",
-              background: "white",
-              padding: "10px 16px",
-              maxHeight: "300px",
-              overflowY: "auto",
-            }}
-          >
-            {lines.length === 0 && status === "running" && (
-              <div style={{ color: "#94a3b8", fontFamily: "monospace", fontSize: "12px" }}>
-                Launching chromium...
-              </div>
-            )}
-            {lines.map((line, i) => (
-              <OutputLine key={i} text={line.text} type={line.type} />
-            ))}
-            {status === "running" && lines.length > 0 && (
-              <span style={{
-                display: "inline-block",
-                width: 7,
-                height: 13,
-                background: "#1e293b",
-                marginLeft: 2,
-                verticalAlign: "middle",
-                animation: "jupy-blink 1s step-end infinite",
-              }} />
-            )}
+        {/* Output */}
+        {(lines.length>0||status==="running")&&(
+          <div ref={outputRef} style={{border:"1px solid #d1d5db",borderTop:"1px dashed #e5e7eb",borderRadius:"0 0 4px 4px",background:"white",padding:"10px 16px",maxHeight:"300px",overflowY:"auto"}}>
+            {lines.length===0&&status==="running"&&<div style={{color:"#94a3b8",fontFamily:"monospace",fontSize:"12px"}}>Launching chromium...</div>}
+            {lines.map((line,i)=><OutputLine key={i} text={line.text} type={line.type}/>)}
+            {status==="running"&&lines.length>0&&<span style={{display:"inline-block",width:7,height:13,background:"#1e293b",marginLeft:2,verticalAlign:"middle",animation:"jupy-blink 1s step-end infinite"}}/>}
+          </div>
+        )}
+        {lines.length===0&&status==="idle"&&(
+          <div style={{border:"1px solid #e5e7eb",borderTop:"1px dashed #e5e7eb",borderRadius:"0 0 4px 4px",background:"white",padding:"8px 16px",color:"#cbd5e1",fontFamily:"monospace",fontSize:"11px"}}>
+            # No output yet — click ▶ to run
           </div>
         )}
 
-        {/* No output yet */}
-        {lines.length === 0 && status === "idle" && (
-          <div style={{
-            border: "1px solid #e5e7eb",
-            borderTop: "1px dashed #e5e7eb",
-            borderRadius: "0 0 4px 4px",
-            background: "white",
-            padding: "8px 16px",
-            color: "#cbd5e1",
-            fontFamily: "monospace",
-            fontSize: "11px",
-          }}>
-            # No output yet — click ▶ to run
+        {/* Per-cell download buttons — appear after run */}
+        {status==="done"&&results&&results.length>0&&(
+          <div style={{display:"flex",gap:8,justifyContent:"flex-end",padding:"8px 0 2px",flexWrap:"wrap"}}>
+            <button style={btnGreen} onClick={()=>downloadExcel(script,results)}>
+              <svg width="11" height="11" viewBox="0 0 13 13" fill="none"><path d="M6.5 1v7M4 6l2.5 2.5L9 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/><path d="M2 10h9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/></svg>
+              Excel
+            </button>
+            <button style={btnRose} onClick={()=>openPdf(script,results)}>
+              PDF
+            </button>
           </div>
         )}
       </div>
@@ -364,94 +552,140 @@ function Cell({ script, index, runCount }) {
   );
 }
 
+/* ── App ───────────────────────────────────────────────────── */
 function App() {
-  const runCounter = useRef(0);
+  const runCounter  = useRef(0);
+  const [selected,  setSelected]  = useState(new Set(SCRIPTS.map(s=>s.id)));
+  const [allResults,setAllResults]= useState({});
+  const [runAllBusy,setRunAllBusy]= useState(false);
+  const resolvers   = useRef({});
+
+  const allSelected  = selected.size === SCRIPTS.length;
+  const someSelected = selected.size > 0 && !allSelected;
+  const selectedIds  = SCRIPTS.filter(s=>selected.has(s.id)).map(s=>s.id);
+  const doneIds      = selectedIds.filter(id=>allResults[id]);
+  const allDone      = selectedIds.length > 0 && doneIds.length === selectedIds.length;
+
+  const toggleSelect = (id) => setSelected(prev=>{const n=new Set(prev);n.has(id)?n.delete(id):n.add(id);return n;});
+  const toggleAll    = () => setSelected(allSelected?new Set():new Set(SCRIPTS.map(s=>s.id)));
+
+  const onDone = React.useCallback((id, rows) => {
+    setAllResults(p=>({...p,[id]:rows}));
+    if (resolvers.current[id]) { resolvers.current[id](); delete resolvers.current[id]; }
+  },[]);
+
+  const runAll = async () => {
+    if (runAllBusy||selectedIds.length===0) return;
+    setRunAllBusy(true);
+    setAllResults(p=>{ const n={...p}; selectedIds.forEach(id=>{n[id]=null;}); return n; });
+    for (const id of selectedIds) {
+      // trigger each Cell's run via ref
+      if (cellRefs.current[id]) cellRefs.current[id]();
+      await new Promise(res=>{ resolvers.current[id]=res; });
+      await new Promise(r=>setTimeout(r,400));
+    }
+    setRunAllBusy(false);
+  };
+
+  const cellRefs = useRef({});
+
+  const selectedScripts = SCRIPTS.filter(s=>selected.has(s.id));
 
   return (
-    <div style={{
-      minHeight: "100vh",
-      background: "#f9fafb",
-      fontFamily: "system-ui, -apple-system, sans-serif",
-    }}>
+    <div style={{minHeight:"100vh",background:"#f9fafb",fontFamily:"system-ui,-apple-system,sans-serif"}}>
       <style>{`
-        @keyframes jupy-spin {
-          from { transform: rotate(0deg); }
-          to   { transform: rotate(360deg); }
-        }
-        @keyframes jupy-blink {
-          0%, 100% { opacity: 1; }
-          50%       { opacity: 0; }
-        }
-        ::-webkit-scrollbar { width: 5px; height: 5px; }
-        ::-webkit-scrollbar-track { background: #f1f5f9; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        @keyframes jupy-spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+        @keyframes jupy-blink{0%,100%{opacity:1}50%{opacity:0}}
+        ::-webkit-scrollbar{width:5px;height:5px}
+        ::-webkit-scrollbar-track{background:#f1f5f9}
+        ::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px}
       `}</style>
 
-      {/* Top bar */}
-      <div style={{
-        background: "white",
-        borderBottom: "1px solid #e5e7eb",
-        padding: "0 24px",
-        display: "flex",
-        alignItems: "center",
-        height: "40px",
-      }}>
-        <div style={{ flex: 1 }} />
-        <div style={{
-          fontSize: "11px",
-          color: "#94a3b8",
-          fontFamily: "monospace",
-          display: "flex",
-          alignItems: "center",
-          gap: 6,
-        }}>
-          <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#22c55e" }} />
+      {/* ── Toolbar ── */}
+      <div style={{background:"white",borderBottom:"1px solid #e5e7eb",padding:"0 20px",display:"flex",alignItems:"center",gap:10,height:44,position:"sticky",top:40,zIndex:100,flexWrap:"wrap"}}>
+        <img src="https://www.sathya.store/new_frontend/assets/img/sathya.webp" alt="Sathya" style={{height:26,objectFit:"contain"}} onError={e=>e.target.style.display="none"}/>
+        <span style={{fontSize:"13px",fontWeight:700,color:"#0f172a",marginRight:4}}>Live Tracker</span>
+        <div style={{width:1,height:20,background:"#e5e7eb"}}/>
+
+        {/* Select All */}
+        <label style={{display:"flex",alignItems:"center",gap:6,cursor:"pointer",fontSize:"12px",fontWeight:600,color:"#374151",userSelect:"none"}}>
+          <input type="checkbox" checked={allSelected}
+            ref={el=>{if(el)el.indeterminate=someSelected;}}
+            onChange={toggleAll}
+            style={{width:14,height:14,accentColor:"#1d4ed8",cursor:"pointer"}}/>
+          Select All
+        </label>
+
+        <div style={{width:1,height:20,background:"#e5e7eb"}}/>
+
+        {/* Run All */}
+        <button
+          style={selectedIds.length===0||runAllBusy ? btnGray : btnDark}
+          disabled={selectedIds.length===0||runAllBusy}
+          onClick={runAll}>
+          {runAllBusy
+            ? <><svg width="12" height="12" viewBox="0 0 13 13" fill="none" style={{animation:"jupy-spin .9s linear infinite"}}><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" strokeWidth="1.5" strokeDasharray="18" strokeDashoffset="6"/></svg> Running…</>
+            : <><svg width="10" height="11" viewBox="0 0 10 11" fill="currentColor"><path d="M1 1 L9 5.5 L1 10 Z"/></svg> Run All ({selectedIds.length})</>
+          }
+        </button>
+
+        <div style={{width:1,height:20,background:"#e5e7eb"}}/>
+
+        {/* Download All Excel */}
+        <button
+          style={allDone ? btnBlue : btnGray}
+          disabled={!allDone}
+          onClick={()=>downloadAllExcel(selectedScripts,allResults)}>
+          <svg width="11" height="11" viewBox="0 0 13 13" fill="none"><path d="M6.5 1v7M4 6l2.5 2.5L9 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/><path d="M2 10h9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/></svg>
+          Download All Excel {allDone?`(${doneIds.length})`:""}
+        </button>
+
+        {/* Download All PDF */}
+        <button
+          style={allDone ? {...btnBase,background:"#e11d48",color:"#fff"} : btnGray}
+          disabled={!allDone}
+          onClick={()=>openAllPdf(selectedScripts,allResults)}>
+          Download All PDF
+        </button>
+
+        <div style={{flex:1}}/>
+        <div style={{fontSize:"11px",color:"#94a3b8",fontFamily:"monospace",display:"flex",alignItems:"center",gap:6}}>
+          <div style={{width:8,height:8,borderRadius:"50%",background:"#22c55e"}}/>
           Python 3 (ipykernel)
         </div>
       </div>
 
-      {/* Notebook body */}
-      <div style={{
-        maxWidth: "960px",
-        margin: "0 auto",
-        padding: "24px 0 60px 0",
-      }}>
-        {/* Title cell */}
-        <div style={{ display: "flex", gap: 0, marginBottom: "0px" }}>
-          <div style={{ width: 56, flexShrink: 0 }} />
-          <div style={{
-            flex: 1,
-            padding: "10px 16px",
-            background: "white",
-            border: "1px solid #e5e7eb",
-            borderLeft: "4px solid #3b82f6",
-            borderRadius: "4px",
-            marginBottom: "2px",
-          }}>
-            <div style={{ fontSize: "18px", fontWeight: 700, color: "#0f172a", marginBottom: 4 }}>
-              🏪 Google Review Tracker
-            </div>
-            <div style={{ fontSize: "12.5px", color: "#64748b", fontFamily: "monospace" }}>
-              Playwright · Chromium Headless · Tamil Nadu Branches · Output-only mode
-            </div>
+      {/* ── Notebook ── */}
+      <div style={{maxWidth:"960px",margin:"0 auto",padding:"24px 16px 60px"}}>
+        <div style={{display:"flex",gap:0,marginBottom:"0px"}}>
+          <div style={{width:56,flexShrink:0}}/>
+          <div style={{flex:1,padding:"10px 16px",background:"white",border:"1px solid #e5e7eb",borderLeft:"4px solid #3b82f6",borderRadius:"4px",marginBottom:"2px"}}>
+            <div style={{fontSize:"18px",fontWeight:700,color:"#0f172a",marginBottom:4}}>🏪 Google Review Tracker</div>
+            <div style={{fontSize:"12.5px",color:"#64748b",fontFamily:"monospace"}}>Playwright · Chromium Headless · Tamil Nadu Branches · Live scrape</div>
           </div>
         </div>
-
-        <div style={{ height: 12 }} />
-
-        {/* Code cells */}
-        {SCRIPTS.map((script, i) => (
-          <div key={script.id} style={{ marginBottom: "3px" }}>
-            <Cell
-              script={script}
-              index={i}
-              runCount={runCounter}
-            />
-          </div>
+        <div style={{height:12}}/>
+        {SCRIPTS.map((script,i)=>(
+          <CellWrapper
+            key={script.id}
+            script={script}
+            runCount={runCounter}
+            selected={selected.has(script.id)}
+            onSelect={toggleSelect}
+            onDone={onDone}
+            cellRefs={cellRefs}
+          />
         ))}
       </div>
     </div>
   );
+}
+
+/* Wrapper so each Cell can expose its run fn via ref */
+function CellWrapper({script, runCount, selected, onSelect, onDone, cellRefs}) {
+  const runRef = useRef(null);
+  React.useEffect(()=>{ cellRefs.current[script.id] = ()=>{ if(runRef.current) runRef.current(); }; },[]);
+  return <div style={{marginBottom:"3px"}}><Cell script={script} runCount={runCount} selected={selected} onSelect={onSelect} onDone={onDone} runRef={runRef}/></div>;
 }
 
 ReactDOM.createRoot(document.getElementById("root")).render(<App />);
