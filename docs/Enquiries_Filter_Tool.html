@@ -144,9 +144,9 @@
 
   <!-- Upload -->
   <div class="upload-card">
-    <h2>Step 1 — Upload Excel File (.xlsx)</h2>
-    <label class="upload-label" for="fileInput">📂 Choose Excel File</label>
-    <input type="file" id="fileInput" accept=".xlsx,.xls">
+    <h2>Step 1 — Upload Excel (.xlsx / .xls) or CSV (.csv) File</h2>
+    <label class="upload-label" for="fileInput">📂 Choose Excel or CSV File</label>
+    <input type="file" id="fileInput" accept=".xlsx,.xls,.csv">
     <div id="fileName">No file selected</div>
     <div id="rowCount"></div>
   </div>
@@ -229,17 +229,33 @@ document.getElementById('fileInput').addEventListener('change', function(e) {
   const file = e.target.files[0];
   if (!file) return;
   document.getElementById('fileName').textContent = '📄 ' + file.name;
+
+  const isCsv = file.name.toLowerCase().endsWith('.csv');
   const reader = new FileReader();
-  reader.onload = function(evt) {
-    const wb = XLSX.read(evt.target.result, { type: 'binary', cellDates: true });
-    const ws = wb.Sheets[wb.SheetNames[0]];
-    globalData = XLSX.utils.sheet_to_json(ws, { defval: '' });
-    document.getElementById('rowCount').textContent = `✅ Loaded ${globalData.length} records`;
-    updateCounts();
-    document.getElementById('btnAll').disabled = false;
-    showStatus(`File loaded: ${globalData.length} total records`, 'info');
-  };
-  reader.readAsBinaryString(file);
+
+  if (isCsv) {
+    // CSV: read as plain text, parse with XLSX
+    reader.onload = function(evt) {
+      const wb = XLSX.read(evt.target.result, { type: 'string', cellDates: true });
+      globalData = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '' });
+      document.getElementById('rowCount').textContent = `✅ Loaded ${globalData.length} records`;
+      updateCounts();
+      document.getElementById('btnAll').disabled = false;
+      showStatus(`CSV loaded: ${globalData.length} total records`, 'info');
+    };
+    reader.readAsText(file);
+  } else {
+    // Excel: read as binary
+    reader.onload = function(evt) {
+      const wb = XLSX.read(evt.target.result, { type: 'binary', cellDates: true });
+      globalData = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '' });
+      document.getElementById('rowCount').textContent = `✅ Loaded ${globalData.length} records`;
+      updateCounts();
+      document.getElementById('btnAll').disabled = false;
+      showStatus(`File loaded: ${globalData.length} total records`, 'info');
+    };
+    reader.readAsBinaryString(file);
+  }
 });
 
 function norm(s) { return String(s).trim().toLowerCase(); }
