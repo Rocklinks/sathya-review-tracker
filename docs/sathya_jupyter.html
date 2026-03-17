@@ -34,7 +34,7 @@
     <a href="index.html">🏠 Home</a>
     <a href="sathya_jupyter.html" class="active">💻 Live Tracker</a>
     <a href="sathya-weather.html">⛅ Weather</a>
-    <a href="Enquiries_Filter_Tool.html">📊 Pdf Tool</a>
+    <a href="Enquiries_Filter_Tool.html">📊 Enquiries</a>
   </div>
   <span class="sa-nav-right">LIVE TRACKER</span>
 </nav>
@@ -136,7 +136,7 @@ const KERNEL_COLORS = {
 
 // ── YOUR HUGGING FACE SPACE URL (set this after deploying) ──────
 // e.g. "https://YOUR-USERNAME-sathya-scraper.hf.space"
-const SERVER = "https://RocklinKS-sathya-scraper.hf.space";
+const SERVER = "https://rocklincs-sathya-scraper.hf.space";
 
 async function simulateRun(script, onLine) {
   const now       = new Date();
@@ -207,16 +207,26 @@ function OutputLine({ text, type }) {
 }
 
 /* ── Excel helpers ─────────────────────────────────────────── */
-function buildSheet(rows, label) {
-  const headers = ["Branch", "Reviews", "Stars", "Status"];
-  const data = [headers, ...rows.map(r => [
-    r.name,
-    r.reviews || 0,
-    r.stars   || "—",
-    r.status === "ok" ? "✓" : "FAILED",
-  ])];
+function buildSheet(rows, label, baseline) {
+  const headers = ["Branch", "Total Reviews", "Today's Reviews", "Stars", "Star Change", "Status"];
+  const data = [headers, ...rows.map(r => {
+    const prev      = (baseline && baseline[r.name]) || {};
+    const prevRev   = prev.reviews || 0;
+    const prevStar  = prev.stars   || 0;
+    const today     = prevRev > 0 ? (r.reviews || 0) - prevRev : "no baseline";
+    const starChange= (prevStar > 0 && r.stars > 0 && Math.abs(r.stars - prevStar) >= 0.1)
+                      ? `${prevStar} → ${r.stars}` : "";
+    return [
+      r.name,
+      r.reviews  || 0,
+      typeof today === "number" ? (today >= 0 ? `+${today}` : `${today}`) : today,
+      r.stars    || "—",
+      starChange,
+      r.status === "ok" ? "✓" : "FAILED",
+    ];
+  })];
   const ws = XLSX.utils.aoa_to_sheet(data);
-  ws["!cols"] = [{wch:24},{wch:12},{wch:8},{wch:10}];
+  ws["!cols"] = [{wch:24},{wch:14},{wch:16},{wch:8},{wch:14},{wch:10}];
   const thin = {style:"thin",color:{rgb:"BBBBBB"}};
   const border = {top:thin,bottom:thin,left:thin,right:thin};
   for (let r=0;r<data.length;r++) for (let c=0;c<headers.length;c++) {
@@ -236,18 +246,18 @@ function buildSheet(rows, label) {
   return ws;
 }
 
-function downloadExcel(script, results) {
+function downloadExcel(script, results, baseline) {
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, buildSheet(results), script.agm.substring(0,31));
+  XLSX.utils.book_append_sheet(wb, buildSheet(results, script.agm, baseline), script.agm.substring(0,31));
   XLSX.writeFile(wb, `${script.agm}_reviews_${new Date().toISOString().slice(0,10)}.xlsx`);
 }
 
-function downloadAllExcel(scripts, allResults) {
+function downloadAllExcel(scripts, allResults, baseline) {
   const wb = XLSX.utils.book_new();
   scripts.forEach(s => {
     const rows = allResults[s.id];
     if (rows && rows.length) {
-      XLSX.utils.book_append_sheet(wb, buildSheet(rows), s.agm.substring(0,31));
+      XLSX.utils.book_append_sheet(wb, buildSheet(rows, s.agm, baseline), s.agm.substring(0,31));
     }
   });
   if (!wb.SheetNames.length) return;
@@ -255,67 +265,90 @@ function downloadAllExcel(scripts, allResults) {
 }
 
 /* ── PDF helpers ───────────────────────────────────────────── */
-function buildPdfHtml(script, rows, dateStr) {
-  const color = {"Seenivasan":"#d97706","Jeeva":"#059669","Muthuselvam":"#7c3aed","John":"#2563eb","Siva":"#dc2626","Venkatesh":"#db2777"}[script.agm] || "#4f46e5";
-  const total = rows.reduce((a,r)=>a+(r.reviews||0),0);
-  const ok    = rows.filter(r=>r.status==="ok").length;
-  const trs   = rows.map((r,i)=>{
-    const bg = i%2===0?"#fff":"#f8fafc";
-    const rv = r.status==="ok" ? (r.reviews||0).toLocaleString("en-IN") : "FAILED";
-    const rc = r.status==="ok" ? "#1e293b" : "#b91c1c";
-    const st = r.stars ? r.stars+"★" : "—";
+function buildPdfHtml(script, rows, dateStr, baseline, baseDate) {
+  const colMap = {"Seenivasan":"#d97706","Jeeva":"#059669","Muthuselvam":"#7c3aed","John":"#2563eb","Siva":"#dc2626","Venkatesh":"#db2777"};
+  const color  = colMap[script.agm] || "#4f46e5";
+  const total  = rows.reduce((a,r)=>a+(r.reviews||0),0);
+  const ok     = rows.filter(r=>r.status==="ok").length;
+  const hasBl  = baseline && rows.some(r=>baseline[r.name]);
+  const todayTot = rows.reduce((a,r)=>{
+    const prev = baseline && baseline[r.name];
+    if (!prev || r.status!=="ok") return a;
+    return a + ((r.reviews||0)-(prev.reviews||0));
+  }, 0);
+  const baseLine = baseDate ? `vs ${baseDate}` : "";
+
+  const trs = rows.map((r,i)=>{
+    const bg      = i%2===0?"#fff":"#f8fafc";
+    const isOk    = r.status==="ok";
+    const prev    = (baseline&&baseline[r.name])||{};
+    const prevRev = prev.reviews||0;
+    const prevSt  = prev.stars  ||0;
+    const diff    = (isOk && prevRev>0) ? (r.reviews||0)-prevRev : null;
+    const stChg   = prevSt>0&&(r.stars||0)>0&&Math.abs((r.stars||0)-prevSt)>=0.1;
+    const stUp    = stChg&&(r.stars||0)>prevSt;
+    const todayCell = !isOk ? "&mdash;"
+      : diff===null ? "<span style='color:#94a3b8'>no baseline</span>"
+      : diff>0  ? `<span style='color:#059669;font-weight:700'>+${diff}</span>`
+      : diff<0  ? `<span style='color:#e11d48;font-weight:700'>${diff}</span>`
+      : "<span style='color:#94a3b8'>0</span>";
+    const starsCell = !isOk||(r.stars||0)===0 ? "&mdash;"
+      : stChg
+        ? `<span style='text-decoration:line-through;color:#94a3b8'>${prevSt}\u2605</span> &rarr; <span style='color:${stUp?"#059669":"#e11d48"};font-weight:700'>${r.stars}\u2605${stUp?"&#9650;":"&#9660;"}</span>`
+        : `${r.stars}\u2605`;
     return `<tr style="background:${bg}">
-      <td style="text-align:left;font-weight:600;color:#0f172a;padding:6px 10px;border-bottom:1px solid #e5e7eb">${r.name}</td>
-      <td style="text-align:center;padding:6px 10px;border-bottom:1px solid #e5e7eb;color:#d97706">${st}</td>
-      <td style="text-align:center;padding:6px 10px;border-bottom:1px solid #e5e7eb;font-weight:600;color:${rc}">${rv}</td>
+      <td style="text-align:left;font-weight:600;color:#0f172a;padding:5px 8px;border-bottom:1px solid #e5e7eb">${r.name}</td>
+      <td style="text-align:center;padding:5px 8px;border-bottom:1px solid #e5e7eb;font-weight:600;color:${isOk?"#4f46e5":"#b91c1c"}">${isOk?(r.reviews||0).toLocaleString("en-IN"):"FAILED"}</td>
+      <td style="text-align:center;padding:5px 8px;border-bottom:1px solid #e5e7eb">${todayCell}</td>
+      <td style="text-align:center;padding:5px 8px;border-bottom:1px solid #e5e7eb">${starsCell}</td>
     </tr>`;
   }).join("");
+
   return `<!DOCTYPE html><html><head><meta charset="UTF-8">
 <title>${script.agm} Review Report</title>
 <style>*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:Arial,Helvetica,sans-serif;font-size:11px;color:#1e293b}
 .page{padding:16mm 15mm 12mm}
 .hdr{display:flex;align-items:center;justify-content:space-between;border-bottom:2.5px solid #1e3a5f;padding-bottom:10px;margin-bottom:18px}
-.hl{display:flex;align-items:center;gap:12px}
-.logo{height:36px;object-fit:contain}
-.ht{font-size:17px;font-weight:700;color:#1e3a5f}
-.hs{font-size:9px;color:#64748b;margin-top:3px;text-transform:uppercase;letter-spacing:.5px}
-.hr{text-align:right;font-size:9px;color:#64748b;line-height:2}
-.hr strong{color:#1e293b}
+.hl{display:flex;align-items:center;gap:12px}.logo{height:36px;object-fit:contain}
+.ht{font-size:17px;font-weight:700;color:#1e3a5f}.hs{font-size:9px;color:#64748b;margin-top:3px;text-transform:uppercase;letter-spacing:.5px}
+.hr{text-align:right;font-size:9px;color:#64748b;line-height:2}.hr strong{color:#1e293b}
 .footer{margin-top:20px;border-top:1px solid #e5e7eb;padding-top:8px;display:flex;justify-content:space-between;font-size:8px;color:#94a3b8}
 @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}@page{size:A4;margin:0}.page{padding:13mm 14mm 10mm}}
 </style></head><body><div class="page">
 <div class="hdr"><div class="hl">
 <img class="logo" src="https://www.sathya.store/new_frontend/assets/img/sathya.webp" alt="Sathya">
 <div><div class="ht">Google Review Report</div>
-<div class="hs">Sathya Agencies — ${script.agm} — ${ok}/${rows.length} branches</div></div>
+<div class="hs">Sathya Agencies &mdash; ${script.agm} &mdash; ${ok}/${rows.length} branches</div></div>
 </div>
-<div class="hr"><div>Date: <strong>${dateStr}</strong></div><div>AGM: <strong>${script.agm}</strong></div></div>
-</div>
+<div class="hr"><div>Date: <strong>${dateStr}</strong></div><div>AGM: <strong>${script.agm}</strong></div></div></div>
 <div style="margin-bottom:22px">
 <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:#f0f4f8;border-left:3px solid ${color};margin-bottom:8px">
-<span style="font-size:11px;font-weight:700;color:#1e293b">${script.label.replace(".py","").toUpperCase()} — ${script.branches.length} branches</span>
+<span style="font-size:11px;font-weight:700;color:#1e293b">${script.label.replace(".py","").toUpperCase()} &mdash; ${script.branches.length} branches</span>
 <span style="font-size:9px;font-weight:700;padding:2px 9px;border-radius:10px;background:${color}22;color:${color}">AGM: ${script.agm}</span>
 </div>
 <table style="width:100%;border-collapse:collapse;font-size:10px">
 <thead><tr style="background:#1e3a5f">
-<th style="color:#fff;font-size:9px;font-weight:700;padding:7px 10px;text-align:left;text-transform:uppercase;letter-spacing:.5px">Branch</th>
-<th style="color:#fff;font-size:9px;font-weight:700;padding:7px 10px;text-align:center;text-transform:uppercase;letter-spacing:.5px">Stars</th>
-<th style="color:#fff;font-size:9px;font-weight:700;padding:7px 10px;text-align:center;text-transform:uppercase;letter-spacing:.5px">Live Reviews</th>
+<th style="color:#fff;font-size:9px;font-weight:700;padding:7px 8px;text-align:left;text-transform:uppercase;letter-spacing:.5px">Branch</th>
+<th style="color:#fff;font-size:9px;font-weight:700;padding:7px 8px;text-align:center;text-transform:uppercase;letter-spacing:.5px">Total Reviews</th>
+<th style="color:#fff;font-size:9px;font-weight:700;padding:7px 8px;text-align:center;text-transform:uppercase;letter-spacing:.5px">Today ${baseLine}</th>
+<th style="color:#fff;font-size:9px;font-weight:700;padding:7px 8px;text-align:center;text-transform:uppercase;letter-spacing:.5px">Stars</th>
 </tr></thead><tbody>${trs}</tbody>
 <tfoot><tr style="background:#f8fafc">
-<td colspan="2" style="padding:6px 10px;font-weight:700;color:#0f172a;font-size:10px">TOTAL</td>
-<td style="text-align:center;padding:6px 10px;font-weight:700;color:#4f46e5;font-size:10px">${total.toLocaleString("en-IN")}</td>
+<td style="padding:6px 8px;font-weight:700;color:#0f172a;font-size:10px">TOTAL</td>
+<td style="text-align:center;padding:6px 8px;font-weight:700;color:#4f46e5;font-size:10px">${total.toLocaleString("en-IN")}</td>
+<td style="text-align:center;padding:6px 8px;font-weight:700;font-size:10px;color:${todayTot>0?"#059669":todayTot<0?"#e11d48":"#94a3b8"}">${hasBl?(todayTot>=0?"+":"")+todayTot:"&mdash;"}</td>
+<td></td>
 </tr></tfoot></table></div>
-<div class="footer"><span>Sathya Agencies — Live Review Tracker</span><span>Generated: ${dateStr}</span></div>
+<div class="footer"><span>Sathya Agencies &mdash; Live Review Tracker</span><span>Generated: ${dateStr}</span></div>
 </div><script>var p=false;function go(){if(p)return;p=true;window.print();}
 var img=document.querySelector('.logo');if(img){img.addEventListener('load',go);img.addEventListener('error',go);}setTimeout(go,1200);<\/script>
 </body></html>`;
 }
 
-function openPdf(script, results) {
+function openPdf(script, results, baseline, baseDate) {
   const dateStr = new Date().toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"}).toUpperCase();
-  const html    = buildPdfHtml(script, results, dateStr);
+  const html    = buildPdfHtml(script, results, dateStr, baseline, baseDate);
   const blob    = new Blob([html],{type:"text/html;charset=utf-8"});
   const url     = URL.createObjectURL(blob);
   const win     = window.open(url,"_blank");
@@ -323,32 +356,15 @@ function openPdf(script, results) {
   else { setTimeout(()=>URL.revokeObjectURL(url),10000); alert("Allow pop-ups and try again."); }
 }
 
-function openAllPdf(scripts, allResults) {
+function openAllPdf(scripts, allResults, baseline, baseDate) {
   const dateStr = new Date().toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"}).toUpperCase();
-  const color   = {"Seenivasan":"#d97706","Jeeva":"#059669","Muthuselvam":"#7c3aed","John":"#2563eb","Siva":"#dc2626","Venkatesh":"#db2777"};
+  const colMap  = {"Seenivasan":"#d97706","Jeeva":"#059669","Muthuselvam":"#7c3aed","John":"#2563eb","Siva":"#dc2626","Venkatesh":"#db2777"};
   const sections = scripts.map(s => {
     const rows = allResults[s.id];
     if (!rows || !rows.length) return "";
-    const col   = color[s.agm] || "#4f46e5";
-    const total = rows.reduce((a,r)=>a+(r.reviews||0),0);
-    const ok    = rows.filter(r=>r.status==="ok").length;
-    const trs   = rows.map((r,i)=>{
-      const bg = i%2===0?"#fff":"#f8fafc";
-      const rv = r.status==="ok" ? (r.reviews||0).toLocaleString("en-IN") : "FAILED";
-      const rc = r.status==="ok" ? "#1e293b" : "#b91c1c";
-      const st = r.stars ? r.stars+"★" : "—";
-      return `<tr style="background:${bg}"><td style="text-align:left;font-weight:600;color:#0f172a;padding:6px 10px;border-bottom:1px solid #e5e7eb">${r.name}</td><td style="text-align:center;padding:6px 10px;border-bottom:1px solid #e5e7eb;color:#d97706">${st}</td><td style="text-align:center;padding:6px 10px;border-bottom:1px solid #e5e7eb;font-weight:600;color:${rc}">${rv}</td></tr>`;
-    }).join("");
-    return `<div style="margin-bottom:22px;page-break-inside:avoid">
-<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:#f0f4f8;border-left:3px solid ${col};margin-bottom:8px">
-<span style="font-size:11px;font-weight:700;color:#1e293b">${s.label.replace(".py","").toUpperCase()} — ${ok}/${rows.length} branches</span>
-<span style="font-size:9px;font-weight:700;padding:2px 9px;border-radius:10px;background:${col}22;color:${col}">AGM: ${s.agm}</span>
-</div>
-<table style="width:100%;border-collapse:collapse;font-size:10px">
-<thead><tr style="background:#1e3a5f"><th style="color:#fff;font-size:9px;font-weight:700;padding:7px 10px;text-align:left;text-transform:uppercase">Branch</th><th style="color:#fff;font-size:9px;font-weight:700;padding:7px 10px;text-align:center;text-transform:uppercase">Stars</th><th style="color:#fff;font-size:9px;font-weight:700;padding:7px 10px;text-align:center;text-transform:uppercase">Live Reviews</th></tr></thead>
-<tbody>${trs}</tbody>
-<tfoot><tr style="background:#f8fafc"><td colspan="2" style="padding:6px 10px;font-weight:700;color:#0f172a;font-size:10px">TOTAL</td><td style="text-align:center;padding:6px 10px;font-weight:700;color:#4f46e5;font-size:10px">${total.toLocaleString("en-IN")}</td></tr></tfoot>
-</table></div>`;
+    return buildPdfHtml(s, rows, dateStr, baseline, baseDate)
+      .replace(/<!DOCTYPE html>[\s\S]*?<div class="page">/, '<div style="page-break-before:auto">')
+      .replace(/<\/div>\s*<script>[\s\S]*?<\/body><\/html>/, '</div>');
   }).join("");
 
   const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>All Reviews Report</title>
@@ -360,10 +376,10 @@ function openAllPdf(scripts, allResults) {
 @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}@page{size:A4;margin:0}.page{padding:13mm 14mm 10mm}}</style>
 </head><body><div class="page">
 <div class="hdr"><div class="hl"><img class="logo" src="https://www.sathya.store/new_frontend/assets/img/sathya.webp" alt="Sathya">
-<div><div class="ht">Google Review Report — All Branches</div><div class="hs">Sathya Agencies — Tamil Nadu</div></div></div>
+<div><div class="ht">Google Review Report &mdash; All Branches</div><div class="hs">Sathya Agencies &mdash; Tamil Nadu</div></div></div>
 <div class="hr"><div>Date: <strong>${dateStr}</strong></div></div></div>
 ${sections}
-<div class="footer"><span>Sathya Agencies — Live Review Tracker</span><span>Generated: ${dateStr}</span></div>
+<div class="footer"><span>Sathya Agencies &mdash; Live Review Tracker</span><span>Generated: ${dateStr}</span></div>
 </div><script>var p=false;function go(){if(p)return;p=true;window.print();}
 var img=document.querySelector('.logo');if(img){img.addEventListener('load',go);img.addEventListener('error',go);}setTimeout(go,1200);<\/script>
 </body></html>`;
@@ -388,7 +404,7 @@ const btnBlue  = {...btnBase, background:"#1d4ed8", color:"#fff"};
 const btnGray  = {...btnBase, background:"#e5e7eb", color:"#9ca3af", cursor:"not-allowed"};
 
 /* ── Cell ──────────────────────────────────────────────────── */
-function Cell({ script, runCount, selected, onSelect, onDone, runRef }) {
+function Cell({ script, runCount, selected, onSelect, onDone, runRef, baseline, baseDate }) {
   const [status,  setStatus]  = useState("idle");
   const [lines,   setLines]   = useState([]);
   const [execNum, setExecNum] = useState(null);
@@ -535,16 +551,126 @@ function Cell({ script, runCount, selected, onSelect, onDone, runRef }) {
           </div>
         )}
 
-        {/* Per-cell download buttons — appear after run */}
+        {/* Results table — appears after run with today's reviews and star comparison */}
         {status==="done"&&results&&results.length>0&&(
-          <div style={{display:"flex",gap:8,justifyContent:"flex-end",padding:"8px 0 2px",flexWrap:"wrap"}}>
-            <button style={btnGreen} onClick={()=>downloadExcel(script,results)}>
-              <svg width="11" height="11" viewBox="0 0 13 13" fill="none"><path d="M6.5 1v7M4 6l2.5 2.5L9 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/><path d="M2 10h9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/></svg>
-              Excel
-            </button>
-            <button style={btnRose} onClick={()=>openPdf(script,results)}>
-              PDF
-            </button>
+          <div style={{border:"1px solid #e5e7eb",borderTop:"none",borderRadius:"0 0 4px 4px",background:"white",overflowX:"auto"}}>
+            <table style={{width:"100%",borderCollapse:"collapse",fontSize:"12.5px"}}>
+              <thead>
+                <tr style={{background:"#f8fafc",borderBottom:"1px solid #e5e7eb"}}>
+                  <th style={{padding:"8px 14px",textAlign:"left",fontWeight:600,color:"#64748b",fontSize:"11px",textTransform:"uppercase",letterSpacing:".5px",whiteSpace:"nowrap"}}>Branch</th>
+                  <th style={{padding:"8px 14px",textAlign:"center",fontWeight:600,color:"#64748b",fontSize:"11px",textTransform:"uppercase",letterSpacing:".5px",whiteSpace:"nowrap"}}>Total Reviews</th>
+                  <th style={{padding:"8px 14px",textAlign:"center",fontWeight:600,color:"#64748b",fontSize:"11px",textTransform:"uppercase",letterSpacing:".5px",whiteSpace:"nowrap"}}>
+                    Today's Reviews
+                    {baseDate && <span style={{display:"block",fontSize:"9px",fontWeight:400,color:"#94a3b8",textTransform:"none",letterSpacing:0}}>vs {baseDate}</span>}
+                  </th>
+                  <th style={{padding:"8px 14px",textAlign:"center",fontWeight:600,color:"#64748b",fontSize:"11px",textTransform:"uppercase",letterSpacing:".5px",whiteSpace:"nowrap"}}>Stars</th>
+                  <th style={{padding:"8px 14px",textAlign:"center",fontWeight:600,color:"#64748b",fontSize:"11px",textTransform:"uppercase",letterSpacing:".5px",whiteSpace:"nowrap"}}>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {results.map((r, i) => {
+                  const prev     = baseline[r.name] || {};
+                  const prevRev  = prev.reviews || 0;
+                  const prevStar = prev.stars   || 0;
+                  const curRev   = r.reviews    || 0;
+                  const curStar  = r.stars      || 0;
+                  const todayDiff= prevRev > 0 ? curRev - prevRev : null;
+                  const starChanged = prevStar > 0 && curStar > 0 && Math.abs(curStar - prevStar) >= 0.1;
+                  const starUp      = starChanged && curStar > prevStar;
+                  const starDown    = starChanged && curStar < prevStar;
+                  const isOk        = r.status === "ok";
+                  const rowBg       = i % 2 === 0 ? "#ffffff" : "#f8fafc";
+
+                  // Today badge
+                  let todayBadge;
+                  if (!isOk) {
+                    todayBadge = <span style={{fontSize:"11px",color:"#94a3b8"}}>—</span>;
+                  } else if (todayDiff === null) {
+                    todayBadge = <span style={{fontSize:"11px",color:"#94a3b8",fontFamily:"monospace"}}>no baseline</span>;
+                  } else if (todayDiff > 0) {
+                    todayBadge = <span style={{background:"rgba(5,150,105,.1)",color:"#059669",fontFamily:"monospace",fontWeight:700,fontSize:"12px",padding:"2px 8px",borderRadius:20}}>+{todayDiff}</span>;
+                  } else if (todayDiff < 0) {
+                    todayBadge = <span style={{background:"rgba(225,29,72,.08)",color:"#e11d48",fontFamily:"monospace",fontWeight:700,fontSize:"12px",padding:"2px 8px",borderRadius:20}}>{todayDiff}</span>;
+                  } else {
+                    todayBadge = <span style={{background:"#f1f5f9",color:"#94a3b8",fontFamily:"monospace",fontWeight:600,fontSize:"12px",padding:"2px 8px",borderRadius:20,border:"1px solid #e5e7eb"}}>0</span>;
+                  }
+
+                  // Stars cell
+                  let starsCell;
+                  if (!isOk || !curStar) {
+                    starsCell = <span style={{color:"#94a3b8"}}>—</span>;
+                  } else if (starChanged) {
+                    starsCell = (
+                      <span style={{display:"inline-flex",alignItems:"center",gap:5}}>
+                        <span style={{textDecoration:"line-through",color:"#94a3b8",fontSize:"11px"}}>{prevStar}★</span>
+                        <span style={{fontSize:"10px",color:"#94a3b8"}}>→</span>
+                        <span style={{fontWeight:700,color:starUp?"#059669":"#e11d48",fontSize:"13px"}}>
+                          {curStar}★
+                          <span style={{fontSize:"9px",marginLeft:2}}>{starUp?"▲":"▼"}</span>
+                        </span>
+                      </span>
+                    );
+                  } else {
+                    starsCell = <span style={{fontFamily:"monospace",color:"#475569"}}>{curStar}★</span>;
+                  }
+
+                  return (
+                    <tr key={r.name} style={{background:rowBg,borderBottom:"1px solid #f1f5f9"}}>
+                      <td style={{padding:"9px 14px",fontWeight:600,color:"#0f172a"}}>{r.name}</td>
+                      <td style={{padding:"9px 14px",textAlign:"center"}}>
+                        {isOk
+                          ? <span style={{background:"rgba(79,70,229,.1)",color:"#4f46e5",fontFamily:"monospace",fontWeight:600,fontSize:"12px",padding:"2px 8px",borderRadius:20}}>{curRev.toLocaleString("en-IN")}</span>
+                          : <span style={{background:"#f1f5f9",color:"#94a3b8",fontSize:"11px",padding:"2px 8px",borderRadius:20}}>FAILED</span>
+                        }
+                      </td>
+                      <td style={{padding:"9px 14px",textAlign:"center"}}>{todayBadge}</td>
+                      <td style={{padding:"9px 14px",textAlign:"center"}}>{starsCell}</td>
+                      <td style={{padding:"9px 14px",textAlign:"center"}}>
+                        <span style={{fontSize:"11px",fontWeight:700,color:isOk?"#059669":"#e11d48"}}>{isOk?"✓ OK":"✗ FAIL"}</span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+              <tfoot>
+                <tr style={{background:"#f8fafc",borderTop:"2px solid #e5e7eb"}}>
+                  <td style={{padding:"8px 14px",fontWeight:700,color:"#0f172a",fontSize:"12px"}}>TOTAL</td>
+                  <td style={{padding:"8px 14px",textAlign:"center"}}>
+                    <span style={{background:"rgba(79,70,229,.1)",color:"#4f46e5",fontFamily:"monospace",fontWeight:700,fontSize:"12px",padding:"2px 8px",borderRadius:20}}>
+                      {results.filter(r=>r.status==="ok").reduce((a,r)=>a+(r.reviews||0),0).toLocaleString("en-IN")}
+                    </span>
+                  </td>
+                  <td style={{padding:"8px 14px",textAlign:"center"}}>
+                    {(() => {
+                      const total = results.filter(r=>r.status==="ok").reduce((a,r)=>{
+                        const prev = baseline[r.name];
+                        if (!prev) return a;
+                        return a + ((r.reviews||0) - (prev.reviews||0));
+                      }, 0);
+                      const hasBl = results.some(r=>baseline[r.name]);
+                      if (!hasBl) return <span style={{color:"#94a3b8",fontSize:"11px"}}>—</span>;
+                      return total > 0
+                        ? <span style={{background:"rgba(5,150,105,.1)",color:"#059669",fontFamily:"monospace",fontWeight:700,fontSize:"12px",padding:"2px 8px",borderRadius:20}}>+{total}</span>
+                        : total < 0
+                        ? <span style={{background:"rgba(225,29,72,.08)",color:"#e11d48",fontFamily:"monospace",fontWeight:700,fontSize:"12px",padding:"2px 8px",borderRadius:20}}>{total}</span>
+                        : <span style={{background:"#f1f5f9",color:"#94a3b8",fontFamily:"monospace",fontWeight:600,fontSize:"12px",padding:"2px 8px",borderRadius:20,border:"1px solid #e5e7eb"}}>0</span>;
+                    })()}
+                  </td>
+                  <td colSpan={2}/>
+                </tr>
+              </tfoot>
+            </table>
+
+            {/* Download buttons */}
+            <div style={{display:"flex",gap:8,justifyContent:"flex-end",padding:"10px 14px",borderTop:"1px solid #f1f5f9"}}>
+              <button style={btnGreen} onClick={()=>downloadExcel(script,results,baseline)}>
+                <svg width="11" height="11" viewBox="0 0 13 13" fill="none"><path d="M6.5 1v7M4 6l2.5 2.5L9 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/><path d="M2 10h9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/></svg>
+                Excel
+              </button>
+              <button style={btnRose} onClick={()=>openPdf(script,results,baseline,baseDate)}>
+                PDF
+              </button>
+            </div>
           </div>
         )}
       </div>
@@ -558,7 +684,35 @@ function App() {
   const [selected,  setSelected]  = useState(new Set(SCRIPTS.map(s=>s.id)));
   const [allResults,setAllResults]= useState({});
   const [runAllBusy,setRunAllBusy]= useState(false);
+  const [baseline,  setBaseline]  = useState({});   // { branchName: {reviews, stars, date} }
+  const [baseDate,  setBaseDate]  = useState(null);
   const resolvers   = useRef({});
+
+  // Load reviews.json on mount to get yesterday's snapshot as baseline
+  React.useEffect(() => {
+    fetch("data/reviews.json?t=" + Date.now())
+      .then(r => r.ok ? r.json() : null)
+      .then(D => {
+        if (!D || !D.daily) return;
+        // Find yesterday's date (IST = UTC+5:30)
+        const nowIST  = new Date(Date.now() + (5.5 * 60 * 60 * 1000));
+        const todayIST= nowIST.toISOString().slice(0, 10);
+        // Get all dates before today, pick the most recent
+        const dates   = Object.keys(D.daily).sort().reverse();
+        const prevDate= dates.find(d => d < todayIST) || dates[0];
+        if (!prevDate) return;
+        const snap    = D.daily[prevDate] || {};
+        // Build lookup: branch name → {reviews, stars}
+        const bl = {};
+        Object.entries(snap).forEach(([bid, val]) => {
+          const branch = D.branches && D.branches[bid];
+          if (branch) bl[branch.name] = { reviews: val.total_snap || 0, stars: val.star_rating || 0 };
+        });
+        setBaseline(bl);
+        setBaseDate(prevDate);
+      })
+      .catch(() => {}); // silently ignore if file not found
+  }, []);
 
   const allSelected  = selected.size === SCRIPTS.length;
   const someSelected = selected.size > 0 && !allSelected;
@@ -579,7 +733,6 @@ function App() {
     setRunAllBusy(true);
     setAllResults(p=>{ const n={...p}; selectedIds.forEach(id=>{n[id]=null;}); return n; });
     for (const id of selectedIds) {
-      // trigger each Cell's run via ref
       if (cellRefs.current[id]) cellRefs.current[id]();
       await new Promise(res=>{ resolvers.current[id]=res; });
       await new Promise(r=>setTimeout(r,400));
@@ -588,7 +741,6 @@ function App() {
   };
 
   const cellRefs = useRef({});
-
   const selectedScripts = SCRIPTS.filter(s=>selected.has(s.id));
 
   return (
@@ -605,6 +757,11 @@ function App() {
       <div style={{background:"white",borderBottom:"1px solid #e5e7eb",padding:"0 20px",display:"flex",alignItems:"center",gap:10,height:44,position:"sticky",top:40,zIndex:100,flexWrap:"wrap"}}>
         <img src="https://www.sathya.store/new_frontend/assets/img/sathya.webp" alt="Sathya" style={{height:26,objectFit:"contain"}} onError={e=>e.target.style.display="none"}/>
         <span style={{fontSize:"13px",fontWeight:700,color:"#0f172a",marginRight:4}}>Live Tracker</span>
+        {baseDate && (
+          <span style={{fontSize:"10px",color:"#94a3b8",fontFamily:"monospace",background:"#f1f5f9",padding:"2px 7px",borderRadius:4}}>
+            baseline: {baseDate}
+          </span>
+        )}
         <div style={{width:1,height:20,background:"#e5e7eb"}}/>
 
         {/* Select All */}
@@ -619,10 +776,8 @@ function App() {
         <div style={{width:1,height:20,background:"#e5e7eb"}}/>
 
         {/* Run All */}
-        <button
-          style={selectedIds.length===0||runAllBusy ? btnGray : btnDark}
-          disabled={selectedIds.length===0||runAllBusy}
-          onClick={runAll}>
+        <button style={selectedIds.length===0||runAllBusy ? btnGray : btnDark}
+          disabled={selectedIds.length===0||runAllBusy} onClick={runAll}>
           {runAllBusy
             ? <><svg width="12" height="12" viewBox="0 0 13 13" fill="none" style={{animation:"jupy-spin .9s linear infinite"}}><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" strokeWidth="1.5" strokeDasharray="18" strokeDashoffset="6"/></svg> Running…</>
             : <><svg width="10" height="11" viewBox="0 0 10 11" fill="currentColor"><path d="M1 1 L9 5.5 L1 10 Z"/></svg> Run All ({selectedIds.length})</>
@@ -632,19 +787,16 @@ function App() {
         <div style={{width:1,height:20,background:"#e5e7eb"}}/>
 
         {/* Download All Excel */}
-        <button
-          style={allDone ? btnBlue : btnGray}
-          disabled={!allDone}
-          onClick={()=>downloadAllExcel(selectedScripts,allResults)}>
+        <button style={allDone ? btnBlue : btnGray} disabled={!allDone}
+          onClick={()=>downloadAllExcel(selectedScripts,allResults,baseline)}>
           <svg width="11" height="11" viewBox="0 0 13 13" fill="none"><path d="M6.5 1v7M4 6l2.5 2.5L9 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/><path d="M2 10h9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/></svg>
           Download All Excel {allDone?`(${doneIds.length})`:""}
         </button>
 
         {/* Download All PDF */}
-        <button
-          style={allDone ? {...btnBase,background:"#e11d48",color:"#fff"} : btnGray}
+        <button style={allDone ? {...btnBase,background:"#e11d48",color:"#fff"} : btnGray}
           disabled={!allDone}
-          onClick={()=>openAllPdf(selectedScripts,allResults)}>
+          onClick={()=>openAllPdf(selectedScripts,allResults,baseline,baseDate)}>
           Download All PDF
         </button>
 
@@ -674,6 +826,8 @@ function App() {
             onSelect={toggleSelect}
             onDone={onDone}
             cellRefs={cellRefs}
+            baseline={baseline}
+            baseDate={baseDate}
           />
         ))}
       </div>
@@ -682,10 +836,10 @@ function App() {
 }
 
 /* Wrapper so each Cell can expose its run fn via ref */
-function CellWrapper({script, runCount, selected, onSelect, onDone, cellRefs}) {
+function CellWrapper({script, runCount, selected, onSelect, onDone, cellRefs, baseline, baseDate}) {
   const runRef = useRef(null);
   React.useEffect(()=>{ cellRefs.current[script.id] = ()=>{ if(runRef.current) runRef.current(); }; },[]);
-  return <div style={{marginBottom:"3px"}}><Cell script={script} runCount={runCount} selected={selected} onSelect={onSelect} onDone={onDone} runRef={runRef}/></div>;
+  return <div style={{marginBottom:"3px"}}><Cell script={script} runCount={runCount} selected={selected} onSelect={onSelect} onDone={onDone} runRef={runRef} baseline={baseline} baseDate={baseDate}/></div>;
 }
 
 ReactDOM.createRoot(document.getElementById("root")).render(<App />);
