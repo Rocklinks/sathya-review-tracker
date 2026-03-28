@@ -34,7 +34,7 @@
     <a href="index.html">🏠 Home</a>
     <a href="sathya_jupyter.html" class="active">💻 Live Tracker</a>
     <a href="sathya-weather.html">⛅ Weather</a>
-    <a href="Enquiries_Filter_Tool.html">📊 PDF Tool</a>
+    <a href="Enquiries_Filter_Tool.html">📊 Enquiries</a>
   </div>
   <span class="sa-nav-right">LIVE TRACKER</span>
 </nav>
@@ -125,7 +125,62 @@ const SCRIPTS = [
   },
 ];
 
+// ── All 36 branches as one flat script (shown above the grouped cells) ──
+const ALL_BRANCHES_SCRIPT = {
+  id: "all_branches",
+  label: "all_branches.py",
+  agm: "All Branches",
+  branches: [
+    // Siva
+    { name: "Tuticorin-1",     place_id: "ChIJ5zJNoJfvAzsR-bJE_3bbNYw" },
+    { name: "Tuticorin-2",     place_id: "ChIJH6gY4-PvAzsRJ50skTlx3cs" },
+    { name: "Thiruchendur-1",  place_id: "ChIJeXA4vJKRAzsRBovAtv6lMuQ" },
+    { name: "Thisayanvilai-1", place_id: "ChIJVWkvdfh_BDsRdvtimKCLS5Y" },
+    { name: "Eral-2",          place_id: "ChIJbwAA0KGMAzsRkQilW5PceeA"  },
+    { name: "Udankudi",        place_id: "ChIJPQAAACyEAzsRgjznQ1GLom0"  },
+    // John
+    { name: "Tirunelveli-1",   place_id: "ChIJ2RU2NvQRBDsRq-Fw7IVwx7k" },
+    { name: "Valliyur-1",      place_id: "ChIJcVNk6TtnBDsRBoP4zpExt5k" },
+    { name: "Ambasamudram-1",  place_id: "ChIJ9SGeIi85BDsRZk4QdyW9BSY" },
+    { name: "Anjugramam-1",    place_id: "ChIJ4yeJebLtBDsRDceoxujdGyc" },
+    // Jeeva
+    { name: "Nagercoil",       place_id: "ChIJe1LZBiTxBDsRJFLjlbgZoIs" },
+    { name: "Marthandam",      place_id: "ChIJcWptCRdVBDsRlJh2q0-rnfY" },
+    { name: "Thuckalay-1",     place_id: "ChIJc9QgEub4BDsRoyDR4Wd6tYA" },
+    { name: "Colachel-1",      place_id: "ChIJgRkBLw39BDsR58D0lwNo5Ts" },
+    { name: "Kulasekharam-1",  place_id: "ChIJw0Ep-kNXBDsRe5ad32jAeAk" },
+    { name: "Monday Market",   place_id: "ChIJTceRGAD5BDsR65i3YNTcYHk" },
+    { name: "Karungal-1",      place_id: "ChIJfTP5ASr_BDsRgsBaeQltkw4" },
+    // Seenivasan
+    { name: "Kovilpatti",      place_id: "ChIJHY0o-26yBjsRt7wbXB1pDUE" },
+    { name: "Ramnad",          place_id: "ChIJNVVVVaGiATsRnunSgOTvbE8" },
+    { name: "Paramakudi",      place_id: "ChIJ-dgjBzQHATsRf27FWAJgmsA" },
+    { name: "Sayalkudi-1",     place_id: "ChIJRTqudn9lATsR2fYyMmxlOrw" },
+    { name: "Villathikullam",  place_id: "ChIJi_wAkwVbATsRtFl3_V5rGrY" },
+    { name: "Sattur-2",        place_id: "ChIJNVVVVcHKBjsR7xMX97RFn8Q" },
+    { name: "Sankarankovil-1", place_id: "ChIJE1mKnhSXBjsRKMQ-9JKQf_c" },
+    { name: "Kayathar-1",      place_id: "ChIJx5ebtUgRBDsRMquPZNUJVpw" },
+    // Muthuselvam
+    { name: "Thenkasi",        place_id: "ChIJuaqqquEpBDsRVITw0MMYklc" },
+    { name: "Thenkasi-2",      place_id: "ChIJiwqLye6DBjsRo9v1mWXaycI" },
+    { name: "Surandai-1",      place_id: "ChIJPb1_eEOdBjsRjL9IVCVJhi8" },
+    { name: "Puliyankudi-1",   place_id: "ChIJjZqoc46RBjsRQTGHnNC8xxA" },
+    { name: "Sengottai-1",     place_id: "ChIJw3zzKiaBBjsR9KDyGpn1nXU" },
+    { name: "Rajapalayam",     place_id: "ChIJW2ot-NDpBjsRMTfMF2IV-xE" },
+    // Venkatesh
+    { name: "Virudhunagar",    place_id: "ChIJN3jzNJgsATsRCU3nrB5ntKE" },
+    { name: "Virudhunagar-2",  place_id: "ChIJPezaX7wtATsR9sHhFOG6A1c" },
+    { name: "Aruppukottai",    place_id: "ChIJy6qqqgYwATsRbcp-hXnoruM"  },
+    { name: "Aruppukottai -2", place_id: "ChIJY04wY58xATsRuoJSichVQQE" },
+    { name: "Sivakasi",        place_id: "ChIJI2JvEePOBjsREh8b-x4WF4U" },
+  ],
+};
+
+// ALL_SCRIPTS = flat cell first, then the 6 grouped cells
+const ALL_SCRIPTS = [ALL_BRANCHES_SCRIPT, ...SCRIPTS];
+
 const KERNEL_COLORS = {
+  "All Branches": "#0f172a",
   Seenivasan: "#d97706",
   Jeeva:      "#059669",
   Muthuselvam:"#7c3aed",
@@ -681,7 +736,7 @@ function Cell({ script, runCount, selected, onSelect, onDone, runRef, baseline, 
 /* ── App ───────────────────────────────────────────────────── */
 function App() {
   const runCounter  = useRef(0);
-  const [selected,  setSelected]  = useState(new Set(SCRIPTS.map(s=>s.id)));
+  const [selected,  setSelected]  = useState(new Set(ALL_SCRIPTS.map(s=>s.id)));
   const [allResults,setAllResults]= useState({});
   const [runAllBusy,setRunAllBusy]= useState(false);
   const [baseline,  setBaseline]  = useState({});   // { branchName: {reviews, stars, date} }
@@ -714,14 +769,14 @@ function App() {
       .catch(() => {}); // silently ignore if file not found
   }, []);
 
-  const allSelected  = selected.size === SCRIPTS.length;
+  const allSelected  = selected.size === ALL_SCRIPTS.length;
   const someSelected = selected.size > 0 && !allSelected;
-  const selectedIds  = SCRIPTS.filter(s=>selected.has(s.id)).map(s=>s.id);
+  const selectedIds  = ALL_SCRIPTS.filter(s=>selected.has(s.id)).map(s=>s.id);
   const doneIds      = selectedIds.filter(id=>allResults[id]);
   const allDone      = selectedIds.length > 0 && doneIds.length === selectedIds.length;
 
   const toggleSelect = (id) => setSelected(prev=>{const n=new Set(prev);n.has(id)?n.delete(id):n.add(id);return n;});
-  const toggleAll    = () => setSelected(allSelected?new Set():new Set(SCRIPTS.map(s=>s.id)));
+  const toggleAll    = () => setSelected(allSelected?new Set():new Set(ALL_SCRIPTS.map(s=>s.id)));
 
   const onDone = React.useCallback((id, rows) => {
     setAllResults(p=>({...p,[id]:rows}));
@@ -741,7 +796,7 @@ function App() {
   };
 
   const cellRefs = useRef({});
-  const selectedScripts = SCRIPTS.filter(s=>selected.has(s.id));
+  const selectedScripts = ALL_SCRIPTS.filter(s=>selected.has(s.id));
 
   return (
     <div style={{minHeight:"100vh",background:"#f9fafb",fontFamily:"system-ui,-apple-system,sans-serif"}}>
@@ -817,6 +872,29 @@ function App() {
           </div>
         </div>
         <div style={{height:12}}/>
+
+        {/* ── ALL BRANCHES (flat) cell ── */}
+        <CellWrapper
+          key={ALL_BRANCHES_SCRIPT.id}
+          script={ALL_BRANCHES_SCRIPT}
+          runCount={runCounter}
+          selected={selected.has(ALL_BRANCHES_SCRIPT.id)}
+          onSelect={toggleSelect}
+          onDone={onDone}
+          cellRefs={cellRefs}
+          baseline={baseline}
+          baseDate={baseDate}
+        />
+
+        {/* ── Divider between flat and grouped ── */}
+        <div style={{display:"flex",alignItems:"center",gap:12,margin:"20px 0 16px"}}>
+          <div style={{width:56,flexShrink:0}}/>
+          <div style={{flex:1,height:1,background:"#e5e7eb"}}/>
+          <span style={{fontSize:"11px",fontWeight:700,color:"#94a3b8",textTransform:"uppercase",letterSpacing:"1px",whiteSpace:"nowrap",flexShrink:0}}>By AGM</span>
+          <div style={{flex:1,height:1,background:"#e5e7eb"}}/>
+        </div>
+
+        {/* ── Grouped cells by AGM ── */}
         {SCRIPTS.map((script,i)=>(
           <CellWrapper
             key={script.id}
