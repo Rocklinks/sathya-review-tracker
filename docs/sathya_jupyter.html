@@ -35,6 +35,7 @@
     <a href="sathya_jupyter.html" class="active">💻 Live Tracker</a>
     <a href="sathya-weather.html">⛅ Weather</a>
     <a href="Enquiries_Filter_Tool.html">📊 Enquiries</a>
+    <a href="branch_check.html">🔍 Branch Check</a>
   </div>
   <span class="sa-nav-right">LIVE TRACKER</span>
 </nav>
@@ -191,7 +192,7 @@ const KERNEL_COLORS = {
 
 // ── YOUR HUGGING FACE SPACE URL (set this after deploying) ──────
 // e.g. "https://YOUR-USERNAME-sathya-scraper.hf.space"
-const SERVER = "https://RocklinKS-sathya-scraper.hf.space";
+const SERVER = "https://rocklincs-sathya-scraper.hf.space";
 
 async function simulateRun(script, onLine) {
   const now       = new Date();
@@ -523,16 +524,24 @@ function Cell({ script, runCount, selected, onSelect, onDone, runRef, baseline, 
       await emit2(`  🌐 Playwright scraping ${script.agm} — ${script.branches.length} branches...`,"accent");
       await emit2("","normal");
 
-      await new Promise(res2 => {
-        const es = new EventSource(`${SERVER}/scrape/${encodeURIComponent(script.agm)}`);
-        es.onmessage = e => {
-          let msg; try{msg=JSON.parse(e.data);}catch{return;}
-          if (msg.event==="log")    onLineAdd({text:msg.text,type:msg.type||"normal"});
-          if (msg.event==="result") capturedRows = msg.rows || [];
-          if (msg.event==="done")   { es.close(); res2(); }
-        };
-        es.onerror = ()=>{ es.close(); onLineAdd({text:"  ⚠  Stream disconnected.",type:"error"}); res2(); };
-      });
+      const REAL_AGMS = ["Seenivasan","Jeeva","Muthuselvam","John","Siva","Venkatesh"];
+      const agmsToRun = script.agm === "All Branches" ? REAL_AGMS : [script.agm];
+
+      for (const agm of agmsToRun) {
+        if (agmsToRun.length > 1) {
+          onLineAdd({text:`  ── ${agm} ──`, type:"accent"});
+        }
+        await new Promise(res2 => {
+          const es = new EventSource(`${SERVER}/scrape/${encodeURIComponent(agm)}`);
+          es.onmessage = e => {
+            let msg; try{msg=JSON.parse(e.data);}catch{return;}
+            if (msg.event==="log")    onLineAdd({text:msg.text,type:msg.type||"normal"});
+            if (msg.event==="result") capturedRows = [...capturedRows, ...(msg.rows||[])];
+            if (msg.event==="done")   { es.close(); res2(); }
+          };
+          es.onerror = ()=>{ es.close(); onLineAdd({text:`  ⚠  Stream disconnected (${agm}).`,type:"error"}); res2(); };
+        });
+      }
       resolve();
     });
 
