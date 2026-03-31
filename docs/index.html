@@ -35,7 +35,6 @@ body{background:var(--bg);color:var(--text);font-family:"Plus Jakarta Sans",sans
 .btn-export{background:linear-gradient(135deg,var(--green),var(--teal));color:#fff;box-shadow:0 2px 8px rgba(5,150,105,.25)}
 .btn-export:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(5,150,105,.35)}
 .btn-primary{background:var(--indigo);color:#fff}.btn-primary:hover{background:var(--indigo2)}
-.btn-ghost{background:var(--surface);border:1px solid var(--border2);color:var(--text2)}.btn-ghost:hover{background:var(--surface2)}
 .live-pill{display:flex;align-items:center;gap:6px;background:rgba(5,150,105,.08);border:1px solid rgba(5,150,105,.2);border-radius:20px;padding:4px 10px;font-size:11px;color:var(--green);font-weight:600;white-space:nowrap}
 .live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
@@ -136,7 +135,7 @@ input[type=date]{background:var(--surface2);border:1px solid var(--border2);bord
 .log-ok{color:var(--green);font-weight:600}
 .log-fail{color:var(--rose);font-weight:600}
 
-#toast{position:fixed;bottom:20px;right:20px;background:var(--text);color:#fff;border-radius:10px;padding:11px 16px;font-size:13px;font-weight:500;box-shadow:0 8px 32px rgba(0,0,0,.2);opacity:0;transform:translateY(8px);transition:.25s;pointer-events:none;z-index:9999}
+#toast{position:fixed;bottom:20px;right:20px;background:var(--text);color:#fff;border-radius:10px;padding:11px 16px;font-size:13px;font-weight:500;box-shadow:0 8px 32px rgba(0,0,0,.2);opacity:0;transform:translateY(8px);transition:.25s;pointer-events:none;z-index:999}
 #toast.show{opacity:1;transform:translateY(0)}
 .loading{display:flex;align-items:center;justify-content:center;padding:60px;color:var(--muted);gap:10px;font-size:14px;flex-direction:column}
 .spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--indigo);border-radius:50%;animation:spin .7s linear infinite}
@@ -147,49 +146,7 @@ input[type=date]{background:var(--surface2);border:1px solid var(--border2);bord
 .edit-warning{background:rgba(217,119,6,.07);border:1px solid rgba(217,119,6,.2);border-radius:10px;padding:12px 15px;margin:12px 16px 0;font-size:12px;color:var(--amber);display:flex;gap:8px}
 .inline-edit{width:70px;background:var(--surface);border:1px solid var(--indigo2);border-radius:6px;padding:3px 6px;font-size:12px;font-family:var(--mono);color:var(--text);outline:none}
 
-/* ── EXPORT MODAL ── */
-.modal-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity .2s}
-.modal-backdrop.open{opacity:1;pointer-events:all}
-.modal{background:var(--surface);border-radius:18px;border:1px solid var(--border);box-shadow:0 24px 64px rgba(0,0,0,.18);width:100%;max-width:520px;overflow:hidden;transform:translateY(12px) scale(.98);transition:transform .22s cubic-bezier(.34,1.56,.64,1),opacity .2s;opacity:0}
-.modal-backdrop.open .modal{transform:translateY(0) scale(1);opacity:1}
-.modal-hdr{padding:20px 22px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--surface2)}
-.modal-title{font-size:15px;font-weight:700;color:var(--text)}
-.modal-close{width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:var(--surface);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--muted);transition:.15s}
-.modal-close:hover{background:var(--surface2);color:var(--text)}
-.modal-body{padding:20px 22px}
-.modal-footer{padding:14px 22px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end;background:var(--surface2)}
-
-/* Filter type tabs */
-.filter-tabs{display:flex;gap:4px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:4px;margin-bottom:18px}
-.ftab{flex:1;padding:7px 10px;border-radius:7px;border:none;background:transparent;cursor:pointer;font-size:12px;font-weight:600;font-family:inherit;color:var(--text2);transition:.15s;text-align:center}
-.ftab.active{background:var(--surface);color:var(--indigo);box-shadow:0 1px 4px rgba(0,0,0,.08);border:1px solid var(--border)}
-
-.filter-panel{display:none}.filter-panel.active{display:block}
-.form-row{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
-.form-label{font-size:12px;color:var(--text2);font-weight:600;min-width:80px}
-.form-ctrl{flex:1;background:var(--surface);border:1px solid var(--border2);border-radius:9px;padding:7px 11px;color:var(--text);font-family:inherit;font-size:13px;outline:none;min-width:0;transition:.15s}
-.form-ctrl:focus{border-color:var(--indigo2);box-shadow:0 0 0 3px rgba(99,102,241,.12)}
-.filter-summary{background:rgba(79,70,229,.05);border:1px solid rgba(79,70,229,.15);border-radius:9px;padding:10px 14px;font-size:12px;color:var(--text2);margin-top:4px;min-height:38px;display:flex;align-items:center;gap:6px}
-.filter-summary b{color:var(--indigo)}
-
-/* format row */
-.format-row{display:flex;gap:8px;margin-bottom:18px}
-.fmt-opt{flex:1;border:1.5px solid var(--border);border-radius:10px;padding:12px 10px;cursor:pointer;text-align:center;transition:.15s;background:var(--surface2)}
-.fmt-opt:hover{border-color:var(--indigo2);background:rgba(79,70,229,.04)}
-.fmt-opt.selected{border-color:var(--indigo);background:rgba(79,70,229,.07)}
-.fmt-opt-icon{font-size:22px;margin-bottom:4px}
-.fmt-opt-lbl{font-size:11px;font-weight:700;color:var(--text2)}
-.fmt-opt-sub{font-size:10px;color:var(--muted);margin-top:2px}
-
-/* AGM filter checkboxes */
-.agm-checks{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
-.agm-check-lbl{display:flex;align-items:center;gap:5px;padding:5px 10px;border:1px solid var(--border);border-radius:20px;cursor:pointer;font-size:11px;font-weight:600;transition:.15s;user-select:none}
-.agm-check-lbl:hover{border-color:var(--indigo2)}
-.agm-check-lbl input{display:none}
-.agm-check-lbl.checked{border-color:var(--indigo);background:rgba(79,70,229,.08);color:var(--indigo)}
-.agm-check-lbl .chk-dot{width:8px;height:8px;border-radius:50%}
-
-/* MOBILE */
+/* ── MOBILE ── */
 @media(max-width:768px){
   .hamburger{display:flex}
   .sidebar{position:fixed;top:60px;left:0;bottom:0;z-index:95;transform:translateX(-100%);width:240px;box-shadow:4px 0 20px rgba(0,0,0,.15)}
@@ -210,9 +167,6 @@ input[type=date]{background:var(--surface2);border:1px solid var(--border2);bord
   .date-bar{padding:10px 12px}
   .backup-grid{grid-template-columns:1fr 1fr}
   .bar-lbl{width:80px;font-size:11px}
-  .form-row{flex-direction:column;align-items:flex-start}
-  .form-label{min-width:unset}
-  .form-ctrl{width:100%}
 }
 @media(max-width:480px){
   .kpi-row{grid-template-columns:1fr}
@@ -240,91 +194,6 @@ input[type=date]{background:var(--surface2);border:1px solid var(--border2);bord
 <div class="sidebar-overlay" id="sb-overlay" onclick="closeSidebar()"></div>
 <iframe id="pdf-frame"></iframe>
 
-<!-- ══ EXPORT MODAL ══ -->
-<div class="modal-backdrop" id="export-modal">
-  <div class="modal">
-    <div class="modal-hdr">
-      <div>
-        <div class="modal-title">📤 Export Options</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px">Choose format and filter before downloading</div>
-      </div>
-      <button class="modal-close" onclick="closeExportModal()">✕</button>
-    </div>
-    <div class="modal-body">
-
-      <!-- Format picker -->
-      <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Format</div>
-      <div class="format-row">
-        <div class="fmt-opt selected" id="fmt-excel" onclick="selectFmt('excel')">
-          <div class="fmt-opt-icon">📊</div>
-          <div class="fmt-opt-lbl">Excel</div>
-          <div class="fmt-opt-sub">.xlsx file</div>
-        </div>
-        <div class="fmt-opt" id="fmt-pdf" onclick="selectFmt('pdf')">
-          <div class="fmt-opt-icon">📄</div>
-          <div class="fmt-opt-lbl">PDF</div>
-          <div class="fmt-opt-sub">Print-ready</div>
-        </div>
-      </div>
-
-      <!-- Filter type tabs -->
-      <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Date Filter</div>
-      <div class="filter-tabs">
-        <button class="ftab active" id="ftab-all" onclick="switchFilterTab('all')">All Dates</button>
-        <button class="ftab" id="ftab-month" onclick="switchFilterTab('month')">By Month</button>
-        <button class="ftab" id="ftab-range" onclick="switchFilterTab('range')">Date Range</button>
-        <button class="ftab" id="ftab-single" onclick="switchFilterTab('single')">Single Day</button>
-      </div>
-
-      <!-- All panel -->
-      <div class="filter-panel active" id="panel-all">
-        <div class="filter-summary">📅 <span>All available dates will be included — <b id="all-count">0</b> days of data</span></div>
-      </div>
-
-      <!-- Month panel -->
-      <div class="filter-panel" id="panel-month">
-        <div class="form-row">
-          <span class="form-label">Month</span>
-          <select class="form-ctrl" id="sel-month" onchange="updateSummary()"></select>
-        </div>
-        <div class="filter-summary" id="month-summary">📅 Select a month</div>
-      </div>
-
-      <!-- Range panel -->
-      <div class="filter-panel" id="panel-range">
-        <div class="form-row">
-          <span class="form-label">From</span>
-          <input type="date" class="form-ctrl" id="range-from" onchange="updateSummary()">
-        </div>
-        <div class="form-row">
-          <span class="form-label">To</span>
-          <input type="date" class="form-ctrl" id="range-to" onchange="updateSummary()">
-        </div>
-        <div class="filter-summary" id="range-summary">📅 Select a date range</div>
-      </div>
-
-      <!-- Single day panel -->
-      <div class="filter-panel" id="panel-single">
-        <div class="form-row">
-          <span class="form-label">Date</span>
-          <select class="form-ctrl" id="sel-single" onchange="updateSummary()"></select>
-        </div>
-        <div class="filter-summary" id="single-summary">📅 Select a single date</div>
-      </div>
-
-      <!-- AGM filter -->
-      <div style="font-size:12px;font-weight:700;color:var(--text2);margin:16px 0 8px;text-transform:uppercase;letter-spacing:.5px">AGM Filter <span style="font-size:10px;font-weight:400;color:var(--muted)">(optional)</span></div>
-      <div class="agm-checks" id="agm-check-list"></div>
-
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeExportModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="runExport()" id="export-run-btn">📥 Download</button>
-    </div>
-  </div>
-</div>
-<!-- ══ END MODAL ══ -->
-
 <div class="topbar">
   <div class="topbar-left">
     <button class="hamburger" onclick="toggleSidebar()"><span></span><span></span><span></span></button>
@@ -336,9 +205,9 @@ input[type=date]{background:var(--surface2);border:1px solid var(--border2);bord
     <span id="last-update"></span>
     <span id="clock"></span>
     <div class="exp-split">
-      <button class="exp-split-main" onclick="openExportModal('excel')">&#x2B07; <span class="exp-split-lbl">Export Excel</span></button>
+      <button class="exp-split-main" onclick="exportExcel()">&#x2B07; <span class="exp-split-lbl">Export Excel</span></button>
       <div class="exp-split-sep"></div>
-      <button class="exp-split-pdf" onclick="openExportModal('pdf')" title="Export as PDF">PDF</button>
+      <button class="exp-split-pdf" onclick="exportPdf()" title="Export as PDF">PDF</button>
     </div>
   </div>
 </div>
@@ -357,14 +226,17 @@ input[type=date]{background:var(--surface2);border:1px solid var(--border2);bord
     </div>
     <div class="s-group">
       <div class="s-label">Tools</div>
-      <div class="s-item s-item-tracker" onclick="window.location.href='sathya_jupyter.html'">
+      <div class="s-item s-item-tracker" onclick="window.location.href='sathya-tracker.html'">
         <span class="s-icon">&#x1F4BB;</span>Live Tracker<span class="s-ext-badge" style="color:var(--teal)">&#x2197;</span>
       </div>
       <div class="s-item s-item-weather" onclick="window.location.href='sathya-weather.html'">
         <span class="s-icon">&#x26C5;</span>Weather<span class="s-ext-badge" style="color:var(--amber)">&#x2197;</span>
       </div>
       <div class="s-item" onclick="window.location.href='Enquiries_Filter_Tool.html'" style="color:var(--text2)">
-        <span class="s-icon">&#x1F4CA;</span>Pdf Tool<span class="s-ext-badge" style="color:#6366f1">&#x2197;</span>
+        <span class="s-icon">&#x1F4CA;</span>Enquiries<span class="s-ext-badge" style="color:#6366f1">&#x2197;</span>
+      </div>
+      <div class="s-item" onclick="window.location.href='branch_check.html'" style="color:var(--text2)">
+        <span class="s-icon">&#x1F50D;</span>Branch Check<span class="s-ext-badge" style="color:#0891b2">&#x2197;</span>
       </div>
     </div>
     <div class="s-group">
@@ -385,281 +257,7 @@ input[type=date]{background:var(--surface2);border:1px solid var(--border2);bord
 var DATA_URL="data/reviews.json",D=null,ALL=[],currentView="dashboard",sortCol="daily_count",sortAsc=false,selectedDate=null;
 var AGM_COLORS={"Siva":{bg:"rgba(2,132,199,.12)",text:"#0284c7",bar:"#0284c7"},"John":{bg:"rgba(79,70,229,.12)",text:"#4f46e5",bar:"#4f46e5"},"Jeeva":{bg:"rgba(5,150,105,.12)",text:"#059669",bar:"#059669"},"Seenivasan":{bg:"rgba(217,119,6,.12)",text:"#d97706",bar:"#d97706"},"Muthuselvam":{bg:"rgba(124,58,237,.12)",text:"#7c3aed",bar:"#7c3aed"},"Venkatesh":{bg:"rgba(225,29,72,.12)",text:"#e11d48",bar:"#e11d48"}};
 
-/* ════════════════════ EXPORT MODAL ════════════════════ */
-var exportFmt='excel', exportFilterTab='all';
-
-function openExportModal(fmt){
-  if(!D){showToast("No data loaded.");return;}
-  exportFmt=fmt||'excel';
-  exportFilterTab='all';
-  selectFmt(exportFmt);
-  populateModalDropdowns();
-  switchFilterTab('all');
-  buildAgmCheckboxes();
-  updateSummary();
-  document.getElementById('export-modal').classList.add('open');
-}
-function closeExportModal(){
-  document.getElementById('export-modal').classList.remove('open');
-}
-document.getElementById('export-modal').addEventListener('click',function(e){if(e.target===this)closeExportModal();});
-
-function selectFmt(f){
-  exportFmt=f;
-  document.getElementById('fmt-excel').classList.toggle('selected',f==='excel');
-  document.getElementById('fmt-pdf').classList.toggle('selected',f==='pdf');
-  var btn=document.getElementById('export-run-btn');
-  btn.textContent=f==='excel'?'📊 Download Excel':'📄 Download PDF';
-}
-
-function switchFilterTab(tab){
-  exportFilterTab=tab;
-  ['all','month','range','single'].forEach(function(t){
-    document.getElementById('ftab-'+t).classList.toggle('active',t===tab);
-    document.getElementById('panel-'+t).classList.toggle('active',t===tab);
-  });
-  updateSummary();
-}
-
-function populateModalDropdowns(){
-  var dates=Object.keys(D.daily||{}).sort().reverse();
-  // All count
-  document.getElementById('all-count').textContent=dates.length;
-  // Month dropdown: unique YYYY-MM
-  var months=[...new Set(dates.map(function(d){return d.slice(0,7);}))].sort().reverse();
-  var mSel=document.getElementById('sel-month');
-  mSel.innerHTML=months.map(function(m){
-    var d=new Date(m+'-01');
-    var lbl=d.toLocaleDateString('en-IN',{month:'long',year:'numeric'});
-    return'<option value="'+m+'">'+lbl+'</option>';
-  }).join('');
-  // Single date
-  var sSel=document.getElementById('sel-single');
-  sSel.innerHTML=dates.map(function(d){return'<option value="'+d+'"'+(d===selectedDate?' selected':'')+'>'+formatDate(d)+'</option>';}).join('');
-  // Range defaults
-  if(dates.length){
-    document.getElementById('range-from').value=dates[dates.length-1];
-    document.getElementById('range-to').value=dates[0];
-  }
-}
-
-function buildAgmCheckboxes(){
-  var agms=[...new Set(ALL.map(function(b){return b.agm;}))].sort();
-  var container=document.getElementById('agm-check-list');
-  container.innerHTML='<label class="agm-check-lbl checked" id="agm-chk-ALL" onclick="toggleAgmChk(this,\'ALL\')"><input type="checkbox" checked><span class="chk-dot" style="background:#64748b"></span>All AGMs</label>'
-    +agms.map(function(agm){
-      var cs=AGM_COLORS[agm]||{bar:'#64748b'};
-      return'<label class="agm-check-lbl checked" id="agm-chk-'+agm+'" onclick="toggleAgmChk(this,\''+agm+'\')"><input type="checkbox" checked><span class="chk-dot" style="background:'+cs.bar+'"></span>'+agm+'</label>';
-    }).join('');
-}
-
-function toggleAgmChk(el,agm){
-  if(agm==='ALL'){
-    var allChecked=el.classList.contains('checked');
-    document.querySelectorAll('#agm-check-list .agm-check-lbl').forEach(function(l){
-      l.classList.toggle('checked',!allChecked);
-      l.querySelector('input').checked=!allChecked;
-    });
-  }else{
-    el.classList.toggle('checked');
-    el.querySelector('input').checked=el.classList.contains('checked');
-    // sync ALL button
-    var agms=document.querySelectorAll('#agm-check-list .agm-check-lbl:not(#agm-chk-ALL)');
-    var allOn=Array.from(agms).every(function(l){return l.classList.contains('checked');});
-    var allLbl=document.getElementById('agm-chk-ALL');
-    allLbl.classList.toggle('checked',allOn);
-    allLbl.querySelector('input').checked=allOn;
-  }
-  updateSummary();
-}
-
-function getSelectedAgms(){
-  var labels=document.querySelectorAll('#agm-check-list .agm-check-lbl:not(#agm-chk-ALL)');
-  return Array.from(labels).filter(function(l){return l.classList.contains('checked');}).map(function(l){return l.querySelector('input').nextElementSibling.nextSibling.textContent.trim();});
-}
-
-function getFilteredDates(){
-  var allDates=Object.keys(D.daily||{}).sort();
-  if(exportFilterTab==='all')return allDates;
-  if(exportFilterTab==='month'){
-    var m=document.getElementById('sel-month').value;
-    return allDates.filter(function(d){return d.startsWith(m);});
-  }
-  if(exportFilterTab==='range'){
-    var f=document.getElementById('range-from').value,t=document.getElementById('range-to').value;
-    if(!f||!t)return allDates;
-    return allDates.filter(function(d){return d>=f&&d<=t;});
-  }
-  if(exportFilterTab==='single'){
-    var s=document.getElementById('sel-single').value;
-    return s?[s]:[];
-  }
-  return allDates;
-}
-
-function updateSummary(){
-  var dates=getFilteredDates();
-  var agms=getSelectedAgms();
-  var branches=ALL.filter(function(b){return agms.indexOf(b.agm)!==-1;});
-  var summaryText='<b>'+dates.length+'</b> day(s) · <b>'+branches.length+'</b> branch(es) · '+agms.join(', ');
-
-  if(exportFilterTab==='month'){
-    var m=document.getElementById('sel-month').value;
-    var d=new Date(m+'-01');
-    var lbl=d.toLocaleDateString('en-IN',{month:'long',year:'numeric'});
-    document.getElementById('month-summary').innerHTML='📅 <span>'+lbl+' — <b>'+dates.length+'</b> day(s) of data, <b>'+branches.length+'</b> branches</span>';
-  }
-  if(exportFilterTab==='range'){
-    var f=document.getElementById('range-from').value,t=document.getElementById('range-to').value;
-    document.getElementById('range-summary').innerHTML='📅 <span>'+(f?formatDate(f):'?')+' → '+(t?formatDate(t):'?')+' — <b>'+dates.length+'</b> day(s), <b>'+branches.length+'</b> branches</span>';
-  }
-  if(exportFilterTab==='single'){
-    var sv=document.getElementById('sel-single').value;
-    document.getElementById('single-summary').innerHTML='📅 <span>'+formatDate(sv)+' — <b>'+branches.length+'</b> branches</span>';
-  }
-
-  var btn=document.getElementById('export-run-btn');
-  btn.disabled=dates.length===0||branches.length===0;
-  btn.style.opacity=btn.disabled?'.5':'1';
-}
-
-function runExport(){
-  var dates=getFilteredDates();
-  var agms=getSelectedAgms();
-  if(!dates.length||!agms.length){showToast('Nothing to export — adjust filters.');return;}
-  closeExportModal();
-  if(exportFmt==='excel') doExportExcel(dates,agms);
-  else doExportPdf(dates,agms);
-}
-
-/* ════════════════════ EXCEL EXPORT ════════════════════ */
-function doExportExcel(filteredDates, filteredAgms){
-  showToast("Generating Excel...");
-  setTimeout(function(){
-    try{
-      var branches=Object.values(D.branches||{}).filter(function(b){return filteredAgms.indexOf(b.agm)!==-1;}).sort(function(a,b){return a.id-b.id;});
-      var lastDate=filteredDates[filteredDates.length-1];
-      var header=["#","Branch","AGM","Star Rating","Overall Reviews","Monthly Reviews"].concat(filteredDates.map(function(d){return formatDate(d)+" Daily";}));
-      var dataRows=branches.map(function(b){
-        var bid=String(b.id),lastSnap=lastDate?(D.daily[lastDate]||{})[bid]||{}:{};
-        var row=[b.id,b.name,b.agm,lastSnap.star_rating||b.star_rating||"",lastSnap.total_snap||b.overall||0,lastSnap.monthly||b.monthly||0];
-        filteredDates.forEach(function(d){row.push((D.daily[d]&&D.daily[d][bid])?(D.daily[d][bid].daily_count||0):0);});
-        return row;
-      });
-      var allRows=[header].concat(dataRows);
-      var wb=XLSX.utils.book_new(),ws=XLSX.utils.aoa_to_sheet(allRows);
-      var thin={style:"thin",color:{rgb:"AAAAAA"}},border={top:thin,bottom:thin,left:thin,right:thin};
-      var nCols=header.length,nRows=allRows.length;
-      for(var ri=0;ri<nRows;ri++)for(var ci=0;ci<nCols;ci++){
-        var addr=XLSX.utils.encode_cell({r:ri,c:ci});
-        if(!ws[addr])ws[addr]={v:"",t:"s"};
-        var isHdr=ri===0;
-        ws[addr].s={border:border,alignment:{horizontal:"center",vertical:"center",wrapText:true},font:isHdr?{bold:true,sz:11,color:{rgb:"FFFFFF"}}:{sz:11},fill:isHdr?{fgColor:{rgb:"1E3A5F"},patternType:"solid"}:ri%2===0?{fgColor:{rgb:"EEF2FA"},patternType:"solid"}:{fgColor:{rgb:"FFFFFF"},patternType:"solid"}};
-      }
-      var wscols=[{wch:4},{wch:22},{wch:14},{wch:12},{wch:16},{wch:16}];
-      filteredDates.forEach(function(){wscols.push({wch:14});});
-      ws['!cols']=wscols;ws['!rows']=allRows.map(function(_,i){return{hpt:i===0?22:18};});
-      // Add filter description in a notes sheet
-      var infoData=[["Export Info"],["Generated:",new Date().toLocaleString("en-IN")],["Date Filter:",exportFilterTab],["Dates Included:",filteredDates.join(", ")],["AGMs:",filteredAgms.join(", ")],["Branches:",branches.length],["Days:",filteredDates.length]];
-      var wsInfo=XLSX.utils.aoa_to_sheet(infoData);
-      XLSX.utils.book_append_sheet(wb,ws,"Reviews");
-      XLSX.utils.book_append_sheet(wb,wsInfo,"Export Info");
-      var fname="Sathya_Reviews";
-      if(exportFilterTab==='month')fname+="_"+document.getElementById('sel-month').value;
-      else if(exportFilterTab==='single')fname+="_"+document.getElementById('sel-single').value;
-      else if(exportFilterTab==='range')fname+="_"+document.getElementById('range-from').value+"_to_"+document.getElementById('range-to').value;
-      else fname+="_all_"+new Date().toISOString().slice(0,10);
-      fname+=".xlsx";
-      XLSX.writeFile(wb,fname);
-      showToast("Downloaded: "+fname);
-    }catch(e){showToast("Export failed: "+e.message);}
-  },100);
-}
-
-/* ════════════════════ PDF EXPORT ════════════════════ */
-function doExportPdf(filteredDates, filteredAgms){
-  showToast("Preparing PDF...");
-  var now=new Date();
-  var dateStr=now.toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"}).toUpperCase();
-  var timeStr=now.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"});
-
-  // Build ALL data snapshot filtered by dates
-  // For PDF we use the LAST filtered date as the "daily" reference and sum across dates for monthly
-  var refDate=filteredDates[filteredDates.length-1];
-
-  // Recalculate per-branch stats across the filtered dates
-  var filteredBranches=ALL.filter(function(b){return filteredAgms.indexOf(b.agm)!==-1;}).map(function(b){
-    var bid=String(b.id);
-    var dailyTotal=filteredDates.reduce(function(sum,d){return sum+((D.daily[d]&&D.daily[d][bid])?(D.daily[d][bid].daily_count||0):0);},0);
-    var refSnap=(D.daily[refDate]||{})[bid]||{};
-    return Object.assign({},b,{
-      daily_count: filteredDates.length===1 ? (((D.daily[filteredDates[0]]||{})[bid]||{}).daily_count||0) : dailyTotal,
-      overall: refSnap.total_snap||b.overall||0,
-      monthly: refSnap.monthly||b.monthly||0,
-      star_rating: refSnap.star_rating||b.star_rating||0
-    });
-  });
-
-  // Date label for report title
-  var dateLabel;
-  if(exportFilterTab==='all')dateLabel='All Dates ('+filteredDates.length+' days)';
-  else if(exportFilterTab==='month'){var dm=new Date(document.getElementById('sel-month').value+'-01');dateLabel=dm.toLocaleDateString('en-IN',{month:'long',year:'numeric'});}
-  else if(exportFilterTab==='range')dateLabel=formatDate(document.getElementById('range-from').value)+' – '+formatDate(document.getElementById('range-to').value);
-  else dateLabel=formatDate(filteredDates[0]);
-
-  var agmColorMap={"Siva":"#0284c7","John":"#4f46e5","Jeeva":"#059669","Seenivasan":"#d97706","Muthuselvam":"#7c3aed","Venkatesh":"#e11d48"};
-  var agmMap={};
-  filteredBranches.forEach(function(b){if(!agmMap[b.agm])agmMap[b.agm]=[];agmMap[b.agm].push(b);});
-
-  var sections=Object.entries(agmMap).sort().map(function(e){
-    var agm=e[0],brs=e[1];
-    var color=agmColorMap[agm]||"#4f46e5";
-    var total=brs.reduce(function(a,b){return a+(b.overall||0);},0);
-    var daily=brs.reduce(function(a,b){return a+(b.daily_count||0);},0);
-    var monthly=brs.reduce(function(a,b){return a+(b.monthly||0);},0);
-    var dailyColHdr=filteredDates.length===1?formatDateShort(filteredDates[0]):(filteredDates.length+' Days Total');
-    var rows=brs.sort(function(a,b){return(b.daily_count||0)-(a.daily_count||0);}).map(function(b){
-      var d=b.daily_count||0,dStr=d>0?"+"+d:String(d),dColor=d>0?"#15803d":d<0?"#b91c1c":"#94a3b8";
-      return'<tr><td class="td-l">'+b.name+'</td><td>'+(b.star_rating?'<span style="color:#d97706">'+b.star_rating+'★</span>':"—")+'</td><td>'+fmt(b.overall||0)+'</td><td>'+fmt(b.monthly||0)+'</td><td style="color:'+dColor+';font-weight:700">'+dStr+'</td></tr>';
-    }).join('');
-    return'<div class="sec"><div class="sec-hdr" style="border-left-color:'+color+'"><div class="sec-hdr-left"><span class="agm-name" style="color:'+color+'">'+agm+'</span><span class="branch-count">'+brs.length+' branches</span></div><div class="sec-stats"><span>Total: <b>'+fmt(total)+'</b></span><span>Period: <b style="color:'+color+'">'+daily+'</b></span><span>Monthly: <b>'+fmt(monthly)+'</b></span></div></div><table><thead><tr><th class="th-l">Branch</th><th>Stars</th><th>Overall</th><th>Monthly</th><th>'+dailyColHdr+'</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
-  }).join('');
-
-  var total=filteredBranches.reduce(function(a,b){return a+(b.overall||0);},0);
-  var daily=filteredBranches.reduce(function(a,b){return a+(b.daily_count||0);},0);
-  var monthly=filteredBranches.reduce(function(a,b){return a+(b.monthly||0);},0);
-  var sb=filteredBranches.filter(function(b){return b.star_rating>0;});
-  var avg=sb.length?(sb.reduce(function(a,b){return a+(b.star_rating||0);},0)/sb.length).toFixed(2):"—";
-
-  var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Sathya — Review Report</title>'
-    +'<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">'
-    +'<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:"Plus Jakarta Sans",Arial,sans-serif;font-size:11px;color:#1e293b;background:#fff}.wrap{padding:16mm 15mm 12mm}.hdr{display:flex;align-items:center;justify-content:space-between;border-bottom:2.5px solid #1e3a5f;padding-bottom:10px;margin-bottom:16px}.hdr-left{display:flex;align-items:center;gap:12px}.hdr-left img{height:38px;object-fit:contain}.hdr-title{font-size:17px;font-weight:700;color:#1e3a5f}.hdr-sub{font-size:9px;color:#64748b;margin-top:2px;letter-spacing:.5px;text-transform:uppercase}.hdr-right{text-align:right;font-size:9px;color:#64748b;line-height:1.9}.hdr-right b{color:#1e293b}.filter-badge{display:inline-block;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:4px;padding:2px 6px;font-size:8px;color:#475569;margin-top:6px;font-weight:600}.kpi-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}.kpi-box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:8px 10px}.kpi-lbl{font-size:8px;color:#94a3b8;text-transform:uppercase;letter-spacing:.6px;font-weight:600;margin-bottom:3px}.kpi-val{font-size:17px;font-weight:700;color:#1e293b}.kpi-sub{font-size:8px;color:#94a3b8;margin-top:2px}.sec{margin-bottom:18px;page-break-inside:avoid}.sec-hdr{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:#f8fafc;border-left:3px solid #1e3a5f;margin-bottom:7px;border-radius:0 4px 4px 0}.sec-hdr-left{display:flex;align-items:center;gap:10px}.agm-name{font-size:12px;font-weight:700}.branch-count{font-size:9px;color:#94a3b8;background:#e2e8f0;padding:2px 7px;border-radius:8px}.sec-stats{display:flex;gap:14px;font-size:9px;color:#64748b}table{width:100%;border-collapse:collapse}thead th{background:#1e3a5f;color:#fff;font-size:9px;font-weight:700;padding:5px 9px;text-align:center;letter-spacing:.4px;text-transform:uppercase}th.th-l{text-align:left}tbody td{padding:5px 9px;text-align:center;font-size:10px;border-bottom:1px solid #f0f4f8}td.td-l{text-align:left;font-weight:600;color:#0f172a}tbody tr:nth-child(even) td{background:#f8fafc}.footer{margin-top:16px;border-top:1px solid #e2e8f0;padding-top:8px;display:flex;justify-content:space-between;font-size:8px;color:#94a3b8}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}.sec{page-break-inside:avoid}@page{margin:0;size:A4}.wrap{padding:12mm 13mm 10mm}}</style>'
-    +'</head><body><div class="wrap">'
-    +'<div class="hdr"><div class="hdr-left"><img src="https://www.sathya.store/new_frontend/assets/img/sathya.webp" alt="Sathya" onerror="this.style.display=\'none\'"><div><div class="hdr-title">Google Review Report</div><div class="hdr-sub">Sathya Agencies — '+filteredAgms.join(', ')+'</div><div class="filter-badge">📅 Period: '+dateLabel+'</div></div></div>'
-    +'<div class="hdr-right"><div>Date: <b>'+dateStr+'</b></div><div>Time: <b>'+timeStr+'</b></div><div>Branches: <b>'+filteredBranches.length+'</b></div><div>Days: <b>'+filteredDates.length+'</b></div></div></div>'
-    +'<div class="kpi-strip">'
-    +'<div class="kpi-box"><div class="kpi-lbl">Total Reviews</div><div class="kpi-val">'+fmt(total)+'</div><div class="kpi-sub">Filtered branches</div></div>'
-    +'<div class="kpi-box"><div class="kpi-lbl">'+(filteredDates.length===1?formatDateShort(filteredDates[0]):filteredDates.length+'-Day Total')+'</div><div class="kpi-val" style="color:#059669">'+daily+'</div><div class="kpi-sub">Reviews in period</div></div>'
-    +'<div class="kpi-box"><div class="kpi-lbl">Monthly</div><div class="kpi-val" style="color:#d97706">'+fmt(monthly)+'</div><div class="kpi-sub">This month so far</div></div>'
-    +'<div class="kpi-box"><div class="kpi-lbl">Avg Rating</div><div class="kpi-val" style="color:#d97706">'+avg+'★</div><div class="kpi-sub">Filtered branches</div></div>'
-    +'</div>'
-    +sections
-    +'<div class="footer"><span>Sathya Agencies — Review Tracker · '+dateLabel+'</span><span>Generated: '+dateStr+' '+timeStr+'</span></div>'
-    +'</div></body></html>';
-
-  var frame=document.getElementById("pdf-frame");
-  frame.style.visibility="visible";frame.style.top="0";frame.style.left="0";
-  frame.style.width="210mm";frame.style.height="297mm";
-  frame.style.position="fixed";frame.style.zIndex="9999";
-  var doc=frame.contentDocument||frame.contentWindow.document;
-  doc.open();doc.write(html);doc.close();
-  setTimeout(function(){
-    frame.contentWindow.focus();frame.contentWindow.print();
-    setTimeout(function(){frame.style.visibility="hidden";frame.style.top="-9999px";frame.style.left="-9999px";},1000);
-  },900);
-}
-
-/* ════════════════════ CORE APP ════════════════════ */
+/* Sidebar mobile */
 function toggleSidebar(){var sb=document.getElementById('main-sidebar'),ov=document.getElementById('sb-overlay');sb.classList.toggle('mob-open');ov.classList.toggle('show');}
 function closeSidebar(){var sb=document.getElementById('main-sidebar'),ov=document.getElementById('sb-overlay');sb.classList.remove('mob-open');ov.classList.remove('show');}
 
@@ -775,6 +373,144 @@ function ft(){var q=(document.getElementById("sbox")||{value:""}).value.toLowerC
 function ds(col){if(sortCol===col)sortAsc=!sortAsc;else{sortCol=col;sortAsc=false;}renderView();}
 function filterAgm(agm){currentView="branches";document.querySelectorAll(".s-item").forEach(function(i){i.classList.remove("active");});renderView();setTimeout(function(){var s=document.getElementById("asel");if(s){s.value=agm;ft();}},50);}
 function switchDate(d){selectedDate=d;enrichAll(d);buildAgmSidebar();renderView();}
+
+function exportExcel(){
+  if(!D){showToast("No data loaded.");return;}showToast("Generating Excel...");
+  setTimeout(function(){try{
+    var dates=Object.keys(D.daily||{}).sort(),lastDate=dates[dates.length-1],branches=Object.values(D.branches||{}).sort(function(a,b){return a.id-b.id;});
+    var header=["#","Branch","AGM","Star Rating","Overall Reviews","Monthly Reviews"].concat(dates.map(function(d){return formatDate(d)+" Daily";}));
+    var dataRows=branches.map(function(b){var bid=String(b.id),lastSnap=lastDate?(D.daily[lastDate][bid]||{}):{};var row=[b.id,b.name,b.agm,lastSnap.star_rating||b.star_rating||"",lastSnap.total_snap||b.overall||0,lastSnap.monthly||b.monthly||0];dates.forEach(function(d){row.push((D.daily[d]&&D.daily[d][bid])?(D.daily[d][bid].daily_count||0):0);});return row;});
+    var allRows=[header].concat(dataRows);
+    var wb=XLSX.utils.book_new(),ws=XLSX.utils.aoa_to_sheet(allRows);
+    var thin={style:"thin",color:{rgb:"AAAAAA"}},border={top:thin,bottom:thin,left:thin,right:thin};
+    var nCols=header.length,nRows=allRows.length;
+    for(var ri=0;ri<nRows;ri++)for(var ci=0;ci<nCols;ci++){var addr=XLSX.utils.encode_cell({r:ri,c:ci});if(!ws[addr])ws[addr]={v:"",t:"s"};var isHdr=ri===0;ws[addr].s={border:border,alignment:{horizontal:"center",vertical:"center",wrapText:true},font:isHdr?{bold:true,sz:11,color:{rgb:"FFFFFF"}}:{sz:11},fill:isHdr?{fgColor:{rgb:"1E3A5F"},patternType:"solid"}:ri%2===0?{fgColor:{rgb:"EEF2FA"},patternType:"solid"}:{fgColor:{rgb:"FFFFFF"},patternType:"solid"}};}
+    var wscols=[{wch:4},{wch:22},{wch:14},{wch:12},{wch:16},{wch:16}];dates.forEach(function(){wscols.push({wch:14});});ws['!cols']=wscols;ws['!rows']=allRows.map(function(_,i){return{hpt:i===0?22:18};});
+    XLSX.utils.book_append_sheet(wb,ws,"Reviews");
+    XLSX.writeFile(wb,"Sathya_Reviews_"+new Date().toISOString().slice(0,10)+".xlsx");
+    showToast("Downloaded!");
+  }catch(e){showToast("Export failed: "+e.message);}},100);
+}
+
+function exportPdf(){
+  if(!D||!ALL.length){showToast("No data loaded.");return;}
+  showToast("Preparing PDF...");
+
+  var now=new Date();
+  var dateStr=now.toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"}).toUpperCase();
+  var timeStr=now.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"});
+
+  // Group branches by AGM
+  var agmMap={};
+  ALL.forEach(function(b){if(!agmMap[b.agm])agmMap[b.agm]=[];agmMap[b.agm].push(b);});
+  var agmColorMap={"Siva":"#0284c7","John":"#4f46e5","Jeeva":"#059669","Seenivasan":"#d97706","Muthuselvam":"#7c3aed","Venkatesh":"#e11d48"};
+
+  var sections=Object.entries(agmMap).sort().map(function(e){
+    var agm=e[0],brs=e[1];
+    var color=agmColorMap[agm]||"#4f46e5";
+    var total=brs.reduce(function(a,b){return a+(b.overall||0);},0);
+    var daily=brs.reduce(function(a,b){return a+(b.daily_count||0);},0);
+    var monthly=brs.reduce(function(a,b){return a+(b.monthly||0);},0);
+    var rows=brs.sort(function(a,b){return(b.daily_count||0)-(a.daily_count||0);}).map(function(b){
+      var d=b.daily_count||0;
+      var dStr=d>0?"+"+d:String(d);
+      var dColor=d>0?"#15803d":d<0?"#b91c1c":"#94a3b8";
+      return'<tr>'
+        +'<td class="td-l">'+b.name+'</td>'
+        +'<td>'+(b.star_rating?'<span style="color:#d97706">'+b.star_rating+'★</span>':"—")+'</td>'
+        +'<td>'+fmt(b.overall||0)+'</td>'
+        +'<td>'+fmt(b.monthly||0)+'</td>'
+        +'<td style="color:'+dColor+';font-weight:700">'+dStr+'</td>'
+        +'</tr>';
+    }).join("");
+    return'<div class="sec">'
+      +'<div class="sec-hdr" style="border-left-color:'+color+'"><div class="sec-hdr-left"><span class="agm-name" style="color:'+color+'">'+agm+'</span><span class="branch-count">'+brs.length+' branches</span></div>'
+      +'<div class="sec-stats"><span>Total: <b>'+fmt(total)+'</b></span><span>Daily: <b style="color:'+color+'">'+daily+'</b></span><span>Monthly: <b>'+fmt(monthly)+'</b></span></div></div>'
+      +'<table><thead><tr><th class="th-l">Branch</th><th>Stars</th><th>Overall</th><th>Monthly</th><th>'+formatDateShort(selectedDate)+'</th></tr></thead>'
+      +'<tbody>'+rows+'</tbody></table>'
+      +'</div>';
+  }).join("");
+
+  var html='<!DOCTYPE html><html><head><meta charset="UTF-8">'
+    +'<title>Sathya Agencies — Review Report</title>'
+    +'<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">'
+    +'<style>'
+    +'*{box-sizing:border-box;margin:0;padding:0}'
+    +'body{font-family:"Plus Jakarta Sans",Arial,sans-serif;font-size:11px;color:#1e293b;background:#fff}'
+    +'.wrap{padding:16mm 15mm 12mm}'
+    +'.hdr{display:flex;align-items:center;justify-content:space-between;border-bottom:2.5px solid #1e3a5f;padding-bottom:10px;margin-bottom:16px}'
+    +'.hdr-left{display:flex;align-items:center;gap:12px}'
+    +'.hdr-left img{height:38px;object-fit:contain}'
+    +'.hdr-title{font-size:17px;font-weight:700;color:#1e3a5f}'
+    +'.hdr-sub{font-size:9px;color:#64748b;margin-top:2px;letter-spacing:.5px;text-transform:uppercase}'
+    +'.hdr-right{text-align:right;font-size:9px;color:#64748b;line-height:1.9}'
+    +'.hdr-right b{color:#1e293b}'
+    +'.kpi-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}'
+    +'.kpi-box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:8px 10px}'
+    +'.kpi-lbl{font-size:8px;color:#94a3b8;text-transform:uppercase;letter-spacing:.6px;font-weight:600;margin-bottom:3px}'
+    +'.kpi-val{font-size:17px;font-weight:700;color:#1e293b}'
+    +'.kpi-sub{font-size:8px;color:#94a3b8;margin-top:2px}'
+    +'.sec{margin-bottom:18px;page-break-inside:avoid}'
+    +'.sec-hdr{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:#f8fafc;border-left:3px solid #1e3a5f;margin-bottom:7px;border-radius:0 4px 4px 0}'
+    +'.sec-hdr-left{display:flex;align-items:center;gap:10px}'
+    +'.agm-name{font-size:12px;font-weight:700}'
+    +'.branch-count{font-size:9px;color:#94a3b8;background:#e2e8f0;padding:2px 7px;border-radius:8px}'
+    +'.sec-stats{display:flex;gap:14px;font-size:9px;color:#64748b}'
+    +'table{width:100%;border-collapse:collapse}'
+    +'thead th{background:#1e3a5f;color:#fff;font-size:9px;font-weight:700;padding:5px 9px;text-align:center;letter-spacing:.4px;text-transform:uppercase}'
+    +'th.th-l{text-align:left}'
+    +'tbody td{padding:5px 9px;text-align:center;font-size:10px;border-bottom:1px solid #f0f4f8}'
+    +'td.td-l{text-align:left;font-weight:600;color:#0f172a}'
+    +'tbody tr:nth-child(even) td{background:#f8fafc}'
+    +'.footer{margin-top:16px;border-top:1px solid #e2e8f0;padding-top:8px;display:flex;justify-content:space-between;font-size:8px;color:#94a3b8}'
+    +'@media print{'
+    +'body{-webkit-print-color-adjust:exact;print-color-adjust:exact}'
+    +'.sec{page-break-inside:avoid}'
+    +'@page{margin:0;size:A4}'
+    +'.wrap{padding:12mm 13mm 10mm}'
+    +'}'
+    +'</style></head><body><div class="wrap">'
+    +'<div class="hdr">'
+    +'<div class="hdr-left">'
+    +'<img src="https://www.sathya.store/new_frontend/assets/img/sathya.webp" alt="Sathya" onerror="this.style.display=\'none\'">'
+    +'<div><div class="hdr-title">Google Review Report</div><div class="hdr-sub">Sathya Agencies — All Branches · '+formatDate(selectedDate)+'</div></div>'
+    +'</div>'
+    +'<div class="hdr-right"><div>Date: <b>'+dateStr+'</b></div><div>Time: <b>'+timeStr+'</b></div><div>Branches: <b>'+ALL.length+'</b></div></div>'
+    +'</div>';
+
+  // KPI strip
+  var total=ALL.reduce(function(a,b){return a+(b.overall||0);},0);
+  var daily=ALL.reduce(function(a,b){return a+(b.daily_count||0);},0);
+  var monthly=ALL.reduce(function(a,b){return a+(b.monthly||0);},0);
+  var sb=ALL.filter(function(b){return b.star_rating>0;});
+  var avg=sb.length?(sb.reduce(function(a,b){return a+(b.star_rating||0);},0)/sb.length).toFixed(2):"—";
+  html+='<div class="kpi-strip">'
+    +'<div class="kpi-box"><div class="kpi-lbl">Total Reviews</div><div class="kpi-val">'+fmt(total)+'</div><div class="kpi-sub">All branches lifetime</div></div>'
+    +'<div class="kpi-box"><div class="kpi-lbl">Daily ('+formatDateShort(selectedDate)+')</div><div class="kpi-val" style="color:#059669">'+daily+'</div><div class="kpi-sub">Reviews on this date</div></div>'
+    +'<div class="kpi-box"><div class="kpi-lbl">Monthly</div><div class="kpi-val" style="color:#d97706">'+fmt(monthly)+'</div><div class="kpi-sub">This month so far</div></div>'
+    +'<div class="kpi-box"><div class="kpi-lbl">Avg Rating</div><div class="kpi-val" style="color:#d97706">'+avg+'★</div><div class="kpi-sub">Across all branches</div></div>'
+    +'</div>';
+
+  html+=sections;
+  html+='<div class="footer"><span>Sathya Agencies — Review Tracker</span><span>Generated: '+dateStr+' '+timeStr+'</span></div>';
+  html+='</div></body></html>';
+
+  var frame=document.getElementById("pdf-frame");
+  frame.style.visibility="visible";
+  frame.style.top="0";frame.style.left="0";
+  frame.style.width="210mm";frame.style.height="297mm";
+  frame.style.position="fixed";frame.style.zIndex="9999";
+  var doc=frame.contentDocument||frame.contentWindow.document;
+  doc.open();doc.write(html);doc.close();
+  setTimeout(function(){
+    frame.contentWindow.focus();
+    frame.contentWindow.print();
+    setTimeout(function(){
+      frame.style.visibility="hidden";
+      frame.style.top="-9999px";frame.style.left="-9999px";
+    },1000);
+  },900);
+}
 
 function K(n,icon,label,val,sub){return'<div class="kpi kpi-'+n+'"><div class="kpi-glow"></div><div class="kpi-icon">'+icon+'</div><div class="kpi-label">'+label+'</div><div class="kpi-value">'+val+'</div><div class="kpi-sub">'+sub+'</div></div>';}
 function BR(label,val,max,color){return'<div class="bar-row"><span class="bar-lbl" title="'+label+'">'+label+'</span><div class="bar-track"><div class="bar-fill" style="width:'+Math.round((val/max)*100)+'%;background:'+color+'"></div></div><span class="bar-val">'+val+'</span></div>';}
