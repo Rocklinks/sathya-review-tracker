@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Enquiries Filter & PDF Generator — Sathya Agencies</title>
+<title>Excel Filter & PDF Generator — Sathya Agencies</title>
 <link rel="icon" type="image/webp" href="https://www.sathya.store/favicon.webp">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -20,6 +20,7 @@
   .sa-nav-links .active{background:rgba(255,255,255,.12);color:#fff;pointer-events:none;}
   .sa-nav-right{margin-left:auto;font-size:10px;color:rgba(255,255,255,.35);letter-spacing:.5px;white-space:nowrap;}
   @media(max-width:480px){.sa-nav-brand span,.sa-nav-right{display:none;}}
+
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: Arial, sans-serif; background: #f0f4f8; color: #2d3748; }
 
@@ -50,6 +51,7 @@
   #fileInput { display: none; }
   #fileName { margin-top: 12px; font-size: 13px; color: #777; }
   #rowCount { margin-top: 6px; font-size: 13px; color: #27ae60; font-weight: 600; }
+  #colDetected { margin-top: 4px; font-size: 12px; color: #8e44ad; font-weight: 600; }
 
   .filters-grid {
     display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
@@ -84,24 +86,53 @@
     border-radius: 4px; border: 1px solid #e0e0e0;
   }
 
+  /* Button row for PDF + Excel side by side */
+  .btn-row {
+    display: flex; gap: 8px;
+  }
+
   .btn-pdf {
-    width: 100%; padding: 10px; border: none; border-radius: 7px;
-    background: #1a5276; color: white; font-size: 14px; font-weight: 600;
+    flex: 1; padding: 10px 6px; border: none; border-radius: 7px;
+    background: #1a5276; color: white; font-size: 13px; font-weight: 600;
     cursor: pointer; transition: background 0.2s; display: flex;
-    align-items: center; justify-content: center; gap: 7px;
+    align-items: center; justify-content: center; gap: 5px;
   }
   .btn-pdf:hover { background: #154360; }
   .btn-pdf:disabled { background: #aaa; cursor: not-allowed; }
 
+  .btn-excel {
+    flex: 1; padding: 10px 6px; border: none; border-radius: 7px;
+    background: #1e8449; color: white; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: background 0.2s; display: flex;
+    align-items: center; justify-content: center; gap: 5px;
+  }
+  .btn-excel:hover { background: #186a3b; }
+  .btn-excel:disabled { background: #aaa; cursor: not-allowed; }
+
+  /* Download All row */
+  .btn-all-row {
+    display: flex; gap: 12px; margin-bottom: 10px;
+  }
+
   .btn-all {
-    display: block; width: 100%; padding: 14px;
-    background: linear-gradient(135deg, #27ae60, #1e8449);
-    color: white; font-size: 16px; font-weight: 700;
+    flex: 1; padding: 14px;
+    background: linear-gradient(135deg, #1a5276, #2980b9);
+    color: white; font-size: 15px; font-weight: 700;
     border: none; border-radius: 10px; cursor: pointer;
-    transition: opacity 0.2s; margin-bottom: 10px;
+    transition: opacity 0.2s;
   }
   .btn-all:hover { opacity: 0.9; }
   .btn-all:disabled { background: #aaa; cursor: not-allowed; }
+
+  .btn-all-excel {
+    flex: 1; padding: 14px;
+    background: linear-gradient(135deg, #27ae60, #1e8449);
+    color: white; font-size: 15px; font-weight: 700;
+    border: none; border-radius: 10px; cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .btn-all-excel:hover { opacity: 0.9; }
+  .btn-all-excel:disabled { background: #aaa; cursor: not-allowed; }
 
   #status {
     padding: 10px 16px; border-radius: 8px; font-size: 13px;
@@ -127,17 +158,16 @@
     <a href="sathya_jupyter.html">💻 Live Tracker</a>
     <a href="sathya-weather.html">⛅ Weather</a>
     <a href="Enquiries_Filter_Tool.html" class="active">📊 Enquiries</a>
-    <a href="branch_check.html">🔍 Branch Check</a>
   </div>
-  <span class="sa-nav-right">ENQUIRIES FILTER</span>
+  <span class="sa-nav-right">AGM Wise FILTER</span>
 </nav>
 
 <div class="header">
   <img src="https://www.sathya.store/new_frontend/assets/img/sathya.webp" alt="Sathya" style="height:38px;object-fit:contain;" onerror="this.style.display='none'">
   <div class="header-icon">📊</div>
   <div>
-    <h1>Enquiries Filter & PDF Generator</h1>
-    <p>Upload your daily Excel file and download filtered PDFs instantly</p>
+    <h1>Excel Filter & PDF / Excel Generator</h1>
+    <p>Upload your daily Excel file and download filtered PDFs or Excel files instantly</p>
   </div>
 </div>
 
@@ -150,10 +180,14 @@
     <input type="file" id="fileInput" accept=".xlsx,.xls,.csv">
     <div id="fileName">No file selected</div>
     <div id="rowCount"></div>
+    <div id="colDetected"></div>
   </div>
 
-  <!-- Download All -->
-  <button class="btn-all" id="btnAll" disabled onclick="downloadAll()">⬇️ Download All 6 PDFs</button>
+  <!-- Download All Row -->
+  <div class="btn-all-row">
+    <button class="btn-all" id="btnAll" disabled onclick="downloadAll()">⬇️ Download All 6 PDFs</button>
+    <button class="btn-all-excel" id="btnAllExcel" disabled onclick="downloadAllExcel()">📊 Download All 6 Excel Files</button>
+  </div>
   <div id="status"></div>
 
   <!-- Filter Cards -->
@@ -201,8 +235,24 @@ const FILTERS = [
 
 let globalData = [];
 let counts = {};
+let activeColumn = ''; // will be 'Store name' or 'Branch' (or whichever is found)
 
-// Build filter cards
+// ── Detect which column to filter on ──────────────────────────────────────
+function detectColumn(sampleRow) {
+  if (!sampleRow) return '';
+  const keys = Object.keys(sampleRow);
+  // Priority: exact "Store name" first, then "Branch", then fuzzy search
+  const priority = ['Store name', 'Store Name', 'store name', 'STORE NAME',
+                    'Branch', 'branch', 'BRANCH', 'Branch Name', 'BranchName'];
+  for (const p of priority) {
+    if (keys.includes(p)) return p;
+  }
+  // Fuzzy fallback: find any key containing 'store' or 'branch'
+  const fuzzy = keys.find(k => /store/i.test(k) || /branch/i.test(k));
+  return fuzzy || '';
+}
+
+// ── Build filter cards ─────────────────────────────────────────────────────
 const grid = document.getElementById('filterGrid');
 FILTERS.forEach(f => {
   const card = document.createElement('div');
@@ -217,15 +267,21 @@ FILTERS.forEach(f => {
     <div class="store-tags">
       ${f.stores.map(s=>`<span class="store-tag">${s}</span>`).join('')}
     </div>
-    <button class="btn-pdf" id="btn-${f.name}" disabled
-      style="background:${f.color}" onclick="downloadPDF('${f.name}')">
-      📄 Download ${f.name} PDF
-    </button>
+    <div class="btn-row">
+      <button class="btn-pdf" id="btn-pdf-${f.name}" disabled
+        style="background:${f.color}" onclick="downloadPDF('${f.name}')">
+        📄 PDF
+      </button>
+      <button class="btn-excel" id="btn-excel-${f.name}" disabled
+        onclick="downloadExcel('${f.name}')">
+        📊 Excel
+      </button>
+    </div>
   `;
   grid.appendChild(card);
 });
 
-// File upload
+// ── File upload ────────────────────────────────────────────────────────────
 document.getElementById('fileInput').addEventListener('change', function(e) {
   const file = e.target.files[0];
   if (!file) return;
@@ -234,37 +290,43 @@ document.getElementById('fileInput').addEventListener('change', function(e) {
   const isCsv = file.name.toLowerCase().endsWith('.csv');
   const reader = new FileReader();
 
+  const handleWorkbook = (wb) => {
+    globalData = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '' });
+    activeColumn = detectColumn(globalData[0]);
+
+    document.getElementById('rowCount').textContent = `✅ Loaded ${globalData.length} records`;
+    document.getElementById('colDetected').textContent = activeColumn
+      ? `🔍 Filtering by column: "${activeColumn}"`
+      : '⚠️ No "Store name" or "Branch" column detected — filtering may return 0 rows';
+
+    updateCounts();
+    document.getElementById('btnAll').disabled = false;
+    document.getElementById('btnAllExcel').disabled = false;
+    showStatus(`File loaded: ${globalData.length} total records | Column: ${activeColumn || 'NOT FOUND'}`, 'info');
+  };
+
   if (isCsv) {
-    // CSV: read as plain text, parse with XLSX
-    reader.onload = function(evt) {
+    reader.onload = evt => {
       const wb = XLSX.read(evt.target.result, { type: 'string', cellDates: true });
-      globalData = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '' });
-      document.getElementById('rowCount').textContent = `✅ Loaded ${globalData.length} records`;
-      updateCounts();
-      document.getElementById('btnAll').disabled = false;
-      showStatus(`CSV loaded: ${globalData.length} total records`, 'info');
+      handleWorkbook(wb);
     };
     reader.readAsText(file);
   } else {
-    // Excel: read as binary
-    reader.onload = function(evt) {
+    reader.onload = evt => {
       const wb = XLSX.read(evt.target.result, { type: 'binary', cellDates: true });
-      globalData = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '' });
-      document.getElementById('rowCount').textContent = `✅ Loaded ${globalData.length} records`;
-      updateCounts();
-      document.getElementById('btnAll').disabled = false;
-      showStatus(`File loaded: ${globalData.length} total records`, 'info');
+      handleWorkbook(wb);
     };
     reader.readAsBinaryString(file);
   }
 });
 
+// ── Helpers ────────────────────────────────────────────────────────────────
 function norm(s) { return String(s).trim().toLowerCase(); }
 
 function getFiltered(filterName) {
   const f = FILTERS.find(x => x.name === filterName);
   const normStores = f.stores.map(norm);
-  return globalData.filter(row => normStores.includes(norm(row['Store name'] || '')));
+  return globalData.filter(row => normStores.includes(norm(row[activeColumn] || '')));
 }
 
 function updateCounts() {
@@ -272,27 +334,26 @@ function updateCounts() {
     const rows = getFiltered(f.name);
     counts[f.name] = rows.length;
     document.getElementById('badge-' + f.name).textContent = rows.length + ' rows';
-    document.getElementById('btn-' + f.name).disabled = false;
+    document.getElementById('btn-pdf-' + f.name).disabled = false;
+    document.getElementById('btn-excel-' + f.name).disabled = false;
   });
 }
 
 function formatDate(val) {
   if (!val) return '';
-  if (val instanceof Date) {
-    return val.toLocaleDateString('en-GB');
-  }
+  if (val instanceof Date) return val.toLocaleDateString('en-GB');
   return String(val).slice(0, 10);
 }
 
+// ── PDF generation ─────────────────────────────────────────────────────────
 function generatePDF(filterName) {
   const f = FILTERS.find(x => x.name === filterName);
   const rows = getFiltered(filterName);
   const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
 
-  const cols = ['Phone No','Customer Name','Store name','Product Name','Created Date','Sub Status'];
+  const cols = ['Phone No','Customer Name', activeColumn || 'Store name','Product Name','Created Date','Sub Status'];
   const colWidths = [32, 55, 38, 65, 28, 35];
 
-  // Title
   doc.setFontSize(14);
   doc.setTextColor(26, 82, 118);
   doc.text(`Enquiries Report — ${filterName}`, 10, 14);
@@ -333,6 +394,41 @@ function downloadPDF(filterName) {
   showStatus(`${filterName} PDF downloaded (${counts[filterName]} records)`, 'ok');
 }
 
+// ── Excel generation ───────────────────────────────────────────────────────
+function generateExcelWorkbook(filterName) {
+  const f = FILTERS.find(x => x.name === filterName);
+  const rows = getFiltered(filterName);
+
+  // Build worksheet data: header row + data rows
+  const wb = XLSX.utils.book_new();
+
+  // Use all original columns from globalData for Excel (preserve everything)
+  const allCols = globalData.length > 0 ? Object.keys(globalData[0]) : [];
+
+  // Prepare array of arrays: header + rows
+  const wsData = [allCols];
+  rows.forEach(row => {
+    wsData.push(allCols.map(c => row[c] !== undefined ? row[c] : ''));
+  });
+
+  const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+  // Column widths (auto ~20 chars wide)
+  ws['!cols'] = allCols.map(() => ({ wch: 22 }));
+
+  XLSX.utils.book_append_sheet(wb, ws, filterName.slice(0, 31));
+  return wb;
+}
+
+function downloadExcel(filterName) {
+  if (!globalData.length) { showStatus('Please upload an Excel file first.', 'err'); return; }
+  const wb = generateExcelWorkbook(filterName);
+  const today = new Date().toISOString().slice(0,10);
+  XLSX.writeFile(wb, `${filterName}_Enquiries_${today}.xlsx`);
+  showStatus(`${filterName} Excel downloaded (${counts[filterName]} records)`, 'ok');
+}
+
+// ── Download All ───────────────────────────────────────────────────────────
 async function downloadAll() {
   if (!globalData.length) { showStatus('Please upload an Excel file first.', 'err'); return; }
   showStatus('Generating all 6 PDFs...', 'info');
@@ -343,6 +439,18 @@ async function downloadAll() {
     doc.save(`${f.name}_Enquiries_${today}.pdf`);
   }
   showStatus('✅ All 6 PDFs downloaded successfully!', 'ok');
+}
+
+async function downloadAllExcel() {
+  if (!globalData.length) { showStatus('Please upload an Excel file first.', 'err'); return; }
+  showStatus('Generating all 6 Excel files...', 'info');
+  const today = new Date().toISOString().slice(0,10);
+  for (const f of FILTERS) {
+    await new Promise(r => setTimeout(r, 120));
+    const wb = generateExcelWorkbook(f.name);
+    XLSX.writeFile(wb, `${f.name}_Enquiries_${today}.xlsx`);
+  }
+  showStatus('✅ All 6 Excel files downloaded successfully!', 'ok');
 }
 
 function showStatus(msg, type) {
