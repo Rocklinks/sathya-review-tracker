@@ -5,24 +5,361 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sathya Agencies — Live Tracker</title>
   <link rel="icon" type="image/webp" href="https://www.sathya.store/favicon.webp">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.development.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <style>
-    .sa-nav{background:#1e293b;height:40px;display:flex;align-items:center;padding:0 16px;gap:0;position:sticky;top:0;z-index:300;box-shadow:0 2px 8px rgba(0,0,0,.25);}
-    .sa-nav-brand{display:flex;align-items:center;gap:8px;padding-right:14px;border-right:1px solid rgba(255,255,255,.12);flex-shrink:0;}
-    .sa-nav-brand img{height:24px;object-fit:contain;}
-    .sa-nav-brand span{font-size:11px;font-weight:700;color:#fff;letter-spacing:.5px;white-space:nowrap;}
-    .sa-nav-links{display:flex;align-items:center;gap:2px;padding-left:10px;}
-    .sa-nav-links a{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:6px;text-decoration:none;font-size:12px;font-weight:600;color:rgba(255,255,255,.75);transition:all .15s;}
-    .sa-nav-links a:hover{background:rgba(255,255,255,.12);color:#fff;}
-    .sa-nav-links .active{background:rgba(255,255,255,.12);color:#fff;}
-    .sa-nav-right{margin-left:auto;font-size:10px;color:rgba(255,255,255,.35);letter-spacing:.5px;white-space:nowrap;}
-    @media(max-width:480px){.sa-nav-brand span,.sa-nav-right{display:none;}}
+    :root {
+      --navy: #0f172a;
+      --navy-mid: #1e293b;
+      --navy-light: #334155;
+      --slate: #64748b;
+      --slate-light: #94a3b8;
+      --border: #e2e8f0;
+      --bg: #f1f5f9;
+      --white: #ffffff;
+      --green: #059669;
+      --green-bg: rgba(5,150,105,.1);
+      --red: #e11d48;
+      --red-bg: rgba(225,29,72,.08);
+      --blue: #2563eb;
+      --indigo: #4f46e5;
+      --indigo-bg: rgba(79,70,229,.1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--navy);
+      min-height: 100vh;
+    }
+
+    /* ── NAV ── */
+    .sa-nav {
+      background: var(--navy);
+      height: 52px;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      position: sticky;
+      top: 0;
+      z-index: 300;
+      box-shadow: 0 2px 12px rgba(0,0,0,.3);
+      gap: 0;
+    }
+    .sa-nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-right: 16px;
+      border-right: 1px solid rgba(255,255,255,.12);
+      flex-shrink: 0;
+    }
+    .sa-nav-brand img { height: 26px; object-fit: contain; }
+    .sa-nav-brand span {
+      font-size: 12px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: .5px;
+      white-space: nowrap;
+    }
+    .sa-nav-links {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      padding-left: 12px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .sa-nav-links::-webkit-scrollbar { display: none; }
+    .sa-nav-links a {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 11px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(255,255,255,.65);
+      transition: all .15s;
+      white-space: nowrap;
+    }
+    .sa-nav-links a:hover { background: rgba(255,255,255,.12); color: #fff; }
+    .sa-nav-links .active { background: rgba(255,255,255,.12); color: #fff; }
+    .sa-nav-right {
+      margin-left: auto;
+      font-size: 10px;
+      color: rgba(255,255,255,.3);
+      letter-spacing: .5px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* ── TOOLBAR ── */
+    .toolbar {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 52px;
+      position: sticky;
+      top: 52px;
+      z-index: 100;
+      flex-wrap: wrap;
+      padding-top: 6px;
+      padding-bottom: 6px;
+    }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 7px 14px;
+      border-radius: 8px;
+      border: none;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      white-space: nowrap;
+      transition: opacity .15s, transform .1s;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+    .btn-dark  { background: var(--navy);  color: #fff; }
+    .btn-green { background: var(--green); color: #fff; }
+    .btn-red   { background: var(--red);   color: #fff; }
+    .btn-blue  { background: var(--blue);  color: #fff; }
+
+    /* ── NOTEBOOK WRAPPER ── */
+    .notebook {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px 12px 80px;
+    }
+
+    /* ── NOTEBOOK HEADER CARD ── */
+    .nb-header {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--blue);
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin-bottom: 16px;
+    }
+    .nb-header h1 { font-size: 20px; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
+    .nb-header p  { font-size: 12px; color: var(--slate); font-family: 'JetBrains Mono', monospace; }
+
+    /* ── CELL ── */
+    .cell {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 8px;
+      overflow: hidden;
+      transition: box-shadow .2s, border-color .2s;
+    }
+    .cell.running {
+      border-color: #93c5fd;
+      box-shadow: 0 0 0 3px rgba(37,99,235,.08);
+    }
+
+    /* ── CELL HEADER ── */
+    .cell-header {
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #f8fafc;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .cell-check {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      flex-shrink: 0;
+      accent-color: var(--blue);
+    }
+    .cell-run-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      background: var(--white);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all .15s;
+    }
+    .cell-run-btn:hover:not(:disabled) {
+      border-color: currentColor;
+      background: #f0f9ff;
+    }
+    .cell-run-btn:disabled { cursor: not-allowed; opacity: .5; }
+
+    .cell-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; flex: 1; min-width: 0; }
+    .cell-title { font-size: 13px; font-weight: 600; color: var(--navy); font-family: 'JetBrains Mono', monospace; }
+    .cell-badge {
+      font-size: 11px;
+      border-radius: 6px;
+      padding: 2px 9px;
+      font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+      white-space: nowrap;
+    }
+    .cell-count { font-size: 11px; color: var(--slate-light); font-family: 'JetBrains Mono', monospace; }
+    .cell-status {
+      margin-left: auto;
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    /* ── OUTPUT ── */
+    .cell-output {
+      background: #fafbfc;
+      border-bottom: 1px dashed var(--border);
+      padding: 12px 16px;
+      max-height: 260px;
+      overflow-y: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      line-height: 1.8;
+    }
+    .cell-empty {
+      padding: 10px 16px;
+      color: #cbd5e1;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+    }
+
+    /* ── RESULTS TABLE ── */
+    .results-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .results-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      min-width: 420px;
+    }
+    .results-table th {
+      padding: 9px 12px;
+      text-align: left;
+      font-weight: 600;
+      color: var(--slate);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      background: #f8fafc;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    .results-table th:not(:first-child) { text-align: center; }
+    .results-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #f1f5f9;
+      vertical-align: middle;
+    }
+    .results-table td:not(:first-child) { text-align: center; }
+    .results-table tr:last-child td { border-bottom: none; }
+    .results-table tbody tr:nth-child(even) { background: #f8fafc; }
+    .results-table tfoot td {
+      background: #f1f5f9;
+      border-top: 2px solid var(--border);
+      font-weight: 700;
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      font-size: 12px;
+    }
+    .badge-indigo { background: var(--indigo-bg); color: var(--indigo); }
+    .badge-green  { background: var(--green-bg);  color: var(--green);  }
+    .badge-red    { background: var(--red-bg);    color: var(--red);    }
+    .badge-gray   { background: #f1f5f9; color: var(--slate-light); border: 1px solid var(--border); }
+
+    /* Download bar */
+    .dl-bar {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      padding: 10px 16px;
+      border-top: 1px solid #f1f5f9;
+      flex-wrap: wrap;
+    }
+
+    /* ── DIVIDER ── */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 24px 0 16px;
+    }
+    .divider-line { flex: 1; height: 1px; background: var(--border); }
+    .divider-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--slate-light);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      white-space: nowrap;
+    }
+
+    /* ── SCROLLBARS ── */
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+    /* ── ANIMATIONS ── */
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0; } }
+    .spin { animation: spin .9s linear infinite; }
+    .blink { animation: blink 1s step-end infinite; }
+
+    /* ── STATUS DOT ── */
+    .live-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #22c55e;
+      display: inline-block;
+      box-shadow: 0 0 0 2px rgba(34,197,94,.2);
+    }
+
+    /* ── MOBILE TWEAKS ── */
+    @media (max-width: 600px) {
+      .sa-nav-brand span, .sa-nav-right { display: none; }
+      .toolbar { top: 52px; gap: 6px; }
+      .toolbar-label { display: none; }
+      .btn { padding: 6px 11px; font-size: 12px; }
+      .notebook { padding: 12px 8px 80px; }
+      .nb-header h1 { font-size: 17px; }
+      .cell-title { font-size: 12px; }
+      .cell-header { padding: 10px 12px; }
+      .results-table { font-size: 12px; }
+      .results-table th, .results-table td { padding: 8px 10px; }
+    }
   </style>
 </head>
-<body style="margin:0;padding:0;">
+<body>
 
 <!-- Site Nav -->
 <nav class="sa-nav">
@@ -32,10 +369,10 @@
   </div>
   <div class="sa-nav-links">
     <a href="index.html">🏠 Home</a>
-    <a href="sathya_jupyter.html" class="active">💻 Live Tracker</a>
+    <a href="sathya_jupyter.html" class="active">💻 Tracker</a>
     <a href="sathya-weather.html">⛅ Weather</a>
     <a href="Enquiries_Filter_Tool.html">📊 PDF Tool</a>
-    <a href="branch_check.html">🔍 Branch Check</a>
+    <a href="branch_check.html">🔍 Branch</a>
   </div>
   <span class="sa-nav-right">LIVE TRACKER</span>
 </nav>
@@ -126,25 +463,21 @@ const SCRIPTS = [
   },
 ];
 
-// ── All 36 branches as one flat script (shown above the grouped cells) ──
 const ALL_BRANCHES_SCRIPT = {
   id: "all_branches",
   label: "all_branches.py",
   agm: "All Branches",
   branches: [
-    // Siva
     { name: "Tuticorin-1",     place_id: "ChIJ5zJNoJfvAzsR-bJE_3bbNYw" },
     { name: "Tuticorin-2",     place_id: "ChIJH6gY4-PvAzsRJ50skTlx3cs" },
     { name: "Thiruchendur-1",  place_id: "ChIJeXA4vJKRAzsRBovAtv6lMuQ" },
     { name: "Thisayanvilai-1", place_id: "ChIJVWkvdfh_BDsRdvtimKCLS5Y" },
     { name: "Eral-2",          place_id: "ChIJbwAA0KGMAzsRkQilW5PceeA"  },
     { name: "Udankudi",        place_id: "ChIJPQAAACyEAzsRgjznQ1GLom0"  },
-    // John
     { name: "Tirunelveli-1",   place_id: "ChIJ2RU2NvQRBDsRq-Fw7IVwx7k" },
     { name: "Valliyur-1",      place_id: "ChIJcVNk6TtnBDsRBoP4zpExt5k" },
     { name: "Ambasamudram-1",  place_id: "ChIJ9SGeIi85BDsRZk4QdyW9BSY" },
     { name: "Anjugramam-1",    place_id: "ChIJ4yeJebLtBDsRDceoxujdGyc" },
-    // Jeeva
     { name: "Nagercoil",       place_id: "ChIJe1LZBiTxBDsRJFLjlbgZoIs" },
     { name: "Marthandam",      place_id: "ChIJcWptCRdVBDsRlJh2q0-rnfY" },
     { name: "Thuckalay-1",     place_id: "ChIJc9QgEub4BDsRoyDR4Wd6tYA" },
@@ -152,7 +485,6 @@ const ALL_BRANCHES_SCRIPT = {
     { name: "Kulasekharam-1",  place_id: "ChIJw0Ep-kNXBDsRe5ad32jAeAk" },
     { name: "Monday Market",   place_id: "ChIJTceRGAD5BDsR65i3YNTcYHk" },
     { name: "Karungal-1",      place_id: "ChIJfTP5ASr_BDsRgsBaeQltkw4" },
-    // Seenivasan
     { name: "Kovilpatti",      place_id: "ChIJHY0o-26yBjsRt7wbXB1pDUE" },
     { name: "Ramnad",          place_id: "ChIJNVVVVaGiATsRnunSgOTvbE8" },
     { name: "Paramakudi",      place_id: "ChIJ-dgjBzQHATsRf27FWAJgmsA" },
@@ -161,14 +493,12 @@ const ALL_BRANCHES_SCRIPT = {
     { name: "Sattur-2",        place_id: "ChIJNVVVVcHKBjsR7xMX97RFn8Q" },
     { name: "Sankarankovil-1", place_id: "ChIJE1mKnhSXBjsRKMQ-9JKQf_c" },
     { name: "Kayathar-1",      place_id: "ChIJx5ebtUgRBDsRMquPZNUJVpw" },
-    // Muthuselvam
     { name: "Thenkasi",        place_id: "ChIJuaqqquEpBDsRVITw0MMYklc" },
     { name: "Thenkasi-2",      place_id: "ChIJiwqLye6DBjsRo9v1mWXaycI" },
     { name: "Surandai-1",      place_id: "ChIJPb1_eEOdBjsRjL9IVCVJhi8" },
     { name: "Puliyankudi-1",   place_id: "ChIJjZqoc46RBjsRQTGHnNC8xxA" },
     { name: "Sengottai-1",     place_id: "ChIJw3zzKiaBBjsR9KDyGpn1nXU" },
     { name: "Rajapalayam",     place_id: "ChIJW2ot-NDpBjsRMTfMF2IV-xE" },
-    // Venkatesh
     { name: "Virudhunagar",    place_id: "ChIJN3jzNJgsATsRCU3nrB5ntKE" },
     { name: "Virudhunagar-2",  place_id: "ChIJPezaX7wtATsR9sHhFOG6A1c" },
     { name: "Aruppukottai",    place_id: "ChIJy6qqqgYwATsRbcp-hXnoruM"  },
@@ -177,92 +507,21 @@ const ALL_BRANCHES_SCRIPT = {
   ],
 };
 
-// ALL_SCRIPTS = flat cell first, then the 6 grouped cells
 const ALL_SCRIPTS = [ALL_BRANCHES_SCRIPT, ...SCRIPTS];
 
 const KERNEL_COLORS = {
   "All Branches": "#0f172a",
-  Seenivasan: "#d97706",
-  Jeeva:      "#059669",
-  Muthuselvam:"#7c3aed",
-  John:       "#2563eb",
-  Siva:       "#dc2626",
-  Venkatesh:  "#db2777",
+  Seenivasan:  "#d97706",
+  Jeeva:       "#059669",
+  Muthuselvam: "#7c3aed",
+  John:        "#2563eb",
+  Siva:        "#dc2626",
+  Venkatesh:   "#db2777",
 };
 
-// ── YOUR HUGGING FACE SPACE URL (set this after deploying) ──────
-// e.g. "https://YOUR-USERNAME-sathya-scraper.hf.space"
 const SERVER = "https://RocklinKS-sathya-scraper.hf.space";
 
-async function simulateRun(script, onLine) {
-  const now       = new Date();
-  const dateStr   = now.toISOString().replace("T"," ").substring(0,19);
-  const dateLabel = now.toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"}).toUpperCase();
-
-  const emit = (text, type="normal") =>
-    new Promise(r => setTimeout(() => { onLine({text, type}); r(); }, 0));
-
-  await emit("=".repeat(60), "muted");
-  await emit("  SATHYA AGENCIES — Live Review Tracker", "bold");
-  await emit(`  Script : ${script.label}`, "muted");
-  await emit(`  AGM    : ${script.agm}  (${script.branches.length} branches)`, "muted");
-  await emit(`  Time   : ${dateStr}`, "muted");
-  await emit("=".repeat(60), "muted");
-  await emit("", "normal");
-
-  try {
-    const r = await fetch(`${SERVER}/status`, {signal: AbortSignal.timeout(8000)});
-    if (!r.ok) throw new Error("HTTP " + r.status);
-  } catch(e) {
-    await emit("  ❌  Scraper server not reachable.", "error");
-    await emit(`     ${e.message}`, "muted");
-    await emit("  Make sure your Hugging Face Space is running.", "muted");
-    await emit(`  Test: ${SERVER}/status`, "muted");
-    await emit("=".repeat(60), "muted");
-    return;
-  }
-
-  await emit(`  🌐 Playwright scraping ${script.agm} — ${script.branches.length} branches...`, "accent");
-  await emit("", "normal");
-
-  await new Promise(resolve => {
-    const es = new EventSource(`${SERVER}/scrape/${encodeURIComponent(script.agm)}`);
-    es.onmessage = e => {
-      let msg; try { msg = JSON.parse(e.data); } catch { return; }
-      if (msg.event === "log")  onLine({text: msg.text, type: msg.type || "normal"});
-      if (msg.event === "done") { es.close(); resolve(); }
-    };
-    es.onerror = () => {
-      es.close();
-      onLine({text: "  ⚠  Stream disconnected.", type: "error"});
-      resolve();
-    };
-  });
-}
-
-function OutputLine({ text, type }) {
-  const styles = {
-    normal:  { color: "#1e293b" },
-    muted:   { color: "#94a3b8" },
-    bold:    { color: "#0f172a", fontWeight: 700 },
-    success: { color: "#15803d" },
-    error:   { color: "#b91c1c" },
-    accent:  { color: "#1d4ed8" },
-  };
-  return (
-    <div style={{
-      fontFamily: "'Courier New', Courier, monospace",
-      fontSize: "12.5px",
-      lineHeight: "1.75",
-      whiteSpace: "pre",
-      ...styles[type || "normal"],
-    }}>
-      {text || "\u00a0"}
-    </div>
-  );
-}
-
-/* ── Excel helpers ─────────────────────────────────────────── */
+/* ── Excel helpers ── */
 function buildSheet(rows, label, baseline) {
   const headers = ["Branch", "Total Reviews", "Today's Reviews", "Stars", "Star Change", "Status"];
   const data = [headers, ...rows.map(r => {
@@ -320,7 +579,7 @@ function downloadAllExcel(scripts, allResults, baseline) {
   XLSX.writeFile(wb, `Sathya_All_Reviews_${new Date().toISOString().slice(0,10)}.xlsx`);
 }
 
-/* ── PDF helpers ───────────────────────────────────────────── */
+/* ── PDF helpers ── */
 function buildPdfHtml(script, rows, dateStr, baseline, baseDate) {
   const colMap = {"Seenivasan":"#d97706","Jeeva":"#059669","Muthuselvam":"#7c3aed","John":"#2563eb","Siva":"#dc2626","Venkatesh":"#db2777"};
   const color  = colMap[script.agm] || "#4f46e5";
@@ -414,7 +673,6 @@ function openPdf(script, results, baseline, baseDate) {
 
 function openAllPdf(scripts, allResults, baseline, baseDate) {
   const dateStr = new Date().toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"}).toUpperCase();
-  const colMap  = {"Seenivasan":"#d97706","Jeeva":"#059669","Muthuselvam":"#7c3aed","John":"#2563eb","Siva":"#dc2626","Venkatesh":"#db2777"};
   const sections = scripts.map(s => {
     const rows = allResults[s.id];
     if (!rows || !rows.length) return "";
@@ -446,20 +704,31 @@ var img=document.querySelector('.logo');if(img){img.addEventListener('load',go);
   else { setTimeout(()=>URL.revokeObjectURL(url),10000); alert("Allow pop-ups and try again."); }
 }
 
-/* ── Btn styles ────────────────────────────────────────────── */
-const btnBase = {
-  display:"inline-flex", alignItems:"center", gap:5,
-  padding:"5px 12px", borderRadius:6, border:"none",
-  fontSize:12, fontWeight:600, cursor:"pointer",
-  fontFamily:"inherit", whiteSpace:"nowrap",
-};
-const btnGreen = {...btnBase, background:"#16a34a", color:"#fff"};
-const btnRose  = {...btnBase, background:"#e11d48", color:"#fff"};
-const btnDark  = {...btnBase, background:"#0f172a", color:"#fff"};
-const btnBlue  = {...btnBase, background:"#1d4ed8", color:"#fff"};
-const btnGray  = {...btnBase, background:"#e5e7eb", color:"#9ca3af", cursor:"not-allowed"};
+/* ── Output line ── */
+function OutputLine({ text, type }) {
+  const colors = {
+    normal:  "#1e293b",
+    muted:   "#94a3b8",
+    bold:    "#0f172a",
+    success: "#15803d",
+    error:   "#b91c1c",
+    accent:  "#1d4ed8",
+  };
+  return (
+    <div style={{
+      fontFamily: "'JetBrains Mono', 'Courier New', monospace",
+      fontSize: "12px",
+      lineHeight: "1.8",
+      whiteSpace: "pre",
+      color: colors[type || "normal"] || colors.normal,
+      fontWeight: type === "bold" ? 700 : 400,
+    }}>
+      {text || "\u00a0"}
+    </div>
+  );
+}
 
-/* ── Cell ──────────────────────────────────────────────────── */
+/* ── Cell ── */
 function Cell({ script, runCount, selected, onSelect, onDone, runRef, baseline, baseDate }) {
   const [status,  setStatus]  = useState("idle");
   const [lines,   setLines]   = useState([]);
@@ -469,7 +738,6 @@ function Cell({ script, runCount, selected, onSelect, onDone, runRef, baseline, 
   const globalCount= useRef(runCount);
   const accentColor= KERNEL_COLORS[script.agm] || "#6366f1";
 
-  // expose run fn via runRef so Run All can call it
   React.useEffect(()=>{ if(runRef) runRef.current = run; });
 
   const run = async () => {
@@ -479,58 +747,49 @@ function Cell({ script, runCount, selected, onSelect, onDone, runRef, baseline, 
     setResults(null);
     const num = ++globalCount.current;
     setExecNum(num);
-
-    // expose run via ref so Run All can trigger it
     if (runRef) runRef.current = run;
 
-    // Capture result rows from SSE
     let capturedRows = [];
-    const origSimulate = simulateRun;
 
     await new Promise(async (resolve) => {
-      const now       = new Date();
-      const dateStr   = now.toISOString().replace("T"," ").substring(0,19);
-      const dateLabel = now.toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"}).toUpperCase();
-      const emit = (text, type="normal") =>
-        new Promise(r => setTimeout(()=>{ onLineAdd({text,type}); r(); },0));
+      const now     = new Date();
+      const dateStr = now.toISOString().replace("T"," ").substring(0,19);
 
       function onLineAdd(line) {
         setLines(prev=>[...prev,line]);
-        setTimeout(()=>{if(outputRef.current)outputRef.current.scrollTop=outputRef.current.scrollHeight;},10);
+        setTimeout(()=>{ if(outputRef.current) outputRef.current.scrollTop=outputRef.current.scrollHeight; },10);
       }
 
-      const emit2 = (text, type="normal") => new Promise(r=>setTimeout(()=>{onLineAdd({text,type});r();},0));
+      const emit = (text, type="normal") => new Promise(r=>setTimeout(()=>{ onLineAdd({text,type}); r(); },0));
 
-      await emit2("=".repeat(60),"muted");
-      await emit2("  SATHYA AGENCIES — Live Review Tracker","bold");
-      await emit2(`  Script : ${script.label}`,"muted");
-      await emit2(`  AGM    : ${script.agm}  (${script.branches.length} branches)`,"muted");
-      await emit2(`  Time   : ${dateStr}`,"muted");
-      await emit2("=".repeat(60),"muted");
-      await emit2("","normal");
+      await emit("=".repeat(56),"muted");
+      await emit("  SATHYA AGENCIES — Live Review Tracker","bold");
+      await emit(`  Script : ${script.label}`,"muted");
+      await emit(`  AGM    : ${script.agm}  (${script.branches.length} branches)`,"muted");
+      await emit(`  Time   : ${dateStr}`,"muted");
+      await emit("=".repeat(56),"muted");
+      await emit("","normal");
 
       try {
         const r = await fetch(`${SERVER}/status`,{signal:AbortSignal.timeout(8000)});
         if (!r.ok) throw new Error("HTTP "+r.status);
       } catch(e) {
-        await emit2("  ❌  Scraper server not reachable.","error");
-        await emit2(`     ${e.message}`,"muted");
-        await emit2("  Make sure your Hugging Face Space is running.","muted");
-        await emit2(`  Test: ${SERVER}/status`,"muted");
-        await emit2("=".repeat(60),"muted");
+        await emit("  ❌  Scraper server not reachable.","error");
+        await emit(`     ${e.message}`,"muted");
+        await emit("  Make sure your Hugging Face Space is running.","muted");
+        await emit(`  Test: ${SERVER}/status`,"muted");
+        await emit("=".repeat(56),"muted");
         resolve(); return;
       }
 
-      await emit2(`  🌐 Playwright scraping ${script.agm} — ${script.branches.length} branches...`,"accent");
-      await emit2("","normal");
+      await emit(`  🌐 Playwright scraping ${script.agm} — ${script.branches.length} branches...`,"accent");
+      await emit("","normal");
 
       const REAL_AGMS = ["Seenivasan","Jeeva","Muthuselvam","John","Siva","Venkatesh"];
       const agmsToRun = script.agm === "All Branches" ? REAL_AGMS : [script.agm];
 
       for (const agm of agmsToRun) {
-        if (agmsToRun.length > 1) {
-          onLineAdd({text:`  ── ${agm} ──`, type:"accent"});
-        }
+        if (agmsToRun.length > 1) onLineAdd({text:`  ── ${agm} ──`, type:"accent"});
         await new Promise(res2 => {
           const es = new EventSource(`${SERVER}/scrape/${encodeURIComponent(agm)}`);
           es.onmessage = e => {
@@ -550,85 +809,92 @@ function Cell({ script, runCount, selected, onSelect, onDone, runRef, baseline, 
     onDone(script.id, capturedRows);
   };
 
+  const statusColor = status==="done" ? "#059669" : status==="running" ? accentColor : "#94a3b8";
+  const statusLabel = status==="done" ? "● done" : status==="running" ? "● running" : "○ idle";
+
   return (
-    <div style={{display:"flex",gap:0,marginBottom:"0px"}}>
-      {/* Gutter */}
-      <div style={{width:56,flexShrink:0,display:"flex",flexDirection:"column",alignItems:"center",paddingTop:10,gap:4}}>
-        {/* Checkbox */}
-        <input type="checkbox" checked={selected} onChange={()=>onSelect(script.id)}
-          style={{width:14,height:14,accentColor:accentColor,cursor:"pointer",marginBottom:2}}/>
+    <div className={`cell${status==="running"?" running":""}`}>
+      {/* Header */}
+      <div className="cell-header">
+        <input
+          type="checkbox"
+          className="cell-check"
+          checked={selected}
+          onChange={()=>onSelect(script.id)}
+        />
+
         {/* Run button */}
-        <button onClick={run} disabled={status==="running"} style={{
-          width:28,height:28,borderRadius:"50%",
-          border:`1.5px solid ${status==="running"?"#e2e8f0":accentColor+"55"}`,
-          background:status==="running"?"#f8fafc":"white",
-          cursor:status==="running"?"not-allowed":"pointer",
-          display:"flex",alignItems:"center",justifyContent:"center",
-          color:status==="running"?"#94a3b8":accentColor,
-          transition:"all 0.15s",padding:0,
-        }}>
+        <button
+          className="cell-run-btn"
+          onClick={run}
+          disabled={status==="running"}
+          title="Run this script"
+          style={{color: status==="running" ? "#94a3b8" : accentColor, borderColor: status==="running"?"#e2e8f0":accentColor+"55"}}
+        >
           {status==="running"
-            ? <svg width="13" height="13" viewBox="0 0 13 13" fill="none" style={{animation:"jupy-spin 0.9s linear infinite"}}><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" strokeWidth="1.5" strokeDasharray="18" strokeDashoffset="6"/></svg>
-            : <svg width="10" height="11" viewBox="0 0 10 11" fill={accentColor}><path d="M1 1 L9 5.5 L1 10 Z"/></svg>
+            ? <svg className="spin" width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" strokeWidth="1.5" strokeDasharray="20" strokeDashoffset="7"/></svg>
+            : <svg width="10" height="11" viewBox="0 0 10 11" fill="currentColor"><path d="M1 1 L9 5.5 L1 10 Z"/></svg>
           }
         </button>
-        <span style={{fontFamily:"monospace",fontSize:"10px",color:"#94a3b8"}}>{execNum?`[${execNum}]`:"[ ]"}</span>
-      </div>
 
-      {/* Cell body */}
-      <div style={{flex:1,minWidth:0}}>
-        {/* Header bar */}
-        <div style={{
-          border:`1px solid ${status==="running"?accentColor:"#d1d5db"}`,
-          borderRadius:"4px 4px 0 0", background:status==="running"?"#fffbeb":"#f8fafc",
-          padding:"10px 16px", borderBottom:"none", transition:"border-color 0.2s",
-          display:"flex", alignItems:"center", justifyContent:"space-between", gap:12,
-        }}>
-          <div style={{display:"flex",alignItems:"center",gap:10}}>
-            <span style={{fontFamily:"'Courier New',monospace",fontSize:"13px",color:"#1e3a5f",fontWeight:600}}>
-              <span style={{color:"#7c3aed"}}>import</span>{" "}
-              <span style={{color:"#0369a1"}}>playwright</span>
-              {"  # "}
-              <span style={{color:"#64748b"}}>{script.label}</span>
-            </span>
-            <span style={{fontSize:"10px",background:accentColor+"18",color:accentColor,border:`1px solid ${accentColor}35`,borderRadius:"4px",padding:"1px 8px",fontFamily:"monospace",fontWeight:600}}>
-              AGM: {script.agm}
-            </span>
-            <span style={{fontSize:"10px",color:"#94a3b8",fontFamily:"monospace"}}>{script.branches.length} branches</span>
-          </div>
-          <span style={{fontSize:"10px",color:status==="done"?"#15803d":status==="running"?accentColor:"#94a3b8",fontFamily:"monospace",fontWeight:600}}>
-            {status==="done"?"● done":status==="running"?"● running":"○ idle"}
+        {/* Meta */}
+        <div className="cell-meta">
+          <span className="cell-title">
+            <span style={{color:"#7c3aed"}}>run</span>
+            {" "}
+            <span style={{color:"#0369a1"}}>{script.label}</span>
           </span>
+          <span
+            className="cell-badge"
+            style={{background: accentColor+"18", color: accentColor, border:`1px solid ${accentColor}33`}}
+          >
+            {script.agm}
+          </span>
+          <span className="cell-count">{script.branches.length} branches</span>
         </div>
 
-        {/* Output */}
-        {(lines.length>0||status==="running")&&(
-          <div ref={outputRef} style={{border:"1px solid #d1d5db",borderTop:"1px dashed #e5e7eb",borderRadius:"0 0 4px 4px",background:"white",padding:"10px 16px",maxHeight:"300px",overflowY:"auto"}}>
-            {lines.length===0&&status==="running"&&<div style={{color:"#94a3b8",fontFamily:"monospace",fontSize:"12px"}}>Launching chromium...</div>}
-            {lines.map((line,i)=><OutputLine key={i} text={line.text} type={line.type}/>)}
-            {status==="running"&&lines.length>0&&<span style={{display:"inline-block",width:7,height:13,background:"#1e293b",marginLeft:2,verticalAlign:"middle",animation:"jupy-blink 1s step-end infinite"}}/>}
-          </div>
-        )}
-        {lines.length===0&&status==="idle"&&(
-          <div style={{border:"1px solid #e5e7eb",borderTop:"1px dashed #e5e7eb",borderRadius:"0 0 4px 4px",background:"white",padding:"8px 16px",color:"#cbd5e1",fontFamily:"monospace",fontSize:"11px"}}>
-            # No output yet — click ▶ to run
-          </div>
-        )}
+        {/* Status */}
+        <span className="cell-status" style={{color: statusColor}}>
+          {statusLabel}
+        </span>
 
-        {/* Results table — appears after run with today's reviews and star comparison */}
-        {status==="done"&&results&&results.length>0&&(
-          <div style={{border:"1px solid #e5e7eb",borderTop:"none",borderRadius:"0 0 4px 4px",background:"white",overflowX:"auto"}}>
-            <table style={{width:"100%",borderCollapse:"collapse",fontSize:"12.5px"}}>
+        {/* Exec number */}
+        {execNum && (
+          <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:"10px",color:"#94a3b8",flexShrink:0}}>[{execNum}]</span>
+        )}
+      </div>
+
+      {/* Output area */}
+      {(lines.length > 0 || status==="running") && (
+        <div ref={outputRef} className="cell-output">
+          {lines.length===0 && status==="running" && (
+            <div style={{color:"#94a3b8"}}>Launching chromium...</div>
+          )}
+          {lines.map((line,i)=><OutputLine key={i} text={line.text} type={line.type}/>)}
+          {status==="running" && lines.length > 0 && (
+            <span className="blink" style={{display:"inline-block",width:7,height:13,background:"#1e293b",marginLeft:2,verticalAlign:"middle"}}/>
+          )}
+        </div>
+      )}
+      {lines.length===0 && status==="idle" && (
+        <div className="cell-empty"># Click ▶ to scrape Google reviews for {script.branches.length} branch{script.branches.length!==1?"es":""}</div>
+      )}
+
+      {/* Results table */}
+      {status==="done" && results && results.length > 0 && (
+        <>
+          <div className="results-wrap">
+            <table className="results-table">
               <thead>
-                <tr style={{background:"#f8fafc",borderBottom:"1px solid #e5e7eb"}}>
-                  <th style={{padding:"8px 14px",textAlign:"left",fontWeight:600,color:"#64748b",fontSize:"11px",textTransform:"uppercase",letterSpacing:".5px",whiteSpace:"nowrap"}}>Branch</th>
-                  <th style={{padding:"8px 14px",textAlign:"center",fontWeight:600,color:"#64748b",fontSize:"11px",textTransform:"uppercase",letterSpacing:".5px",whiteSpace:"nowrap"}}>Total Reviews</th>
-                  <th style={{padding:"8px 14px",textAlign:"center",fontWeight:600,color:"#64748b",fontSize:"11px",textTransform:"uppercase",letterSpacing:".5px",whiteSpace:"nowrap"}}>
-                    Today's Reviews
-                    {baseDate && <span style={{display:"block",fontSize:"9px",fontWeight:400,color:"#94a3b8",textTransform:"none",letterSpacing:0}}>vs {baseDate}</span>}
+                <tr>
+                  <th>Branch</th>
+                  <th>Total Reviews</th>
+                  <th>
+                    Today's
+                    {baseDate && <span style={{display:"block",fontSize:"9px",fontWeight:400,color:"#94a3b8",textTransform:"none"}}>vs {baseDate}</span>}
                   </th>
-                  <th style={{padding:"8px 14px",textAlign:"center",fontWeight:600,color:"#64748b",fontSize:"11px",textTransform:"uppercase",letterSpacing:".5px",whiteSpace:"nowrap"}}>Stars</th>
-                  <th style={{padding:"8px 14px",textAlign:"center",fontWeight:600,color:"#64748b",fontSize:"11px",textTransform:"uppercase",letterSpacing:".5px",whiteSpace:"nowrap"}}>Status</th>
+                  <th>Stars</th>
+                  <th>Status</th>
                 </tr>
               </thead>
               <tbody>
@@ -643,68 +909,60 @@ function Cell({ script, runCount, selected, onSelect, onDone, runRef, baseline, 
                   const starUp      = starChanged && curStar > prevStar;
                   const starDown    = starChanged && curStar < prevStar;
                   const isOk        = r.status === "ok";
-                  const rowBg       = i % 2 === 0 ? "#ffffff" : "#f8fafc";
 
-                  // Today badge
                   let todayBadge;
-                  if (!isOk) {
-                    todayBadge = <span style={{fontSize:"11px",color:"#94a3b8"}}>—</span>;
-                  } else if (todayDiff === null) {
-                    todayBadge = <span style={{fontSize:"11px",color:"#94a3b8",fontFamily:"monospace"}}>no baseline</span>;
-                  } else if (todayDiff > 0) {
-                    todayBadge = <span style={{background:"rgba(5,150,105,.1)",color:"#059669",fontFamily:"monospace",fontWeight:700,fontSize:"12px",padding:"2px 8px",borderRadius:20}}>+{todayDiff}</span>;
-                  } else if (todayDiff < 0) {
-                    todayBadge = <span style={{background:"rgba(225,29,72,.08)",color:"#e11d48",fontFamily:"monospace",fontWeight:700,fontSize:"12px",padding:"2px 8px",borderRadius:20}}>{todayDiff}</span>;
-                  } else {
-                    todayBadge = <span style={{background:"#f1f5f9",color:"#94a3b8",fontFamily:"monospace",fontWeight:600,fontSize:"12px",padding:"2px 8px",borderRadius:20,border:"1px solid #e5e7eb"}}>0</span>;
-                  }
+                  if (!isOk)              todayBadge = <span style={{color:"#94a3b8"}}>—</span>;
+                  else if (todayDiff===null) todayBadge = <span style={{fontSize:"11px",color:"#94a3b8",fontFamily:"'JetBrains Mono',monospace"}}>no baseline</span>;
+                  else if (todayDiff>0)   todayBadge = <span className="badge badge-green">+{todayDiff}</span>;
+                  else if (todayDiff<0)   todayBadge = <span className="badge badge-red">{todayDiff}</span>;
+                  else                    todayBadge = <span className="badge badge-gray">0</span>;
 
-                  // Stars cell
                   let starsCell;
                   if (!isOk || !curStar) {
                     starsCell = <span style={{color:"#94a3b8"}}>—</span>;
                   } else if (starChanged) {
                     starsCell = (
-                      <span style={{display:"inline-flex",alignItems:"center",gap:5}}>
+                      <span style={{display:"inline-flex",alignItems:"center",gap:4}}>
                         <span style={{textDecoration:"line-through",color:"#94a3b8",fontSize:"11px"}}>{prevStar}★</span>
                         <span style={{fontSize:"10px",color:"#94a3b8"}}>→</span>
-                        <span style={{fontWeight:700,color:starUp?"#059669":"#e11d48",fontSize:"13px"}}>
-                          {curStar}★
-                          <span style={{fontSize:"9px",marginLeft:2}}>{starUp?"▲":"▼"}</span>
+                        <span style={{fontWeight:700,color:starUp?"#059669":"#e11d48"}}>
+                          {curStar}★ <span style={{fontSize:"9px"}}>{starUp?"▲":"▼"}</span>
                         </span>
                       </span>
                     );
                   } else {
-                    starsCell = <span style={{fontFamily:"monospace",color:"#475569"}}>{curStar}★</span>;
+                    starsCell = <span style={{fontFamily:"'JetBrains Mono',monospace",color:"#475569"}}>{curStar}★</span>;
                   }
 
                   return (
-                    <tr key={r.name} style={{background:rowBg,borderBottom:"1px solid #f1f5f9"}}>
-                      <td style={{padding:"9px 14px",fontWeight:600,color:"#0f172a"}}>{r.name}</td>
-                      <td style={{padding:"9px 14px",textAlign:"center"}}>
+                    <tr key={r.name}>
+                      <td style={{fontWeight:600,color:"#0f172a"}}>{r.name}</td>
+                      <td>
                         {isOk
-                          ? <span style={{background:"rgba(79,70,229,.1)",color:"#4f46e5",fontFamily:"monospace",fontWeight:600,fontSize:"12px",padding:"2px 8px",borderRadius:20}}>{curRev.toLocaleString("en-IN")}</span>
-                          : <span style={{background:"#f1f5f9",color:"#94a3b8",fontSize:"11px",padding:"2px 8px",borderRadius:20}}>FAILED</span>
+                          ? <span className="badge badge-indigo">{curRev.toLocaleString("en-IN")}</span>
+                          : <span className="badge badge-gray">FAILED</span>
                         }
                       </td>
-                      <td style={{padding:"9px 14px",textAlign:"center"}}>{todayBadge}</td>
-                      <td style={{padding:"9px 14px",textAlign:"center"}}>{starsCell}</td>
-                      <td style={{padding:"9px 14px",textAlign:"center"}}>
-                        <span style={{fontSize:"11px",fontWeight:700,color:isOk?"#059669":"#e11d48"}}>{isOk?"✓ OK":"✗ FAIL"}</span>
+                      <td>{todayBadge}</td>
+                      <td>{starsCell}</td>
+                      <td>
+                        <span style={{fontSize:"12px",fontWeight:700,color:isOk?"#059669":"#e11d48"}}>
+                          {isOk?"✓ OK":"✗ FAIL"}
+                        </span>
                       </td>
                     </tr>
                   );
                 })}
               </tbody>
               <tfoot>
-                <tr style={{background:"#f8fafc",borderTop:"2px solid #e5e7eb"}}>
-                  <td style={{padding:"8px 14px",fontWeight:700,color:"#0f172a",fontSize:"12px"}}>TOTAL</td>
-                  <td style={{padding:"8px 14px",textAlign:"center"}}>
-                    <span style={{background:"rgba(79,70,229,.1)",color:"#4f46e5",fontFamily:"monospace",fontWeight:700,fontSize:"12px",padding:"2px 8px",borderRadius:20}}>
+                <tr>
+                  <td style={{fontWeight:700,color:"#0f172a"}}>TOTAL</td>
+                  <td>
+                    <span className="badge badge-indigo" style={{fontWeight:700}}>
                       {results.filter(r=>r.status==="ok").reduce((a,r)=>a+(r.reviews||0),0).toLocaleString("en-IN")}
                     </span>
                   </td>
-                  <td style={{padding:"8px 14px",textAlign:"center"}}>
+                  <td>
                     {(() => {
                       const total = results.filter(r=>r.status==="ok").reduce((a,r)=>{
                         const prev = baseline[r.name];
@@ -714,59 +972,63 @@ function Cell({ script, runCount, selected, onSelect, onDone, runRef, baseline, 
                       const hasBl = results.some(r=>baseline[r.name]);
                       if (!hasBl) return <span style={{color:"#94a3b8",fontSize:"11px"}}>—</span>;
                       return total > 0
-                        ? <span style={{background:"rgba(5,150,105,.1)",color:"#059669",fontFamily:"monospace",fontWeight:700,fontSize:"12px",padding:"2px 8px",borderRadius:20}}>+{total}</span>
+                        ? <span className="badge badge-green" style={{fontWeight:700}}>+{total}</span>
                         : total < 0
-                        ? <span style={{background:"rgba(225,29,72,.08)",color:"#e11d48",fontFamily:"monospace",fontWeight:700,fontSize:"12px",padding:"2px 8px",borderRadius:20}}>{total}</span>
-                        : <span style={{background:"#f1f5f9",color:"#94a3b8",fontFamily:"monospace",fontWeight:600,fontSize:"12px",padding:"2px 8px",borderRadius:20,border:"1px solid #e5e7eb"}}>0</span>;
+                        ? <span className="badge badge-red" style={{fontWeight:700}}>{total}</span>
+                        : <span className="badge badge-gray" style={{fontWeight:700}}>0</span>;
                     })()}
                   </td>
                   <td colSpan={2}/>
                 </tr>
               </tfoot>
             </table>
-
-            {/* Download buttons */}
-            <div style={{display:"flex",gap:8,justifyContent:"flex-end",padding:"10px 14px",borderTop:"1px solid #f1f5f9"}}>
-              <button style={btnGreen} onClick={()=>downloadExcel(script,results,baseline)}>
-                <svg width="11" height="11" viewBox="0 0 13 13" fill="none"><path d="M6.5 1v7M4 6l2.5 2.5L9 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/><path d="M2 10h9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/></svg>
-                Excel
-              </button>
-              <button style={btnRose} onClick={()=>openPdf(script,results,baseline,baseDate)}>
-                PDF
-              </button>
-            </div>
           </div>
-        )}
-      </div>
+
+          {/* Download bar */}
+          <div className="dl-bar">
+            <button className="btn btn-green" onClick={()=>downloadExcel(script,results,baseline)}>
+              <svg width="12" height="12" viewBox="0 0 13 13" fill="none"><path d="M6.5 1v7M4 6l2.5 2.5L9 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/><path d="M2 10h9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/></svg>
+              Excel
+            </button>
+            <button className="btn btn-red" onClick={()=>openPdf(script,results,baseline,baseDate)}>
+              PDF
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 }
 
-/* ── App ───────────────────────────────────────────────────── */
+/* ── Wrapper ── */
+function CellWrapper({script, runCount, selected, onSelect, onDone, cellRefs, baseline, baseDate}) {
+  const runRef = useRef(null);
+  React.useEffect(()=>{ cellRefs.current[script.id] = ()=>{ if(runRef.current) runRef.current(); }; },[]);
+  return <Cell script={script} runCount={runCount} selected={selected} onSelect={onSelect} onDone={onDone} runRef={runRef} baseline={baseline} baseDate={baseDate}/>;
+}
+
+/* ── App ── */
 function App() {
   const runCounter  = useRef(0);
   const [selected,  setSelected]  = useState(new Set(ALL_SCRIPTS.map(s=>s.id)));
   const [allResults,setAllResults]= useState({});
   const [runAllBusy,setRunAllBusy]= useState(false);
-  const [baseline,  setBaseline]  = useState({});   // { branchName: {reviews, stars, date} }
+  const [baseline,  setBaseline]  = useState({});
   const [baseDate,  setBaseDate]  = useState(null);
   const resolvers   = useRef({});
+  const cellRefs    = useRef({});
 
-  // Load reviews.json on mount to get yesterday's snapshot as baseline
   React.useEffect(() => {
     fetch("data/reviews.json?t=" + Date.now())
       .then(r => r.ok ? r.json() : null)
       .then(D => {
         if (!D || !D.daily) return;
-        // Find yesterday's date (IST = UTC+5:30)
         const nowIST  = new Date(Date.now() + (5.5 * 60 * 60 * 1000));
         const todayIST= nowIST.toISOString().slice(0, 10);
-        // Get all dates before today, pick the most recent
         const dates   = Object.keys(D.daily).sort().reverse();
         const prevDate= dates.find(d => d < todayIST) || dates[0];
         if (!prevDate) return;
         const snap    = D.daily[prevDate] || {};
-        // Build lookup: branch name → {reviews, stars}
         const bl = {};
         Object.entries(snap).forEach(([bid, val]) => {
           const branch = D.branches && D.branches[bid];
@@ -775,7 +1037,7 @@ function App() {
         setBaseline(bl);
         setBaseDate(prevDate);
       })
-      .catch(() => {}); // silently ignore if file not found
+      .catch(() => {});
   }, []);
 
   const allSelected  = selected.size === ALL_SCRIPTS.length;
@@ -793,7 +1055,7 @@ function App() {
   },[]);
 
   const runAll = async () => {
-    if (runAllBusy||selectedIds.length===0) return;
+    if (runAllBusy || selectedIds.length===0) return;
     setRunAllBusy(true);
     setAllResults(p=>{ const n={...p}; selectedIds.forEach(id=>{n[id]=null;}); return n; });
     for (const id of selectedIds) {
@@ -804,85 +1066,93 @@ function App() {
     setRunAllBusy(false);
   };
 
-  const cellRefs = useRef({});
   const selectedScripts = ALL_SCRIPTS.filter(s=>selected.has(s.id));
 
   return (
-    <div style={{minHeight:"100vh",background:"#f9fafb",fontFamily:"system-ui,-apple-system,sans-serif"}}>
-      <style>{`
-        @keyframes jupy-spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-        @keyframes jupy-blink{0%,100%{opacity:1}50%{opacity:0}}
-        ::-webkit-scrollbar{width:5px;height:5px}
-        ::-webkit-scrollbar-track{background:#f1f5f9}
-        ::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px}
-      `}</style>
-
+    <>
       {/* ── Toolbar ── */}
-      <div style={{background:"white",borderBottom:"1px solid #e5e7eb",padding:"0 20px",display:"flex",alignItems:"center",gap:10,height:44,position:"sticky",top:40,zIndex:100,flexWrap:"wrap"}}>
-        <img src="https://www.sathya.store/new_frontend/assets/img/sathya.webp" alt="Sathya" style={{height:26,objectFit:"contain"}} onError={e=>e.target.style.display="none"}/>
-        <span style={{fontSize:"13px",fontWeight:700,color:"#0f172a",marginRight:4}}>Live Tracker</span>
+      <div className="toolbar">
+        <img
+          src="https://www.sathya.store/new_frontend/assets/img/sathya.webp"
+          alt="Sathya"
+          style={{height:26,objectFit:"contain"}}
+          onError={e=>e.target.style.display="none"}
+        />
+        <span style={{fontSize:"13px",fontWeight:700,color:"#0f172a"}} className="toolbar-label">Live Tracker</span>
+
         {baseDate && (
-          <span style={{fontSize:"10px",color:"#94a3b8",fontFamily:"monospace",background:"#f1f5f9",padding:"2px 7px",borderRadius:4}}>
+          <span style={{fontSize:"10px",color:"#94a3b8",fontFamily:"'JetBrains Mono',monospace",background:"#f1f5f9",padding:"2px 8px",borderRadius:5}}>
             baseline: {baseDate}
           </span>
         )}
-        <div style={{width:1,height:20,background:"#e5e7eb"}}/>
+
+        <div style={{width:1,height:20,background:"#e2e8f0",flexShrink:0}}/>
 
         {/* Select All */}
-        <label style={{display:"flex",alignItems:"center",gap:6,cursor:"pointer",fontSize:"12px",fontWeight:600,color:"#374151",userSelect:"none"}}>
-          <input type="checkbox" checked={allSelected}
+        <label style={{display:"flex",alignItems:"center",gap:6,cursor:"pointer",fontSize:"12px",fontWeight:600,color:"#374151",userSelect:"none",flexShrink:0}}>
+          <input
+            type="checkbox"
+            checked={allSelected}
             ref={el=>{if(el)el.indeterminate=someSelected;}}
             onChange={toggleAll}
-            style={{width:14,height:14,accentColor:"#1d4ed8",cursor:"pointer"}}/>
-          Select All
+            style={{width:15,height:15,accentColor:"#1d4ed8",cursor:"pointer"}}
+          />
+          All
         </label>
 
-        <div style={{width:1,height:20,background:"#e5e7eb"}}/>
+        <div style={{width:1,height:20,background:"#e2e8f0",flexShrink:0}}/>
 
         {/* Run All */}
-        <button style={selectedIds.length===0||runAllBusy ? btnGray : btnDark}
-          disabled={selectedIds.length===0||runAllBusy} onClick={runAll}>
+        <button
+          className="btn btn-dark"
+          disabled={selectedIds.length===0||runAllBusy}
+          onClick={runAll}
+        >
           {runAllBusy
-            ? <><svg width="12" height="12" viewBox="0 0 13 13" fill="none" style={{animation:"jupy-spin .9s linear infinite"}}><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" strokeWidth="1.5" strokeDasharray="18" strokeDashoffset="6"/></svg> Running…</>
-            : <><svg width="10" height="11" viewBox="0 0 10 11" fill="currentColor"><path d="M1 1 L9 5.5 L1 10 Z"/></svg> Run All ({selectedIds.length})</>
+            ? <><svg className="spin" width="13" height="13" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" strokeWidth="1.5" strokeDasharray="20" strokeDashoffset="7"/></svg> Running…</>
+            : <><svg width="10" height="11" viewBox="0 0 10 11" fill="currentColor"><path d="M1 1 L9 5.5 L1 10 Z"/></svg> Run ({selectedIds.length})</>
           }
         </button>
 
-        <div style={{width:1,height:20,background:"#e5e7eb"}}/>
+        <div style={{width:1,height:20,background:"#e2e8f0",flexShrink:0}}/>
 
         {/* Download All Excel */}
-        <button style={allDone ? btnBlue : btnGray} disabled={!allDone}
-          onClick={()=>downloadAllExcel(selectedScripts,allResults,baseline)}>
-          <svg width="11" height="11" viewBox="0 0 13 13" fill="none"><path d="M6.5 1v7M4 6l2.5 2.5L9 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/><path d="M2 10h9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/></svg>
-          Download All Excel {allDone?`(${doneIds.length})`:""}
+        <button
+          className="btn btn-blue"
+          disabled={!allDone}
+          onClick={()=>downloadAllExcel(selectedScripts,allResults,baseline)}
+        >
+          <svg width="12" height="12" viewBox="0 0 13 13" fill="none"><path d="M6.5 1v7M4 6l2.5 2.5L9 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/><path d="M2 10h9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/></svg>
+          <span className="toolbar-label">Excel</span>{allDone?` (${doneIds.length})`:""}
         </button>
 
         {/* Download All PDF */}
-        <button style={allDone ? {...btnBase,background:"#e11d48",color:"#fff"} : btnGray}
+        <button
+          className="btn btn-red"
           disabled={!allDone}
-          onClick={()=>openAllPdf(selectedScripts,allResults,baseline,baseDate)}>
-          Download All PDF
+          onClick={()=>openAllPdf(selectedScripts,allResults,baseline,baseDate)}
+        >
+          <span className="toolbar-label">PDF</span>{!allDone?"":""}
         </button>
 
-        <div style={{flex:1}}/>
-        <div style={{fontSize:"11px",color:"#94a3b8",fontFamily:"monospace",display:"flex",alignItems:"center",gap:6}}>
-          <div style={{width:8,height:8,borderRadius:"50%",background:"#22c55e"}}/>
-          Python 3 (ipykernel)
+        <div style={{flex:1,minWidth:4}}/>
+
+        {/* Kernel status */}
+        <div style={{display:"flex",alignItems:"center",gap:6,fontSize:"11px",color:"#94a3b8",fontFamily:"'JetBrains Mono',monospace",flexShrink:0}}>
+          <span className="live-dot"/>
+          <span className="toolbar-label">Python 3 (ipykernel)</span>
         </div>
       </div>
 
       {/* ── Notebook ── */}
-      <div style={{maxWidth:"960px",margin:"0 auto",padding:"24px 16px 60px"}}>
-        <div style={{display:"flex",gap:0,marginBottom:"0px"}}>
-          <div style={{width:56,flexShrink:0}}/>
-          <div style={{flex:1,padding:"10px 16px",background:"white",border:"1px solid #e5e7eb",borderLeft:"4px solid #3b82f6",borderRadius:"4px",marginBottom:"2px"}}>
-            <div style={{fontSize:"18px",fontWeight:700,color:"#0f172a",marginBottom:4}}>🏪 Google Review Tracker</div>
-            <div style={{fontSize:"12.5px",color:"#64748b",fontFamily:"monospace"}}>Playwright · Chromium Headless · Tamil Nadu Branches · Live scrape</div>
-          </div>
+      <div className="notebook">
+        {/* Header card */}
+        <div className="nb-header">
+          <h1>🏪 Google Review Tracker</h1>
+          <p>Playwright · Chromium Headless · {ALL_BRANCHES_SCRIPT.branches.length} branches · Tamil Nadu · Live scrape</p>
         </div>
-        <div style={{height:12}}/>
 
-        {/* ── ALL BRANCHES (flat) cell ── */}
+        {/* All Branches cell */}
         <CellWrapper
           key={ALL_BRANCHES_SCRIPT.id}
           script={ALL_BRANCHES_SCRIPT}
@@ -895,38 +1165,31 @@ function App() {
           baseDate={baseDate}
         />
 
-        {/* ── Divider between flat and grouped ── */}
-        <div style={{display:"flex",alignItems:"center",gap:12,margin:"20px 0 16px"}}>
-          <div style={{width:56,flexShrink:0}}/>
-          <div style={{flex:1,height:1,background:"#e5e7eb"}}/>
-          <span style={{fontSize:"11px",fontWeight:700,color:"#94a3b8",textTransform:"uppercase",letterSpacing:"1px",whiteSpace:"nowrap",flexShrink:0}}>By AGM</span>
-          <div style={{flex:1,height:1,background:"#e5e7eb"}}/>
+        {/* Divider */}
+        <div className="divider">
+          <div className="divider-line"/>
+          <span className="divider-label">By AGM</span>
+          <div className="divider-line"/>
         </div>
 
-        {/* ── Grouped cells by AGM ── */}
-        {SCRIPTS.map((script,i)=>(
-          <CellWrapper
-            key={script.id}
-            script={script}
-            runCount={runCounter}
-            selected={selected.has(script.id)}
-            onSelect={toggleSelect}
-            onDone={onDone}
-            cellRefs={cellRefs}
-            baseline={baseline}
-            baseDate={baseDate}
-          />
+        {/* Per-AGM cells */}
+        {SCRIPTS.map(script => (
+          <div key={script.id} style={{marginBottom:8}}>
+            <CellWrapper
+              script={script}
+              runCount={runCounter}
+              selected={selected.has(script.id)}
+              onSelect={toggleSelect}
+              onDone={onDone}
+              cellRefs={cellRefs}
+              baseline={baseline}
+              baseDate={baseDate}
+            />
+          </div>
         ))}
       </div>
-    </div>
+    </>
   );
-}
-
-/* Wrapper so each Cell can expose its run fn via ref */
-function CellWrapper({script, runCount, selected, onSelect, onDone, cellRefs, baseline, baseDate}) {
-  const runRef = useRef(null);
-  React.useEffect(()=>{ cellRefs.current[script.id] = ()=>{ if(runRef.current) runRef.current(); }; },[]);
-  return <div style={{marginBottom:"3px"}}><Cell script={script} runCount={runCount} selected={selected} onSelect={onSelect} onDone={onDone} runRef={runRef} baseline={baseline} baseDate={baseDate}/></div>;
 }
 
 ReactDOM.createRoot(document.getElementById("root")).render(<App />);
