@@ -7,53 +7,214 @@
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: #f5f5f3; color: #1a1a1a; min-height: 100vh;
-    display: flex; justify-content: center; padding: 2rem 1rem;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f5f5f3;
+    color: #1a1a1a;
+    min-height: 100vh;
+    padding: 0;
   }
-  .container { width: 100%; max-width: 680px; }
-  h1 { font-size: 22px; font-weight: 600; margin-bottom: 4px; }
-  .sub { font-size: 14px; color: #666; margin-bottom: 1.5rem; }
+
+  /* ====================== NAVIGATION ====================== */
+  .sa-nav {
+    background: #fff;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+  .sa-nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    font-size: 18px;
+    color: #1a1a1a;
+  }
+  .sa-nav-brand img {
+    height: 36px;
+    width: auto;
+  }
+  .sa-nav-links {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+  }
+  .sa-nav-links a {
+    text-decoration: none;
+    color: #444;
+    font-size: 15px;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+  .sa-nav-links a:hover {
+    color: #0F6E56;
+  }
+  .sa-nav-links a.active {
+    color: #0F6E56;
+    font-weight: 600;
+    position: relative;
+  }
+  .sa-nav-links a.active::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: #0F6E56;
+  }
+  .s-icon {
+    font-size: 18px;
+    margin-right: 4px;
+  }
+
+  /* ====================== MAIN CONTENT ====================== */
+  .container {
+    max-width: 680px;
+    margin: 40px auto;
+    padding: 0 15px;
+  }
+  .card {
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-radius: 16px;
+    padding: 32px 28px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+  }
+  h1 {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .sub {
+    font-size: 14.5px;
+    color: #666;
+    margin-bottom: 24px;
+    line-height: 1.5;
+  }
   textarea {
-    width: 100%; min-height: 180px; font-family: monospace; font-size: 13px;
-    border: 1px solid #ddd; border-radius: 8px; padding: 12px;
-    resize: vertical; background: #fff; color: #1a1a1a; line-height: 1.6;
+    width: 100%;
+    min-height: 200px;
+    font-family: ui-monospace, monospace;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 14px;
+    resize: vertical;
+    background: #fff;
+    color: #1a1a1a;
+    line-height: 1.65;
   }
-  textarea:focus { outline: none; border-color: #999; }
+  textarea:focus {
+    outline: none;
+    border-color: #0F6E56;
+    box-shadow: 0 0 0 3px rgba(15, 110, 86, 0.1);
+  }
   .btn {
-    margin-top: 12px; padding: 9px 22px; font-size: 14px; font-weight: 500;
-    background: #fff; border: 1px solid #ccc; border-radius: 8px;
-    cursor: pointer; color: #1a1a1a; transition: background 0.15s;
+    margin-top: 16px;
+    padding: 11px 28px;
+    font-size: 15px;
+    font-weight: 600;
+    background: #0F6E56;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
   }
-  .btn:hover { background: #f0f0ee; }
-  .btn:active { transform: scale(0.98); }
-  .results { margin-top: 1.75rem; }
-  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1.25rem; }
-  .stat { background: #fff; border: 1px solid #e8e8e8; border-radius: 8px; padding: 12px 14px; }
-  .stat-label { font-size: 12px; color: #888; margin-bottom: 4px; }
-  .stat-val { font-size: 24px; font-weight: 600; color: #1a1a1a; }
+  .btn:hover {
+    background: #0a5a47;
+    transform: translateY(-1px);
+  }
+  .btn:active {
+    transform: scale(0.97);
+  }
+
+  /* Results */
+  .results {
+    margin-top: 28px;
+  }
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .stat {
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-radius: 12px;
+    padding: 16px 18px;
+    text-align: center;
+  }
+  .stat-label {
+    font-size: 12.5px;
+    color: #888;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .stat-val {
+    font-size: 28px;
+    font-weight: 700;
+  }
   .stat-val.green { color: #0F6E56; }
   .stat-val.red { color: #993C1D; }
+
   .section-title {
-    font-size: 11px; font-weight: 600; color: #888;
-    text-transform: uppercase; letter-spacing: 0.05em; margin: 1.25rem 0 8px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin: 24px 0 10px;
   }
-  .branch-list { list-style: none; padding: 0; margin: 0; }
+  .branch-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
   .branch-list li {
-    font-size: 14px; padding: 7px 12px; border-radius: 6px;
-    margin-bottom: 4px; display: flex; align-items: center; gap: 10px;
+    font-size: 14.5px;
+    padding: 9px 14px;
+    border-radius: 8px;
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #f9f9f7;
   }
-  .branch-list li .num { font-size: 12px; color: #aaa; min-width: 22px; text-align: right; }
+  .branch-list li .num {
+    font-size: 13px;
+    color: #aaa;
+    min-width: 24px;
+    text-align: right;
+  }
   .branch-list.missing li { background: #FAECE7; color: #712B13; }
   .branch-list.present li { background: #EAF3DE; color: #27500A; }
-  .branch-list.unrecognized li { background: #FAEEDA; color: #633806; }
-  .empty { font-size: 13px; color: #888; font-style: italic; }
-  hr { border: none; border-top: 1px solid #e8e8e8; margin: 1.25rem 0; }
-  .card { background: #fff; border: 1px solid #e8e8e8; border-radius: 12px; padding: 1.5rem; }
+  .branch-list.unrecognized li { background: #FAF4E6; color: #6B4E1F; }
+
+  .empty {
+    font-size: 14px;
+    color: #888;
+    font-style: italic;
+    padding: 12px 0;
+  }
+  hr {
+    border: none;
+    border-top: 1px solid #eee;
+    margin: 28px 0;
+  }
 </style>
 </head>
 <body>
-<!-- Site Nav -->
+
+<!-- Navigation -->
 <nav class="sa-nav">
   <div class="sa-nav-brand">
     <img src="https://www.sathya.store/new_frontend/assets/img/sathya.webp" alt="Sathya" onerror="this.style.display='none'">
@@ -63,19 +224,24 @@
     <a href="index.html">🏠 Home</a>
     <a href="sathya_jupyter.html">💻 Live Tracker</a>
     <a href="sathya-weather.html">⛅ Weather</a>
-    <a href="Enquiries_Filter_Tool.html" class="active">📊 PDF Tool</a>
-    <a href="branch_check.html"><span class="s-icon">&#x1F50D;</span> Branch Track</a>
+    <a href="Enquiries_Filter_Tool.html">📊 PDF Tool</a>
+    <a href="branch_check.html" class="active"><span class="s-icon">🔍</span> Branch Check</a>
   </div>
 </nav>
+
 <div class="container">
   <div class="card">
-    <h1>Branch Attendance Checker</h1>
-    <p class="sub">Paste the branch names (one per line or comma-separated). Missing branches will be highlighted.</p>
+    <h1>Branch Checker</h1>
+    <p class="sub">Paste the branch names (one per line or comma-separated). Missing branches will be highlighted in red.</p>
+    
     <textarea id="inp" placeholder="Tuticorin1&#10;Tirunelveli1&#10;Paramakudi&#10;Karungal&#10;..."></textarea>
+    
     <button class="btn" onclick="check()">Check Missing Branches</button>
+    
     <div class="results" id="results" style="display:none;"></div>
   </div>
 </div>
+
 <script>
 const MASTER = [
   "Tuticorin 1","Tuticorin 2","Thiruchendur","Thisayanvilai","Eral","Udangudi",
@@ -112,8 +278,8 @@ function findMaster(input) {
 function check() {
   const raw = document.getElementById('inp').value.trim();
   if (!raw) return;
-  const lines = raw.split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
 
+  const lines = raw.split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
   const matched = new Set();
   const unrecognized = [];
 
@@ -129,30 +295,41 @@ function check() {
   const resEl = document.getElementById('results');
   resEl.style.display = 'block';
 
-  let html = `<div class="stats">
-    <div class="stat"><div class="stat-label">Total branches</div><div class="stat-val">${MASTER.length}</div></div>
-    <div class="stat"><div class="stat-label">Present</div><div class="stat-val green">${present.length}</div></div>
-    <div class="stat"><div class="stat-label">Missing</div><div class="stat-val red">${missing.length}</div></div>
-  </div>`;
+  let html = `
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-label">Total Branches</div>
+        <div class="stat-val">${MASTER.length}</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Present</div>
+        <div class="stat-val green">${present.length}</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Missing</div>
+        <div class="stat-val red">${missing.length}</div>
+      </div>
+    </div>`;
 
-  html += `<div class="section-title">Missing branches (${missing.length})</div>`;
-  if (missing.length === 0) html += `<span class="empty">All branches accounted for!</span>`;
-  else {
+  html += `<div class="section-title">Missing Branches (${missing.length})</div>`;
+  if (missing.length === 0) {
+    html += `<span class="empty">✅ All branches accounted for!</span>`;
+  } else {
     html += `<ul class="branch-list missing">`;
-    missing.forEach((b, i) => html += `<li><span class="num">${i+1}.</span>${b}</li>`);
+    missing.forEach((b, i) => html += `<li><span class="num">${i+1}.</span> ${b}</li>`);
     html += `</ul>`;
   }
 
   if (unrecognized.length > 0) {
-    html += `<hr><div class="section-title">Unrecognized entries (${unrecognized.length})</div>`;
+    html += `<hr><div class="section-title">Unrecognized Entries (${unrecognized.length})</div>`;
     html += `<ul class="branch-list unrecognized">`;
-    unrecognized.forEach((b, i) => html += `<li><span class="num">${i+1}.</span>${b}</li>`);
+    unrecognized.forEach((b, i) => html += `<li><span class="num">${i+1}.</span> ${b}</li>`);
     html += `</ul>`;
   }
 
-  html += `<hr><div class="section-title">Present branches (${present.length})</div>`;
+  html += `<hr><div class="section-title">Present Branches (${present.length})</div>`;
   html += `<ul class="branch-list present">`;
-  present.forEach((b, i) => html += `<li><span class="num">${i+1}.</span>${b}</li>`);
+  present.forEach((b, i) => html += `<li><span class="num">${i+1}.</span> ${b}</li>`);
   html += `</ul>`;
 
   resEl.innerHTML = html;
