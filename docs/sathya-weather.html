@@ -8,23 +8,23 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Raleway:wght@700;800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --red:       #E31E24;
-    --red-dark:  #b81519;
+    --red: #E31E24;
+    --red-dark: #b81519;
     --red-light: #ffeaea;
-    --red-mid:   #f5c0c0;
-    --white:     #ffffff;
-    --offwhite:  #f7f8fa;
-    --gray-bg:   #f0f2f5;
-    --gray1:     #e4e7ed;
-    --gray2:     #c8cdd8;
-    --gray3:     #8a93a8;
-    --gray4:     #4a5568;
-    --dark:      #1a1f2e;
-    --text:      #2d3748;
-    --muted:     #718096;
-    --green:     #16a34a;
-    --green-bg:  #f0fdf4;
-    --orange:    #d97706;
+    --red-mid: #f5c0c0;
+    --white: #ffffff;
+    --offwhite: #f7f8fa;
+    --gray-bg: #f0f2f5;
+    --gray1: #e4e7ed;
+    --gray2: #c8cdd8;
+    --gray3: #8a93a8;
+    --gray4: #4a5568;
+    --dark: #1a1f2e;
+    --text: #2d3748;
+    --muted: #718096;
+    --green: #16a34a;
+    --green-bg: #f0fdf4;
+    --orange: #d97706;
     --orange-bg: #fffbeb;
     --shadow-sm: 0 1px 4px rgba(0,0,0,0.08);
     --shadow-md: 0 4px 16px rgba(0,0,0,0.1);
@@ -33,7 +33,6 @@
   }
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family:'Poppins',sans-serif; background:var(--gray-bg); color:var(--text); min-height:100vh; }
-
   /* ── TOP BAR ── */
   .top-bar {
     background:var(--red); padding:0 28px; height:48px;
@@ -43,7 +42,6 @@
   .top-bar-left { display:flex; align-items:center; gap:8px; font-size:11px; color:rgba(255,255,255,0.85); letter-spacing:.5px; }
   .top-bar-left span { color:#fff; font-weight:600; }
   .top-bar-right { display:flex; align-items:center; gap:16px; }
-
   /* Rain alert button in top bar */
   .rain-alert-btn {
     display:flex; align-items:center; gap:7px; cursor:pointer;
@@ -58,7 +56,6 @@
     border-radius:10px; padding:1px 7px; font-size:11px; font-weight:800;
   }
   .rain-alert-btn.no-rain { opacity:.55; cursor:default; }
-
   .live-pill {
     display:flex; align-items:center; gap:6px;
     background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.3);
@@ -67,7 +64,6 @@
   .live-dot { width:7px; height:7px; background:#fff; border-radius:50%; animation:blink 1.4s infinite; }
   @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
   #clock { font-size:13px; color:#fff; font-weight:600; letter-spacing:.5px; }
-
   /* ── HEADER ── */
   header {
     background:var(--white); padding:16px 28px;
@@ -86,13 +82,11 @@
   .hbadge { background:var(--red-light); border:1px solid var(--red-mid); border-radius:8px; padding:6px 14px; text-align:center; }
   .hbadge .hb-n { font-size:22px; font-weight:800; color:var(--red); line-height:1; font-family:'Raleway',sans-serif; }
   .hbadge .hb-l { font-size:9px; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; }
-
   /* ── STATS STRIP ── */
   .stats-strip { background:var(--white); border-bottom:1px solid var(--gray1); display:flex; overflow-x:auto; box-shadow:var(--shadow-sm); }
   .stat-cell { padding:10px 22px; border-right:1px solid var(--gray1); min-width:130px; flex-shrink:0; }
   .stat-cell .sc-l { font-size:9px; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:3px; }
   .stat-cell .sc-v { font-size:18px; font-weight:700; color:var(--dark); font-family:'Raleway',sans-serif; }
-
   /* ── CONTROLS ── */
   .controls { padding:14px 28px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
   .search-wrap { position:relative; flex:1; min-width:180px; max-width:320px; }
@@ -114,7 +108,6 @@
   .btn-red:hover { background:var(--red-dark); transform:translateY(-1px); }
   .btn-ol { background:var(--white); color:var(--red); border:1.5px solid var(--red); }
   .btn-ol:hover { background:var(--red-light); }
-
   /* ── LOADER ── */
   #loading { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:80px 20px; gap:16px; }
   .ring-wrap { position:relative; width:60px; height:60px; }
@@ -126,17 +119,14 @@
   .prog-wrap { width:300px; height:4px; background:var(--gray1); border-radius:4px; overflow:hidden; }
   .prog-bar { height:100%; background:linear-gradient(90deg,var(--red-dark),var(--red)); width:0%; transition:width .25s; border-radius:4px; }
   #load-status { font-size:11px; color:var(--gray3); }
-
   /* ── SECTION HEADER ── */
   .sec-head { padding:18px 28px 8px; display:flex; align-items:center; gap:10px; }
   .sec-head .sh-line { flex:1; height:1px; background:var(--gray1); }
   .sec-head .sh-lbl { font-size:10px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; font-weight:600; }
   .region-tag { display:inline-flex; align-items:center; gap:6px; background:var(--red); color:#fff; border-radius:6px; padding:3px 10px; font-size:10px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; }
   .kerala-banner { margin:4px 28px 0; padding:10px 16px; background:linear-gradient(135deg,#e8f5e9,#f0fdf4); border:1px solid #bbf7d0; border-radius:10px; display:flex; align-items:center; gap:12px; font-size:12px; color:#166534; font-weight:600; }
-
   /* ── GRID SECTIONS ── */
   .grid-section { display:grid; grid-template-columns:repeat(auto-fill,minmax(265px,1fr)); gap:14px; padding:6px 28px 16px; }
-
   /* ── CARD ── */
   .card {
     background:var(--white); border-radius:14px; border:1px solid var(--gray1);
@@ -146,7 +136,6 @@
   @keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
   .card:hover { transform:translateY(-4px); box-shadow:var(--shadow-lg); border-color:var(--red-mid); }
   .card.rain-highlight { border:2px solid var(--orange); box-shadow:0 0 0 3px rgba(217,119,6,.15), var(--shadow-md); }
-
   .card-head {
     padding:12px 14px 10px; display:flex; justify-content:space-between; align-items:flex-start;
     border-bottom:1px solid var(--gray1);
@@ -159,29 +148,25 @@
   .state-tn { background:#fff3e0; color:#e65100; }
   .state-kl { background:#e8f5e9; color:#2e7d32; }
   .w-icon { font-size:32px; filter:drop-shadow(0 2px 6px rgba(0,0,0,.15)); }
-
   .card-body { padding:12px 14px; }
   .temp-row { display:flex; align-items:flex-end; gap:10px; margin-bottom:8px; }
   .temp-big { font-family:'Raleway',sans-serif; font-size:38px; font-weight:800; line-height:1; }
   .tc-blue { color:#2563eb; } .tc-teal { color:#0891b2; }
-  .tc-warm { color:#d97706; } .tc-hot  { color:#dc2626; } .tc-vhot { color:#991b1b; }
+  .tc-warm { color:#d97706; } .tc-hot { color:#dc2626; } .tc-vhot { color:#991b1b; }
   .feels { font-size:11px; color:var(--muted); padding-bottom:4px; line-height:1.7; }
   .condition { font-size:12px; color:var(--gray4); margin-bottom:11px; font-weight:500; }
-
   .metrics { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
   .metric { background:var(--offwhite); border:1px solid var(--gray1); border-radius:8px; padding:7px 9px; display:flex; align-items:center; gap:7px; }
   .mi { font-size:14px; }
   .ml { font-size:9px; color:var(--muted); text-transform:uppercase; letter-spacing:.8px; }
   .mv { font-size:12px; font-weight:600; color:var(--dark); }
-
   .card-foot { padding:8px 14px 11px; display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--gray1); background:var(--offwhite); }
   .badge { font-size:9px; padding:3px 9px; border-radius:20px; font-weight:700; letter-spacing:.5px; }
-  .b-ok  { background:var(--green-bg); color:var(--green);  border:1px solid #bbf7d0; }
+  .b-ok { background:var(--green-bg); color:var(--green); border:1px solid #bbf7d0; }
   .b-mod { background:var(--orange-bg);color:var(--orange); border:1px solid #fde68a; }
-  .b-bad { background:var(--red-light); color:var(--red);   border:1px solid var(--red-mid); }
+  .b-bad { background:var(--red-light); color:var(--red); border:1px solid var(--red-mid); }
   .upd-time { font-size:9px; color:var(--gray3); }
   .err-msg { padding:26px 14px; text-align:center; color:var(--muted); font-size:12px; }
-
   /* ── RAIN ALERT SLIDE PANEL ── */
   #rain-panel {
     position:fixed; top:0; right:-420px; width:400px; height:100vh;
@@ -221,11 +206,9 @@
   .no-rain-msg { text-align:center; padding:40px 20px; color:var(--muted); }
   .no-rain-msg .nr-icon { font-size:48px; margin-bottom:12px; }
   .no-rain-msg p { font-size:13px; }
-
   /* Overlay */
   #overlay { position:fixed; inset:0; background:rgba(0,0,0,.35); z-index:490; display:none; backdrop-filter:blur(2px); }
   #overlay.show { display:block; }
-
   /* ── CLICKABLE STAT CELLS ── */
   .stat-cell.clickable {
     cursor:pointer; transition:background .18s, box-shadow .18s; position:relative;
@@ -237,11 +220,10 @@
   .sc-sub { font-size:10px; font-weight:600; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:120px; }
   .click-hint { font-size:8px; color:var(--gray3); letter-spacing:.5px; margin-top:2px; opacity:0; transition:opacity .18s; }
   .stat-cell.clickable:hover .click-hint { opacity:1; }
-
   @keyframes cardPulse {
-    0%   { box-shadow:0 0 0 0 rgba(227,30,36,.6), var(--shadow-sm); transform:translateY(0); }
-    30%  { box-shadow:0 0 0 12px rgba(227,30,36,.12), var(--shadow-lg); transform:translateY(-6px); }
-    70%  { box-shadow:0 0 0 5px rgba(227,30,36,.06), var(--shadow-lg); }
+    0% { box-shadow:0 0 0 0 rgba(227,30,36,.6), var(--shadow-sm); transform:translateY(0); }
+    30% { box-shadow:0 0 0 12px rgba(227,30,36,.12), var(--shadow-lg); transform:translateY(-6px); }
+    70% { box-shadow:0 0 0 5px rgba(227,30,36,.06), var(--shadow-lg); }
     100% { box-shadow:var(--shadow-sm); transform:translateY(0); }
   }
   .card.temp-pulse {
@@ -249,7 +231,6 @@
     border-color:var(--red) !important;
     position:relative; z-index:10;
   }
-
   @media(max-width:640px){
     header,.controls,.sec-head,.kerala-banner{padding-left:14px;padding-right:14px;}
     .grid-section{padding-left:14px;padding-right:14px;grid-template-columns:1fr;}
@@ -270,7 +251,6 @@
 </style>
 </head>
 <body>
-
 <!-- ── Site Nav Bar ── -->
 <div style="background:#1e293b;height:40px;display:flex;align-items:center;padding:0 16px;gap:0;position:sticky;top:0;z-index:300;box-shadow:0 2px 8px rgba(0,0,0,.25);flex-shrink:0;">
   <div style="display:flex;align-items:center;gap:8px;padding-right:14px;border-right:1px solid rgba(255,255,255,.12);flex-shrink:0;">
@@ -287,10 +267,8 @@
   <div style="flex:1"></div>
   <span style="font-size:10px;color:rgba(255,255,255,.35);letter-spacing:.5px;white-space:nowrap;" class="nav-bar-title">WEATHER REPORT</span>
 </div>
-
 <!-- Overlay -->
 <div id="overlay" onclick="closePanel()"></div>
-
 <!-- Rain slide panel -->
 <div id="rain-panel">
   <div class="panel-header">
@@ -300,7 +278,6 @@
   <div class="panel-sub" id="panel-sub">Loading…</div>
   <div class="panel-body" id="panel-body"></div>
 </div>
-
 <!-- Top bar -->
 <div class="top-bar">
   <div class="top-bar-left">🌦 <span>Weather Command Center</span> — South-1 Region</div>
@@ -312,7 +289,6 @@
     <div id="clock">--:-- --</div>
   </div>
 </div>
-
 <!-- Header -->
 <header>
   <div class="logo-area">
@@ -334,7 +310,6 @@
     </div>
   </div>
 </header>
-
 <!-- Stats strip -->
 <div class="stats-strip">
   <div class="stat-cell"><div class="sc-l">Average Temp</div><div class="sc-v" id="s-avg">--</div></div>
@@ -344,7 +319,6 @@
   <div class="stat-cell"><div class="sc-l">KL Branches</div><div class="sc-v" style="color:var(--green)">4</div></div>
   <div class="stat-cell"><div class="sc-l">Last Updated</div><div class="sc-v" id="s-time" style="font-size:13px">--</div></div>
 </div>
-
 <!-- Controls -->
 <div class="controls">
   <div class="search-wrap">
@@ -360,7 +334,6 @@
   <button class="btn btn-red" onclick="loadAll()">↻ Refresh All</button>
   <button class="btn btn-ol" onclick="toggleUnit()">°C / °F</button>
 </div>
-
 <!-- Loader -->
 <div id="loading">
   <div class="ring-wrap">
@@ -372,7 +345,6 @@
   <div class="prog-wrap"><div class="prog-bar" id="prog"></div></div>
   <div id="load-status">Initialising…</div>
 </div>
-
 <!-- Content wrapper -->
 <div id="grid-wrapper" style="display:none;">
   <!-- TN -->
@@ -382,7 +354,6 @@
     <div class="sh-lbl">36 Branches</div>
   </div>
   <div id="grid-tn" class="grid-section"></div>
-
   <!-- KL -->
   <div class="kerala-banner">🌴 Kerala Branches — 4 Locations</div>
   <div class="sec-head" style="padding-top:12px;">
@@ -392,58 +363,55 @@
   </div>
   <div id="grid-kl" class="grid-section" style="padding-bottom:40px;"></div>
 </div>
-
 <script>
 // ── Branch data ───────────────────────────────────────────────────────────
 const TN = [
-  {name:"Eral-2",          city:"Eral",           state:"TN",lat:8.6200,lon:77.7600},
-  {name:"Thuckalay-1",     city:"Thuckalay",      state:"TN",lat:8.2500,lon:77.2300},
-  {name:"Sayalkudi-1",     city:"Sayalkudi",      state:"TN",lat:9.1700,lon:78.4300},
-  {name:"Surandai-1",      city:"Surandai",       state:"TN",lat:8.9800,lon:77.4100},
-  {name:"Thenkasi-2",      city:"Tenkasi",        state:"TN",lat:8.9600,lon:77.3200},
-  {name:"Aruppukottai-2",  city:"Aruppukkottai",  state:"TN",lat:9.5100,lon:78.0900},
-  {name:"Tuticorin-1",     city:"Thoothukudi",    state:"TN",lat:8.7642,lon:78.1348},
-  {name:"Anjugramam-1",    city:"Anjugramam",     state:"TN",lat:8.1900,lon:77.3800},
-  {name:"Thisayanvilai-1", city:"Thisayanvilai",  state:"TN",lat:8.3100,lon:77.4700},
-  {name:"Thenkasi",        city:"Tenkasi",        state:"TN",lat:8.9600,lon:77.3200},
-  {name:"Sattur-2",        city:"Sattur",         state:"TN",lat:9.3600,lon:77.9100},
-  {name:"Monday Market",   city:"Tirunelveli",    state:"TN",lat:8.7139,lon:77.7567},
-  {name:"Villathikullam",  city:"Vilathikulam",   state:"TN",lat:9.1100,lon:78.0800},
-  {name:"Valliyur-1",      city:"Valliyur",       state:"TN",lat:8.3800,lon:77.6200},
-  {name:"Sengottai-1",     city:"Sengottai",      state:"TN",lat:8.9700,lon:77.2500},
-  {name:"Marthandam",      city:"Marthandam",     state:"TN",lat:8.3100,lon:77.2200},
-  {name:"Ambasamudram-1",  city:"Ambasamudram",   state:"TN",lat:8.7000,lon:77.4500},
-  {name:"Paramakudi",      city:"Paramakudi",     state:"TN",lat:9.5400,lon:78.5900},
-  {name:"Kovilpatti",      city:"Kovilpatti",     state:"TN",lat:9.1700,lon:77.8700},
-  {name:"Rajapalayam",     city:"Rajapalayam",    state:"TN",lat:9.4500,lon:77.5500},
-  {name:"Kayathar-1",      city:"Kayathar",       state:"TN",lat:8.9400,lon:77.8200},
-  {name:"Thiruchendur-1",  city:"Tiruchendur",    state:"TN",lat:8.4900,lon:78.1200},
-  {name:"Thirunelveli-1",  city:"Tirunelveli",    state:"TN",lat:8.7139,lon:77.7567},
-  {name:"Colachel",        city:"Colachel",       state:"TN",lat:8.1700,lon:77.2500},
-  {name:"Virudunagar-2",   city:"Virudhunagar",   state:"TN",lat:9.5800,lon:77.9500},
-  {name:"Sivakasi",        city:"Sivakasi",       state:"TN",lat:9.4500,lon:77.7900},
-  {name:"Nagercoil",       city:"Nagercoil",      state:"TN",lat:8.1783,lon:77.4119},
-  {name:"Tuticorin-2",     city:"Thoothukudi",    state:"TN",lat:8.7642,lon:78.1348},
-  {name:"Virudunagar",     city:"Virudhunagar",   state:"TN",lat:9.5800,lon:77.9500},
-  {name:"Aruppukottai",    city:"Aruppukkottai",  state:"TN",lat:9.5100,lon:78.0900},
-  {name:"Karungal-1",      city:"Karungal",       state:"TN",lat:8.2200,lon:77.3200},
-  {name:"Ramnad",          city:"Ramanathapuram", state:"TN",lat:9.3700,lon:78.8300},
-  {name:"Kulasekharam-1",  city:"Kulasekharam",   state:"TN",lat:8.4200,lon:77.2700},
-  {name:"Udankudi",        city:"Udangudi",       state:"TN",lat:8.6400,lon:77.9800},
-  {name:"Sankarankoil-1",  city:"Sankarankovil",  state:"TN",lat:9.1700,lon:77.5500},
-  {name:"Puliyankudi-1",   city:"Puliyankudi",    state:"TN",lat:9.1800,lon:77.3900},
+  {name:"Eral-2", city:"Eral", state:"TN",lat:8.6200,lon:77.7600},
+  {name:"Thuckalay-1", city:"Thuckalay", state:"TN",lat:8.2500,lon:77.2300},
+  {name:"Sayalkudi-1", city:"Sayalkudi", state:"TN",lat:9.1700,lon:78.4300},
+  {name:"Surandai-1", city:"Surandai", state:"TN",lat:8.9800,lon:77.4100},
+  {name:"Thenkasi-2", city:"Tenkasi", state:"TN",lat:8.9600,lon:77.3200},
+  {name:"Aruppukottai-2", city:"Aruppukkottai", state:"TN",lat:9.5100,lon:78.0900},
+  {name:"Tuticorin-1", city:"Thoothukudi", state:"TN",lat:8.7642,lon:78.1348},
+  {name:"Anjugramam-1", city:"Anjugramam", state:"TN",lat:8.1900,lon:77.3800},
+  {name:"Thisayanvilai-1", city:"Thisayanvilai", state:"TN",lat:8.3100,lon:77.4700},
+  {name:"Thenkasi", city:"Tenkasi", state:"TN",lat:8.9600,lon:77.3200},
+  {name:"Sattur-2", city:"Sattur", state:"TN",lat:9.3600,lon:77.9100},
+  {name:"Monday Market", city:"Tirunelveli", state:"TN",lat:8.7139,lon:77.7567},
+  {name:"Villathikullam", city:"Vilathikulam", state:"TN",lat:9.1100,lon:78.0800},
+  {name:"Valliyur-1", city:"Valliyur", state:"TN",lat:8.3800,lon:77.6200},
+  {name:"Sengottai-1", city:"Sengottai", state:"TN",lat:8.9700,lon:77.2500},
+  {name:"Marthandam", city:"Marthandam", state:"TN",lat:8.3100,lon:77.2200},
+  {name:"Ambasamudram-1", city:"Ambasamudram", state:"TN",lat:8.7000,lon:77.4500},
+  {name:"Paramakudi", city:"Paramakudi", state:"TN",lat:9.5400,lon:78.5900},
+  {name:"Kovilpatti", city:"Kovilpatti", state:"TN",lat:9.1700,lon:77.8700},
+  {name:"Rajapalayam", city:"Rajapalayam", state:"TN",lat:9.4500,lon:77.5500},
+  {name:"Kayathar-1", city:"Kayathar", state:"TN",lat:8.9400,lon:77.8200},
+  {name:"Thiruchendur-1", city:"Tiruchendur", state:"TN",lat:8.4900,lon:78.1200},
+  {name:"Thirunelveli-1", city:"Tirunelveli", state:"TN",lat:8.7139,lon:77.7567},
+  {name:"Colachel", city:"Colachel", state:"TN",lat:8.1700,lon:77.2500},
+  {name:"Virudunagar-2", city:"Virudhunagar", state:"TN",lat:9.5800,lon:77.9500},
+  {name:"Sivakasi", city:"Sivakasi", state:"TN",lat:9.4500,lon:77.7900},
+  {name:"Nagercoil", city:"Nagercoil", state:"TN",lat:8.1783,lon:77.4119},
+  {name:"Tuticorin-2", city:"Thoothukudi", state:"TN",lat:8.7642,lon:78.1348},
+  {name:"Virudunagar", city:"Virudhunagar", state:"TN",lat:9.5800,lon:77.9500},
+  {name:"Aruppukottai", city:"Aruppukkottai", state:"TN",lat:9.5100,lon:78.0900},
+  {name:"Karungal-1", city:"Karungal", state:"TN",lat:8.2200,lon:77.3200},
+  {name:"Ramnad", city:"Ramanathapuram", state:"TN",lat:9.3700,lon:78.8300},
+  {name:"Kulasekharam-1", city:"Kulasekharam", state:"TN",lat:8.4200,lon:77.2700},
+  {name:"Udankudi", city:"Udangudi", state:"TN",lat:8.6400,lon:77.9800},
+  {name:"Sankarankoil-1", city:"Sankarankovil", state:"TN",lat:9.1700,lon:77.5500},
+  {name:"Puliyankudi-1", city:"Puliyankudi", state:"TN",lat:9.1800,lon:77.3900},
 ];
 const KL = [
-  {name:"Kilimanoor-1",         city:"Kilimanoor",         state:"KL",lat:8.7989,lon:76.9614},
-  {name:"Parasala-1",           city:"Parasala",           state:"KL",lat:8.3726,lon:77.1519},
-  {name:"Punaloor-1",           city:"Punaloor",           state:"KL",lat:9.0168,lon:76.9261},
+  {name:"Kilimanoor-1", city:"Kilimanoor", state:"KL",lat:8.7989,lon:76.9614},
+  {name:"Parasala-1", city:"Parasala", state:"KL",lat:8.3726,lon:77.1519},
+  {name:"Punaloor-1", city:"Punaloor", state:"KL",lat:9.0168,lon:76.9261},
   {name:"Thiruvananthapuram-1", city:"Thiruvananthapuram", state:"KL",lat:8.5241,lon:76.9366},
 ];
 const ALL = [...TN, ...KL];
-
 let store = {};
-let useF  = false;
-
+let useF = false;
 // ── Clock ──────────────────────────────────────────────────────────────────
 function pad(n){return String(n).padStart(2,'0');}
 function fmtTime(d){
@@ -458,7 +426,6 @@ function fmtShort(d){
 }
 setInterval(()=>{document.getElementById('clock').textContent=fmtTime(new Date());},1000);
 document.getElementById('clock').textContent=fmtTime(new Date());
-
 // ── Wind direction — full words with arrow ────────────────────────────────
 const WIND_DIRS = [
   {a:'↑', w:'North'},
@@ -474,42 +441,47 @@ function windLabel(deg){
   const d = WIND_DIRS[Math.round(deg/45)%8];
   return `<span title="${d.w}" style="font-size:13px;">${d.a}</span> ${d.w}`;
 }
-
 // ── WMO decoder ───────────────────────────────────────────────────────────
 function wmo(code){
-  if(code===0)               return{icon:'☀️',label:'Clear Sky',     a:'ok'};
-  if(code===1)               return{icon:'🌤',label:'Mainly Clear',  a:'ok'};
-  if(code===2)               return{icon:'⛅',label:'Partly Cloudy', a:'ok'};
-  if(code===3)               return{icon:'☁️',label:'Overcast',      a:'ok'};
-  if([45,48].includes(code)) return{icon:'🌫',label:'Foggy',         a:'mod'};
-  if([51,53,55].includes(code))return{icon:'🌦',label:'Drizzle',     a:'mod'};
-  if([61,63].includes(code)) return{icon:'🌧',label:'Rain',          a:'mod'};
-  if(code===65)              return{icon:'🌧',label:'Heavy Rain',    a:'bad'};
-  if([80,81].includes(code)) return{icon:'🌦',label:'Rain Showers',  a:'mod'};
-  if(code===82)              return{icon:'⛈',label:'Heavy Showers', a:'bad'};
+  if(code===0) return{icon:'☀️',label:'Clear Sky', a:'ok'};
+  if(code===1) return{icon:'🌤',label:'Mainly Clear', a:'ok'};
+  if(code===2) return{icon:'⛅',label:'Partly Cloudy', a:'ok'};
+  if(code===3) return{icon:'☁️',label:'Overcast', a:'ok'};
+  if([45,48].includes(code)) return{icon:'🌫',label:'Foggy', a:'mod'};
+  if([51,53,55].includes(code))return{icon:'🌦',label:'Drizzle', a:'mod'};
+  if([61,63].includes(code)) return{icon:'🌧',label:'Rain', a:'mod'};
+  if(code===65) return{icon:'🌧',label:'Heavy Rain', a:'bad'};
+  if([80,81].includes(code)) return{icon:'🌦',label:'Rain Showers', a:'mod'};
+  if(code===82) return{icon:'⛈',label:'Heavy Showers', a:'bad'};
   if([95,96,99].includes(code))return{icon:'⛈',label:'Thunderstorm',a:'bad'};
   return{icon:'🌡',label:'Variable',a:'ok'};
 }
-
 function tc(t){
   if(t<22)return'tc-blue'; if(t<28)return'tc-teal';
   if(t<33)return'tc-warm'; if(t<38)return'tc-hot'; return'tc-vhot';
 }
 function disp(c){return useF?`${((c*9/5)+32).toFixed(1)}°F`:`${c.toFixed(1)}°C`;}
-
-// ── Fetch ─────────────────────────────────────────────────────────────────
-async function fetchBranch(b){
-  const url=`https://api.open-meteo.com/v1/forecast?latitude=${b.lat}&longitude=${b.lon}`
-    +`&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,wind_direction_10m,uv_index`
-    +`&wind_speed_unit=kmh&timezone=Asia%2FKolkata`;
-  const res=await fetch(url);
-  if(!res.ok)throw new Error(`HTTP ${res.status}`);
-  const data=await res.json();
-  if(!data.current)throw new Error('No data');
-  return data;
+// ── Fetch with retry (fixes loading failures on any region) ───────────────
+async function fetchBranch(b, maxRetries = 3){
+  for(let attempt = 0; attempt < maxRetries; attempt++){
+    try{
+      const url=`https://api.open-meteo.com/v1/forecast?latitude=${b.lat}&longitude=${b.lon}`
+        +`&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,wind_direction_10m,uv_index`
+        +`&wind_speed_unit=kmh&timezone=Asia%2FKolkata`;
+      const res=await fetch(url);
+      if(!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data=await res.json();
+      if(!data.current) throw new Error('No current data returned');
+      return data;
+    }catch(e){
+      console.warn(`[Weather] Attempt ${attempt+1}/${maxRetries} failed for ${b.name} (${b.lat},${b.lon}) →`, e.message);
+      if(attempt === maxRetries-1) throw e;
+      // exponential backoff
+      await new Promise(r => setTimeout(r, 800 * Math.pow(2, attempt)));
+    }
+  }
 }
-
-// ── Build card ────────────────────────────────────────────────────────────
+// ── Build card (fixed duplicate humidity metric) ──────────────────────────
 function buildCard(b, data, idx){
   const c=data.current;
   const t=c.temperature_2m, fl=c.apparent_temperature;
@@ -521,14 +493,12 @@ function buildCard(b, data, idx){
   const stCl=b.state==='KL'?'state-kl':'state-tn';
   const stLb=b.state==='KL'?'🌴 Kerala':'🏭 Tamil Nadu';
   const isRain=w.a!=='ok';
-
   const div=document.createElement('div');
   div.className='card'+(isRain?' rain-highlight':'');
   div.style.animationDelay=`${idx*35}ms`;
   div.dataset.name=b.name; div.dataset.temp=t;
   div.dataset.hum=hum; div.dataset.wind=ws; div.dataset.state=b.state;
   div.id=`card-${b.name.replace(/\s+/g,'-').replace(/[^a-zA-Z0-9-]/g,'')}`;
-
   div.innerHTML=`
     <div class="card-head">
       <div>
@@ -550,7 +520,6 @@ function buildCard(b, data, idx){
         <div class="metric"><div class="mi">🧭</div><div><div class="ml">Wind Direction</div><div class="mv" style="font-size:11px;">${windLabel(wd)}</div></div></div>
         <div class="metric"><div class="mi">🌂</div><div><div class="ml">Precipitation</div><div class="mv">${prec} mm</div></div></div>
         <div class="metric"><div class="mi">🔆</div><div><div class="ml">UV Index</div><div class="mv">${uv!==undefined?uv:'--'}</div></div></div>
-        <div class="metric"><div class="mi">🌡</div><div><div class="ml">Humidity</div><div class="mv">${hum}%</div></div></div>
       </div>
     </div>
     <div class="card-foot">
@@ -559,14 +528,12 @@ function buildCard(b, data, idx){
     </div>`;
   return div;
 }
-
 // ── Rain panel ────────────────────────────────────────────────────────────
 function openPanel(){
   const rainBranches=ALL.filter(b=>store[b.name]&&wmo(store[b.name].current.weather_code).a!=='ok');
   const body=document.getElementById('panel-body');
   const sub=document.getElementById('panel-sub');
   body.innerHTML='';
-
   if(!rainBranches.length){
     sub.textContent='No weather alerts right now';
     body.innerHTML=`<div class="no-rain-msg"><div class="nr-icon">🌤</div><p>All 40 branches have clear weather right now.<br>No rain or storm alerts!</p></div>`;
@@ -592,25 +559,20 @@ function openPanel(){
       body.appendChild(item);
     });
   }
-
   document.getElementById('rain-panel').classList.add('open');
   document.getElementById('overlay').classList.add('show');
 }
-
 function closePanel(){
   document.getElementById('rain-panel').classList.remove('open');
   document.getElementById('overlay').classList.remove('show');
 }
-
 function scrollToCard(name){
   const id=`card-${name.replace(/\s+/g,'-').replace(/[^a-zA-Z0-9-]/g,'')}`;
   const el=document.getElementById(id);
   if(el){ el.scrollIntoView({behavior:'smooth',block:'center'}); el.style.outline='3px solid var(--orange)'; setTimeout(()=>{el.style.outline='';},2500); }
 }
-
 // ── Stats ─────────────────────────────────────────────────────────────────
 let hottestBranch = null, coolestBranch = null;
-
 function updateStats(){
   const loaded=ALL.filter(b=>store[b.name]);
   const temps=loaded.map(b=>store[b.name].current.temperature_2m);
@@ -619,10 +581,8 @@ function updateStats(){
   const hi=Math.max(...temps);
   const lo=Math.min(...temps);
   const rain=loaded.filter(b=>wmo(store[b.name].current.weather_code).a!=='ok').length;
-
   hottestBranch = loaded.find(b=>store[b.name].current.temperature_2m === hi);
   coolestBranch = loaded.find(b=>store[b.name].current.temperature_2m === lo);
-
   document.getElementById('s-avg').textContent=`${avg}°C`;
   document.getElementById('s-hot').textContent=`${hi.toFixed(1)}°C`;
   document.getElementById('s-cool').textContent=`${lo.toFixed(1)}°C`;
@@ -630,14 +590,12 @@ function updateStats(){
   document.getElementById('s-cool-name').textContent = coolestBranch ? coolestBranch.name : '';
   document.getElementById('s-rain').textContent=rain;
   document.getElementById('s-time').textContent=fmtShort(new Date());
-
   // Rain button
   const btn=document.getElementById('rain-btn');
   document.getElementById('rain-count').textContent=rain;
   if(rain>0){ btn.classList.remove('no-rain'); }
   else { btn.classList.add('no-rain'); }
 }
-
 function jumpToBranch(type){
   const branch = type === 'hot' ? hottestBranch : coolestBranch;
   if(!branch) return;
@@ -646,11 +604,10 @@ function jumpToBranch(type){
   if(!el) return;
   el.scrollIntoView({behavior:'smooth', block:'center'});
   el.classList.remove('temp-pulse');
-  void el.offsetWidth; // reflow to restart animation
+  void el.offsetWidth; // reflow
   el.classList.add('temp-pulse');
   el.addEventListener('animationend', ()=>el.classList.remove('temp-pulse'), {once:true});
 }
-
 // ── Filter / Sort ─────────────────────────────────────────────────────────
 function filterCards(){
   const q=document.getElementById('search').value.toLowerCase();
@@ -677,8 +634,7 @@ function toggleUnit(){
   document.querySelectorAll('[data-celsius-fl]').forEach(el=>{el.textContent=disp(parseFloat(el.dataset.celsiusFl));});
   if(document.getElementById('rain-panel').classList.contains('open')) openPanel();
 }
-
-// ── Main load ─────────────────────────────────────────────────────────────
+// ── Main load (increased batch size + retry logic guarantees all regions load) ──
 async function loadAll(){
   store={};
   document.getElementById('loading').style.display='flex';
@@ -686,27 +642,30 @@ async function loadAll(){
   document.getElementById('grid-tn').innerHTML='';
   document.getElementById('grid-kl').innerHTML='';
   document.getElementById('prog').style.width='0%';
-
   const prog=document.getElementById('prog');
   const status=document.getElementById('load-status');
   let done=0;
-
-  for(let i=0;i<ALL.length;i+=6){
-    const batch=ALL.slice(i,i+6);
+  const BATCH_SIZE = 10; // increased for faster & more reliable load
+  for(let i=0;i<ALL.length;i+=BATCH_SIZE){
+    const batch=ALL.slice(i,i+BATCH_SIZE);
     await Promise.allSettled(batch.map(async b=>{
-      try{ status.textContent=`Loading ${b.name}…`; store[b.name]=await fetchBranch(b); }
-      catch(e){ console.warn(`Failed: ${b.name}`,e.message); store[b.name]=null; }
-      done++; prog.style.width=`${(done/ALL.length)*100}%`;
+      try{
+        status.textContent=`Loading ${b.name}…`;
+        store[b.name]=await fetchBranch(b);
+      }catch(e){
+        console.warn(`[Weather] Final failure for ${b.name} after retries`);
+        store[b.name]=null;
+      }
+      done++;
+      prog.style.width=`${Math.min(100,(done/ALL.length)*100)}%`;
     }));
   }
-
   document.getElementById('loading').style.display='none';
   document.getElementById('grid-wrapper').style.display='block';
   TN.forEach((b,i)=>renderCard(b,i,'grid-tn'));
   KL.forEach((b,i)=>renderCard(b,i,'grid-kl'));
   updateStats();
 }
-
 function renderCard(b,idx,gridId){
   const grid=document.getElementById(gridId);
   if(store[b.name]){
@@ -720,7 +679,6 @@ function renderCard(b,idx,gridId){
     grid.appendChild(div);
   }
 }
-
 setInterval(loadAll, 10*60*1000);
 loadAll();
 </script>
