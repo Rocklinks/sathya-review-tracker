@@ -4,6 +4,10 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Branch Attendance Checker</title>
+
+<!-- Favicon Added -->
+<link rel="icon" type="image/webp" href="https://www.sathya.store/favicon.webp">
+
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -14,7 +18,7 @@
     padding: 0;
   }
 
-  /* ====================== NAVIGATION ====================== */
+  /* Navigation */
   .sa-nav {
     background: #fff;
     border-bottom: 1px solid #e0e0e0;
@@ -35,10 +39,7 @@
     font-size: 18px;
     color: #1a1a1a;
   }
-  .sa-nav-brand img {
-    height: 36px;
-    width: auto;
-  }
+  .sa-nav-brand img { height: 36px; width: auto; }
   .sa-nav-links {
     display: flex;
     gap: 24px;
@@ -51,9 +52,7 @@
     font-weight: 500;
     transition: color 0.2s;
   }
-  .sa-nav-links a:hover {
-    color: #0F6E56;
-  }
+  .sa-nav-links a:hover { color: #0F6E56; }
   .sa-nav-links a.active {
     color: #0F6E56;
     font-weight: 600;
@@ -68,14 +67,10 @@
     height: 2px;
     background: #0F6E56;
   }
-  .s-icon {
-    font-size: 18px;
-    margin-right: 4px;
-  }
 
-  /* ====================== MAIN CONTENT ====================== */
+  /* Main Content */
   .container {
-    max-width: 680px;
+    max-width: 720px;
     margin: 40px auto;
     padding: 0 15px;
   }
@@ -86,39 +81,34 @@
     padding: 32px 28px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.06);
   }
-  h1 {
-    font-size: 24px;
-    font-weight: 600;
-    margin-bottom: 6px;
-  }
+  h1 { font-size: 24px; font-weight: 600; margin-bottom: 8px; }
   .sub {
-    font-size: 14.5px;
+    font-size: 14.8px;
     color: #666;
     margin-bottom: 24px;
     line-height: 1.5;
   }
   textarea {
     width: 100%;
-    min-height: 200px;
+    min-height: 220px;
     font-family: ui-monospace, monospace;
-    font-size: 14px;
+    font-size: 14.8px;
     border: 1px solid #ddd;
     border-radius: 10px;
-    padding: 14px;
+    padding: 15px;
     resize: vertical;
     background: #fff;
-    color: #1a1a1a;
-    line-height: 1.65;
+    line-height: 1.7;
   }
   textarea:focus {
     outline: none;
     border-color: #0F6E56;
-    box-shadow: 0 0 0 3px rgba(15, 110, 86, 0.1);
+    box-shadow: 0 0 0 3px rgba(15, 110, 86, 0.12);
   }
   .btn {
     margin-top: 16px;
-    padding: 11px 28px;
-    font-size: 15px;
+    padding: 13px 34px;
+    font-size: 15.5px;
     font-weight: 600;
     background: #0F6E56;
     color: white;
@@ -127,52 +117,34 @@
     cursor: pointer;
     transition: all 0.2s;
   }
-  .btn:hover {
-    background: #0a5a47;
-    transform: translateY(-1px);
-  }
-  .btn:active {
-    transform: scale(0.97);
-  }
+  .btn:hover { background: #0a5a47; transform: translateY(-1px); }
 
-  /* Results */
-  .results {
-    margin-top: 28px;
-  }
+  .results { margin-top: 30px; }
   .stats {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 12px;
-    margin-bottom: 24px;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 14px;
+    margin-bottom: 26px;
   }
   .stat {
     background: #fff;
     border: 1px solid #e8e8e8;
     border-radius: 12px;
-    padding: 16px 18px;
+    padding: 18px 20px;
     text-align: center;
   }
-  .stat-label {
-    font-size: 12.5px;
-    color: #888;
-    margin-bottom: 6px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  .stat-val {
-    font-size: 28px;
-    font-weight: 700;
-  }
+  .stat-label { font-size: 12.8px; color: #888; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.6px; }
+  .stat-val { font-size: 29px; font-weight: 700; }
   .stat-val.green { color: #0F6E56; }
   .stat-val.red { color: #993C1D; }
 
   .section-title {
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 700;
-    color: #666;
+    color: #555;
     text-transform: uppercase;
-    letter-spacing: 0.6px;
-    margin: 24px 0 10px;
+    letter-spacing: 0.7px;
+    margin: 28px 0 12px;
   }
   .branch-list {
     list-style: none;
@@ -180,41 +152,31 @@
     margin: 0;
   }
   .branch-list li {
-    font-size: 14.5px;
-    padding: 9px 14px;
+    font-size: 15px;
+    padding: 11px 16px;
     border-radius: 8px;
-    margin-bottom: 5px;
+    margin-bottom: 6px;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 14px;
     background: #f9f9f7;
   }
   .branch-list li .num {
-    font-size: 13px;
-    color: #aaa;
-    min-width: 24px;
+    font-size: 13.5px;
+    color: #999;
+    min-width: 28px;
     text-align: right;
   }
   .branch-list.missing li { background: #FAECE7; color: #712B13; }
   .branch-list.present li { background: #EAF3DE; color: #27500A; }
   .branch-list.unrecognized li { background: #FAF4E6; color: #6B4E1F; }
 
-  .empty {
-    font-size: 14px;
-    color: #888;
-    font-style: italic;
-    padding: 12px 0;
-  }
-  hr {
-    border: none;
-    border-top: 1px solid #eee;
-    margin: 28px 0;
-  }
+  .empty { font-size: 15px; color: #0F6E56; font-style: italic; padding: 14px 0; }
+  hr { border: none; border-top: 1px solid #eee; margin: 30px 0; }
 </style>
 </head>
 <body>
 
-<!-- Navigation -->
 <nav class="sa-nav">
   <div class="sa-nav-brand">
     <img src="https://www.sathya.store/new_frontend/assets/img/sathya.webp" alt="Sathya" onerror="this.style.display='none'">
@@ -225,16 +187,19 @@
     <a href="sathya_jupyter.html">💻 Live Tracker</a>
     <a href="sathya-weather.html">⛅ Weather</a>
     <a href="Enquiries_Filter_Tool.html">📊 PDF Tool</a>
-    <a href="branch_check.html" class="active"><span class="s-icon">🔍</span> Branch Check</a>
+    <a href="branch_check.html" class="active"><span class="s-icon">🔍</span> Branch Track</a>
   </div>
 </nav>
 
 <div class="container">
   <div class="card">
-    <h1>Branch Checker</h1>
-    <p class="sub">Paste the branch names (one per line or comma-separated). Missing branches will be highlighted in red.</p>
+    <h1>Branch Attendance Checker</h1>
+    <p class="sub">
+      Paste either <strong>Branch Names</strong> or <strong>Branch Codes</strong>.<br>
+      The tool will automatically detect and check missing items from the correct list.
+    </p>
     
-    <textarea id="inp" placeholder="Tuticorin1&#10;Tirunelveli1&#10;Paramakudi&#10;Karungal&#10;..."></textarea>
+    <textarea id="inp" placeholder="TVL1&#10;TUT1&#10;TUT2&#10;VNR1&#10;&#10;Or paste branch names like:&#10;Tirunelveli&#10;Tuticorin 1&#10;Paramakudi"></textarea>
     
     <button class="btn" onclick="check()">Check Missing Branches</button>
     
@@ -243,7 +208,8 @@
 </div>
 
 <script>
-const MASTER = [
+// ==================== MASTER DATA ====================
+const MASTER_NAMES = [
   "Tuticorin 1","Tuticorin 2","Thiruchendur","Thisayanvilai","Eral","Udangudi",
   "Tirunelveli","Valliyur","Ambasamudram","Anjugramam","Nagercoil","Marthandam",
   "Thuckalay","Colachel","Kulasekharam","Monday market","Karungal","Kovilpatti",
@@ -252,27 +218,21 @@ const MASTER = [
   "Rajapalayam","Virudhunagar1","Virudhunagar2","Aruppukottai 1","Aruppukottai 2","Sivakasi"
 ];
 
+const MASTER_CODES = [
+  "APK1","APK2","ARM1","ASM1","COL1","ERL2","KGL1","KSM1","KVT1","KYR1",
+  "MAR1","MMT1","NGR1","PDI1","PKD1","RND1","RPM1","SDI1","SGT1","SKD1",
+  "SNL1","STU2","SVK1","TCN1","TKS1","TKS2","TKY1","TUT1","TUT2","TVL1",
+  "TYI1","UDN1","VKM1","VLY1","VNR1","VNR2"
+];
+
+// Normalization
 function normalize(s) {
-  return s.toLowerCase()
-    .replace(/\s+/g, '')
-    .replace(/mondaymarket/, 'mondaymarket')
-    .replace(/aruppukottai\s*1/, 'aruppukottai1')
-    .replace(/aruppukottai\s*2/, 'aruppukottai2')
-    .replace(/arupukottai\s*1/, 'aruppukottai1')
-    .replace(/arupukottai\s*2/, 'aruppukottai2')
-    .replace(/virudhunagar\s*1/, 'virudhunagar1')
-    .replace(/virudhunagar\s*2/, 'virudhunagar2')
-    .replace(/tenkasi\s*1/, 'tenkasi1')
-    .replace(/tenkasi\s*2/, 'tenkasi2')
-    .replace(/tuticorin\s*1/, 'tuticorin1')
-    .replace(/tuticorin\s*2/, 'tuticorin2');
+  return s.toLowerCase().trim().replace(/\s+/g, '');
 }
 
-const masterNorm = MASTER.map(b => ({ original: b, norm: normalize(b) }));
-
-function findMaster(input) {
+function isCode(input) {
   const n = normalize(input);
-  return masterNorm.find(b => b.norm === n);
+  return MASTER_CODES.some(code => normalize(code) === n);
 }
 
 function check() {
@@ -280,17 +240,29 @@ function check() {
   if (!raw) return;
 
   const lines = raw.split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
+  if (lines.length === 0) return;
+
+  // Auto detect: if any input matches a code → treat as codes
+  let isCodeInput = lines.some(line => isCode(line));
+
+  const MASTER = isCodeInput ? MASTER_CODES : MASTER_NAMES;
+  const title = isCodeInput ? "Branch Codes" : "Branch Names";
+
   const matched = new Set();
   const unrecognized = [];
 
   lines.forEach(line => {
-    const found = findMaster(line);
-    if (found) matched.add(found.original);
-    else unrecognized.push(line);
+    const n = normalize(line);
+    const found = MASTER.find(item => normalize(item) === n);
+    if (found) {
+      matched.add(found);
+    } else {
+      unrecognized.push(line);
+    }
   });
 
   const missing = MASTER.filter(b => !matched.has(b));
-  const present = MASTER.filter(b => matched.has(b));
+  const present = Array.from(matched);
 
   const resEl = document.getElementById('results');
   resEl.style.display = 'block';
@@ -298,7 +270,7 @@ function check() {
   let html = `
     <div class="stats">
       <div class="stat">
-        <div class="stat-label">Total Branches</div>
+        <div class="stat-label">Total ${title}</div>
         <div class="stat-val">${MASTER.length}</div>
       </div>
       <div class="stat">
@@ -311,9 +283,9 @@ function check() {
       </div>
     </div>`;
 
-  html += `<div class="section-title">Missing Branches (${missing.length})</div>`;
+  html += `<div class="section-title">Missing ${title} (${missing.length})</div>`;
   if (missing.length === 0) {
-    html += `<span class="empty">✅ All branches accounted for!</span>`;
+    html += `<span class="empty">✅ All ${title.toLowerCase()} accounted for!</span>`;
   } else {
     html += `<ul class="branch-list missing">`;
     missing.forEach((b, i) => html += `<li><span class="num">${i+1}.</span> ${b}</li>`);
@@ -327,7 +299,7 @@ function check() {
     html += `</ul>`;
   }
 
-  html += `<hr><div class="section-title">Present Branches (${present.length})</div>`;
+  html += `<hr><div class="section-title">Present ${title} (${present.length})</div>`;
   html += `<ul class="branch-list present">`;
   present.forEach((b, i) => html += `<li><span class="num">${i+1}.</span> ${b}</li>`);
   html += `</ul>`;
