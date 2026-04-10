@@ -79,4 +79,8 @@ jobs:
           else
             git commit -m "data: update reviews $(date -u '+%Y-%m-%d %H:%M UTC')"
             git push
+
+env:
+  HF_TOKEN: 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
+            
           fi
