@@ -1027,31 +1027,57 @@ function closeSidebar(){document.getElementById('main-sidebar').classList.remove
 async function init(){tickClock();setInterval(tickClock,1000);await loadData();setInterval(loadData,300000);}
 function tickClock(){var now=new Date();document.getElementById("clock").textContent=now.toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"})+"  "+now.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit",second:"2-digit"});}
 
-async function loadData(){
-  try{
-    var r=await fetch(DATA_URL+"?t="+Date.now());D=await r.json();
-    if(!selectedDate){
-      var logDate=(D.logs&&D.logs.length)?D.logs[0].snap_date:null;
-      var dates=Object.keys(D.daily||{}).sort().reverse();
-      var dataDate=dates.length?dates[0]:null;
-      selectedDate=(logDate&&dataDate)?(logDate>dataDate?logDate:dataDate):(logDate||dataDate||isoYesterday());
+async function loadData() {
+  try {
+    // Use explicit relative path with ./ for better compatibility on GitHub Pages
+    const timestamp = Date.now();
+    const response = await fetch(`./data/reviews.json?t=${timestamp}`);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status} - ${response.statusText}`);
     }
-    enrichAll(selectedDate);
-    var lu=D.last_updated?new Date(D.last_updated).toLocaleString("en-IN"):"—";
-    document.getElementById("last-update").textContent="Last sync: "+lu;
+    
+    D = await response.json();
+    
+    if (!D || !D.branches) {
+      throw new Error("Invalid data structure: missing 'branches'");
+    }
+
+    // Rest of your logic remains the same
+    if (!selectedDate) {
+      var logDate = (D.logs && D.logs.length) ? D.logs[0].snap_date : null;
+      var dates = Object.keys(D.daily || {}).sort().reverse();
+      var dataDate = dates.length ? dates[0] : null;
+      selectedDate = (logDate && dataDate) 
+        ? (logDate > dataDate ? logDate : dataDate) 
+        : (logDate || dataDate || isoYesterday());
+    }
+
+enrichAll(selectedDate);
+    
+    var lu = D.last_updated 
+      ? new Date(D.last_updated).toLocaleString("en-IN") 
+      : "—";
+    
+    document.getElementById("last-update").textContent = "Last sync: " + lu;
+    
     buildAgmSidebar();
     renderView();
-    updateNegBadge(); /* update badge after data loaded */
-  }catch(e){
-    document.getElementById("mc").innerHTML='<div class="loading"><span style="font-size:28px">&#9888;&#65039;</span><b>Could not load data/reviews.json</b><span style="font-size:12px">Make sure GitHub Pages is enabled.</span></div>';
-  }
-}
+    updateNegBadge();   // Important for the red badge
 
-function enrichAll(d){
-  ALL=Object.values(D.branches||{}).map(function(b){
-    var day=(D.daily[d]||{})[String(b.id)]||{};
-    return{id:b.id,name:b.name,agm:b.agm,star_rating:day.star_rating||b.star_rating||0,overall:day.total_snap||0,monthly:day.monthly||0,daily_count:day.daily_count||0,snap_date:d};
-  });
+  } catch (e) {
+    console.error("Load data failed:", e);
+    document.getElementById("mc").innerHTML = `
+      <div class="loading" style="padding:80px 20px">
+        <span style="font-size:42px">⚠️</span><br><br>
+        <b>Could not load data/reviews.json</b><br>
+        <span style="font-size:13px;color:var(--muted);max-width:420px;display:block;margin:12px auto">
+          Make sure the file exists at <code>data/reviews.json</code> in your repository<br>
+          and GitHub Pages is enabled on the correct branch (usually gh-pages or main).
+        </span>
+        <small style="color:#e11d48">Error: ${e.message}</small>
+      </div>`;
+  }
 }
 function showView(v,el){
   currentView=v;
