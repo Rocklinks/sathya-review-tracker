@@ -44,7 +44,6 @@ body{background:var(--bg);color:var(--text);font-family:"Plus Jakarta Sans",sans
 .s-item.active{background:rgba(79,70,229,.08);color:var(--indigo)}
 .s-icon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;background:var(--surface2);flex-shrink:0;border:1px solid var(--border)}
 .s-item.active .s-icon{background:rgba(79,70,229,.12);border-color:rgba(79,70,229,.2)}
-.s-item-:hover{background:rgba(13,148,136,.06);color:var(--teal)}
 .s-item-tracker:hover .s-icon{background:rgba(13,148,136,.12);border-color:rgba(13,148,136,.25)}
 .s-item-weather:hover{background:rgba(217,119,6,.06);color:var(--amber)}
 .s-item-weather:hover .s-icon{background:rgba(217,119,6,.12);border-color:rgba(217,119,6,.25)}
@@ -123,7 +122,7 @@ input[type=date]{background:var(--surface2);border:1px solid var(--border2);bord
 .edit-warning{background:rgba(217,119,6,.07);border:1px solid rgba(217,119,6,.2);border-radius:10px;padding:12px 15px;margin:12px 16px 0;font-size:12px;color:var(--amber);display:flex;gap:8px}
 .inline-edit{width:70px;background:var(--surface);border:1px solid var(--indigo2);border-radius:6px;padding:3px 6px;font-size:12px;font-family:var(--mono);color:var(--text);outline:none}
 
-/* ── RATING CHANGE INDICATOR (Stock-market style) ── */
+/* ── RATING CHANGE INDICATOR ── */
 .rating-cell{display:inline-flex;align-items:center;gap:5px;flex-wrap:wrap}
 .rating-old{text-decoration:line-through;color:var(--muted);font-size:10px;font-family:var(--mono);opacity:.7}
 .rating-new-up{display:inline-flex;align-items:center;gap:2px;color:#059669;font-weight:700;font-family:var(--mono);font-size:12px;background:rgba(5,150,105,.1);padding:2px 7px;border-radius:6px;border:1px solid rgba(5,150,105,.25);animation:ratingPop .4s cubic-bezier(.34,1.56,.64,1)}
@@ -131,41 +130,10 @@ input[type=date]{background:var(--surface2);border:1px solid var(--border2);bord
 .rating-arrow{font-size:10px;font-weight:900}
 .rating-diff{font-size:9px;opacity:.8;font-family:var(--mono)}
 @keyframes ratingPop{0%{transform:scale(.7);opacity:0}100%{transform:scale(1);opacity:1}}
-/* tooltip for rating change */
 .rating-change-wrap{position:relative;cursor:default}
 .rating-change-wrap:hover .rating-tooltip{display:flex}
 .rating-tooltip{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;font-size:11px;font-weight:500;padding:5px 10px;border-radius:7px;white-space:nowrap;z-index:50;gap:4px;align-items:center;box-shadow:0 4px 16px rgba(0,0,0,.25);pointer-events:none}
 .rating-tooltip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:#1e293b}
-
-/* mobile */
-@media(max-width:768px){
-  .hamburger{display:flex}
-  .sidebar{position:fixed;top:60px;left:0;bottom:0;z-index:95;transform:translateX(-100%);width:240px;box-shadow:4px 0 20px rgba(0,0,0,.15)}
-  .sidebar.mob-open{transform:translateX(0)}
-  .topbar{padding:0 12px;gap:8px}
-  .topbar h1{font-size:15px}
-  #last-update{display:none}
-  .live-pill{display:none}
-  #clock{font-size:11px;padding:4px 8px}
-  .main{padding:12px}
-  .kpi-row{grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
-  .kpi{padding:14px 16px}
-  .kpi-value{font-size:20px}
-  .charts-row{grid-template-columns:1fr}
-  .section-hdr{flex-direction:column;align-items:flex-start}
-  .ctrls{width:100%}
-  .sbox{width:100%}
-  .date-bar{padding:10px 12px}
-  .backup-grid{grid-template-columns:1fr 1fr}
-  .bar-lbl{width:80px;font-size:11px}
-}
-@media(max-width:480px){
-  .kpi-row{grid-template-columns:1fr}
-  .topbar h1{display:none}
-  .backup-grid{grid-template-columns:1fr}
-  .main{padding:8px}
-  .exp-split-lbl{display:none}
-}
 
 /* export split button */
 .exp-split{display:flex;align-items:center;border-radius:9px;overflow:hidden;box-shadow:0 2px 8px rgba(5,150,105,.22)}
@@ -207,10 +175,112 @@ input[type=date]{background:var(--surface2);border:1px solid var(--border2);bord
 .export-preview{background:rgba(79,70,229,.05);border:1px solid rgba(79,70,229,.15);border-radius:10px;padding:11px 14px;font-size:12px;color:var(--text2);display:flex;align-items:flex-start;gap:9px;margin-top:2px;line-height:1.6}
 .export-preview b{color:var(--indigo)}
 .chip-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
-.chip{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--surface2);color:var(--text2);transition:.12px;user-select:none}
+.chip{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--surface2);color:var(--text2);transition:.12s;user-select:none}
 .chip:hover{border-color:var(--border2);background:var(--surface)}
 .chip.selected{border-color:var(--indigo);background:rgba(79,70,229,.1);color:var(--indigo)}
 .divider{height:1px;background:var(--border);margin:16px 0}
+
+/* ── REVIEWS PANEL STYLES ── */
+.btn-reviews{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;box-shadow:0 2px 8px rgba(217,119,6,.35);border:none;padding:7px 14px;border-radius:9px;cursor:pointer;font-size:12px;font-weight:700;font-family:inherit;display:flex;align-items:center;gap:5px;white-space:nowrap;transition:.15s;position:relative;}
+.btn-reviews:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(217,119,6,.45)}
+.btn-reviews-badge{position:absolute;top:-5px;right:-5px;background:var(--rose);color:#fff;font-size:9px;font-weight:700;font-family:var(--mono);padding:1px 5px;border-radius:10px;border:2px solid var(--surface);display:none;min-width:18px;text-align:center;}
+.btn-reviews-badge.show{display:block}
+.rev-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.55);backdrop-filter:blur(4px);z-index:300;display:none;justify-content:flex-end;}
+.rev-backdrop.open{display:flex}
+.rev-panel{background:var(--surface);width:min(700px,100vw);height:100vh;display:flex;flex-direction:column;box-shadow:-12px 0 48px rgba(0,0,0,.18);animation:revSlideIn .25s cubic-bezier(.4,0,.2,1);}
+@keyframes revSlideIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+.rev-panel-hdr{padding:16px 20px 14px;border-bottom:1px solid var(--border);background:var(--surface2);display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.rev-panel-title{font-size:15px;font-weight:700;color:var(--text);flex:1}
+.rev-hf-pill{font-size:10px;padding:3px 9px;border-radius:20px;font-weight:600;white-space:nowrap;background:rgba(79,70,229,.1);color:var(--indigo);border:1px solid rgba(79,70,229,.2);}
+.rev-hf-pill.connected{background:rgba(5,150,105,.1);color:var(--green);border-color:rgba(5,150,105,.2)}
+.rev-hf-pill.error{background:rgba(217,119,6,.1);color:var(--amber);border-color:rgba(217,119,6,.2)}
+.rev-panel-body{flex:1;overflow-y:auto;padding:16px 20px}
+.rev-tabs{display:flex;gap:0;border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--surface2);margin-bottom:16px;flex-shrink:0;}
+.rev-tab{flex:1;padding:9px 6px;font-size:12px;font-weight:600;font-family:inherit;border:none;background:none;cursor:pointer;color:var(--text2);transition:.12s;border-right:1px solid var(--border);}
+.rev-tab:last-child{border-right:none}
+.rev-tab:hover{background:var(--surface);color:var(--text)}
+.rev-tab.active{background:var(--surface);color:var(--indigo);box-shadow:inset 0 -2px 0 var(--indigo)}
+.rev-stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+.rev-stat{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;}
+.rev-stat-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:2px}
+.rev-stat-val{font-size:18px;font-weight:700;font-family:var(--mono);color:var(--text)}
+.rev-delta-wrap{overflow-x:auto}
+.rev-delta-tbl{width:100%;border-collapse:collapse;font-size:12px}
+.rev-delta-tbl th{background:var(--surface2);color:var(--muted);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;padding:8px 12px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;}
+.rev-delta-tbl td{padding:9px 12px;border-bottom:1px solid var(--border)}
+.rev-delta-tbl tr:last-child td{border-bottom:none}
+.rev-delta-tbl tr:hover td{background:rgba(79,70,229,.025)}
+.rev-delta-pos{color:var(--green);font-weight:700;font-family:var(--mono)}
+.rev-delta-neg{color:var(--rose);font-weight:700;font-family:var(--mono)}
+.rev-delta-zero{color:var(--muted);font-family:var(--mono)}
+.rev-delta-na{color:var(--muted);font-family:var(--mono);font-size:10px}
+.rev-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:13px 15px;margin-bottom:10px;transition:.15s;position:relative;}
+.rev-card:hover{border-color:var(--border2);box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.rev-card.is-deleted{opacity:.42;background:var(--surface2)}
+.rev-card-hdr{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px}
+.rev-avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:12px;flex-shrink:0;}
+.rev-meta{flex:1;min-width:0}
+.rev-author{font-weight:600;font-size:13px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rev-branch-tag{font-size:10px;color:var(--muted);margin-top:1px}
+.rev-time{font-size:10px;color:var(--muted);font-family:var(--mono);white-space:nowrap}
+.rev-stars{color:var(--amber);font-size:13px;letter-spacing:-1px}
+.rev-text{font-size:12px;color:var(--text2);line-height:1.65;margin-bottom:9px}
+.rev-text em{color:var(--muted);font-style:italic}
+.rev-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.rev-tag{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:600}
+.rev-tag-new{background:rgba(5,150,105,.1);color:var(--green)}
+.rev-tag-del{background:rgba(225,29,72,.1);color:var(--rose)}
+.rev-tag-hf{background:rgba(79,70,229,.1);color:var(--indigo);font-family:var(--mono)}
+.rev-del-btn{margin-left:auto;background:none;border:1px solid var(--border);border-radius:7px;padding:3px 10px;font-size:11px;font-weight:600;color:var(--muted);cursor:pointer;font-family:inherit;transition:.12s;}
+.rev-del-btn:hover{border-color:var(--rose);color:var(--rose);background:rgba(225,29,72,.05)}
+.rev-restore-btn{margin-left:auto;background:none;border:1px solid var(--border);border-radius:7px;padding:3px 10px;font-size:11px;font-weight:600;color:var(--muted);cursor:pointer;font-family:inherit;transition:.12s;}
+.rev-restore-btn:hover{border-color:var(--green);color:var(--green)}
+.rev-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+.rev-sel,.rev-search-inp{background:var(--surface);border:1px solid var(--border2);border-radius:9px;padding:6px 10px;color:var(--text);font-family:inherit;font-size:12px;outline:none;cursor:pointer;}
+.rev-sel:focus,.rev-search-inp:focus{border-color:var(--indigo2);box-shadow:0 0 0 3px rgba(99,102,241,.12)}
+.rev-search-inp{flex:1;min-width:120px;cursor:text}
+.rev-notice,.rev-warn,.rev-info{border-radius:10px;padding:13px 16px;font-size:12px;line-height:1.75;margin-bottom:14px;}
+.rev-notice{background:rgba(79,70,229,.05);border:1px solid rgba(79,70,229,.18);color:var(--text2)}
+.rev-warn{background:rgba(225,29,72,.05);border:1px solid rgba(225,29,72,.18);color:var(--rose);display:flex;gap:8px;align-items:flex-start}
+.rev-info{background:rgba(5,150,105,.05);border:1px solid rgba(5,150,105,.18);color:var(--green)}
+.rev-empty{padding:52px 20px;text-align:center;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:10px;font-size:13px;}
+.rev-sort-btn{background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:5px 10px;font-size:11px;font-weight:600;color:var(--text2);cursor:pointer;font-family:inherit;transition:.12s;display:flex;align-items:center;gap:4px;}
+.rev-sort-btn:hover{border-color:var(--border2);color:var(--text)}
+.rev-sort-btn.active{border-color:var(--indigo);color:var(--indigo);background:rgba(79,70,229,.07)}
+
+/* mobile */
+@media(max-width:768px){
+  .hamburger{display:flex}
+  .sidebar{position:fixed;top:60px;left:0;bottom:0;z-index:95;transform:translateX(-100%);width:240px;box-shadow:4px 0 20px rgba(0,0,0,.15)}
+  .sidebar.mob-open{transform:translateX(0)}
+  .topbar{padding:0 12px;gap:8px}
+  .topbar h1{font-size:15px}
+  #last-update{display:none}
+  .live-pill{display:none}
+  #clock{font-size:11px;padding:4px 8px}
+  .main{padding:12px}
+  .kpi-row{grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
+  .kpi{padding:14px 16px}
+  .kpi-value{font-size:20px}
+  .charts-row{grid-template-columns:1fr}
+  .section-hdr{flex-direction:column;align-items:flex-start}
+  .ctrls{width:100%}
+  .sbox{width:100%}
+  .date-bar{padding:10px 12px}
+  .backup-grid{grid-template-columns:1fr 1fr}
+  .bar-lbl{width:80px;font-size:11px}
+  .rev-panel{width:100vw}
+  .rev-stats-row{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:480px){
+  .kpi-row{grid-template-columns:1fr}
+  .topbar h1{display:none}
+  .backup-grid{grid-template-columns:1fr}
+  .main{padding:8px}
+  .exp-split-lbl{display:none}
+  .rev-btn-lbl{display:none}
+  .rev-stats-row{grid-template-columns:1fr 1fr}
+}
 </style>
 </head>
 <body>
@@ -226,7 +296,6 @@ input[type=date]{background:var(--surface2);border:1px solid var(--border2);bord
       <button class="modal-close" onclick="closeModal()">&#x2715;</button>
     </div>
     <div class="modal-body">
-      <!-- Format -->
       <div class="field-group">
         <label class="field-label">Format</label>
         <div class="fmt-toggle">
@@ -234,7 +303,6 @@ input[type=date]{background:var(--surface2);border:1px solid var(--border2);bord
           <button class="fmt-btn" id="fmt-pdf" onclick="setFmt('pdf')">&#x1F4C4; PDF (Print)</button>
         </div>
       </div>
-      <!-- Mode -->
       <div class="field-group">
         <label class="field-label">Date Selection</label>
         <div class="mode-tabs">
@@ -242,12 +310,10 @@ input[type=date]{background:var(--surface2);border:1px solid var(--border2);bord
           <div class="mode-tab" id="tab-range" onclick="setMode('range')"><span class="tab-icon">&#x1F4C6;</span>Date Range</div>
           <div class="mode-tab" id="tab-month" onclick="setMode('month')"><span class="tab-icon">&#x1F5D3;&#xFE0F;</span>By Month</div>
         </div>
-        <!-- Single -->
         <div id="mode-single">
           <select class="msel" id="exp-single-date" onchange="updatePreview()"></select>
           <div class="field-hint">Exports all branch data for the chosen date.</div>
         </div>
-        <!-- Range -->
         <div id="mode-range" style="display:none">
           <div class="field-row">
             <div><div class="field-col-label">From</div><select class="msel" id="exp-from-date" onchange="updatePreview()"></select></div>
@@ -255,20 +321,17 @@ input[type=date]{background:var(--surface2);border:1px solid var(--border2);bord
           </div>
           <div class="field-hint">Each date = a separate column (Excel) or section (PDF). Max 31 dates recommended.</div>
         </div>
-        <!-- Month -->
         <div id="mode-month" style="display:none">
           <select class="msel" id="exp-month" onchange="updatePreview()"></select>
           <div class="field-hint">All dates within that calendar month are included.</div>
         </div>
       </div>
       <div class="divider"></div>
-      <!-- AGM filter -->
       <div class="field-group">
         <label class="field-label">Filter by AGM <span style="font-weight:400;color:var(--muted)">&nbsp;— optional</span></label>
         <div class="chip-row" id="agm-chips"></div>
       </div>
       <div class="divider"></div>
-      <!-- Preview -->
       <div class="export-preview">
         <span style="font-size:16px">&#x1F4CB;</span>
         <div id="exp-preview-text">Select options above…</div>
@@ -281,6 +344,22 @@ input[type=date]{background:var(--surface2);border:1px solid var(--border2);bord
   </div>
 </div>
 
+<!-- REVIEWS PANEL -->
+<div class="rev-backdrop" id="rev-backdrop" onclick="revBackdropClick(event)">
+  <div class="rev-panel" id="rev-panel">
+    <div class="rev-panel-hdr">
+      <span style="font-size:18px">⭐</span>
+      <span class="rev-panel-title">Reviews Explorer</span>
+      <span class="rev-hf-pill" id="rev-hf-pill">● not configured</span>
+      <button class="modal-close" onclick="closeRevPanel()" style="flex-shrink:0">&#x2715;</button>
+    </div>
+    <div class="rev-panel-body" id="rev-panel-body">
+      <div class="loading"><div class="spinner"></div>Loading…</div>
+    </div>
+  </div>
+</div>
+
+<!-- TOPBAR -->
 <div class="topbar">
   <div class="topbar-left">
     <button class="hamburger" onclick="toggleSidebar()"><span></span><span></span><span></span></button>
@@ -291,6 +370,10 @@ input[type=date]{background:var(--surface2);border:1px solid var(--border2);bord
     <div class="live-pill"><span class="live-dot"></span>Auto-updated nightly</div>
     <span id="last-update"></span>
     <span id="clock"></span>
+    <button class="btn-reviews" onclick="window.open('https://rocklinks.github.io/sathya-reviews-explorer/', '_blank')" title="Full Reviews Explorer">
+      ⭐ <span class="rev-btn-lbl">Reviews</span>
+      <span class="btn-reviews-badge" id="rev-neg-badge">!</span>
+    </button>
     <div class="exp-split">
       <button class="exp-split-main" onclick="openModal('xls')">&#x2B07; <span class="exp-split-lbl">Export Excel</span></button>
       <div class="exp-split-sep"></div>
@@ -356,8 +439,6 @@ var AGM_COLORS={
 
 /* ═══════════════════════════════════════════
    RATING CHANGE HELPER
-   Compares current selected date vs previous
-   available date for each branch.
 ═══════════════════════════════════════════ */
 function getPrevDate(currentDate){
   var dates=Object.keys(D.daily||{}).sort();
@@ -377,18 +458,11 @@ function getRatingChangeHTML(bid, currentDate){
     prevRating=parseFloat(prevSnap.star_rating)||0;
   }
 
-  // Also check branch-level fallback if no prev date snap
-  if(!prevRating && D.branches && D.branches[String(bid)]){
-    // Can't determine change without prev data; just show normal
-    prevRating=0;
-  }
-
   var starsDisp=curRating;
   var starsStr='';
   for(var i=0;i<Math.floor(starsDisp);i++) starsStr+='★';
   if(starsDisp%1>=0.5) starsStr+='½';
 
-  // No previous data to compare → show normal stars
   if(!prevRating || prevRating===curRating){
     return'<span class="stars">'+starsStr+'</span> <span style="font-family:var(--mono);font-size:11px;color:var(--text2)">'+curRating+'</span>';
   }
@@ -399,7 +473,6 @@ function getRatingChangeHTML(bid, currentDate){
   var cls=increased?'rating-new-up':'rating-new-down';
   var tooltipText=(increased?'▲ Up':'▼ Down')+' from '+prevRating+' on '+formatDateShort(prevDate);
 
-  // Old rating with strikethrough, new with colored pill
   return'<span class="rating-change-wrap">'
     +'<span class="rating-cell">'
     +'<span class="rating-old">'+prevRating+'★</span>'
@@ -409,7 +482,6 @@ function getRatingChangeHTML(bid, currentDate){
     +'</span>';
 }
 
-/* Same logic for AGM view */
 function getRatingChangeCellAGM(b, currentDate){
   return getRatingChangeHTML(b.id, currentDate);
 }
@@ -428,9 +500,7 @@ function openModal(fmt){
   updatePreview();
   document.getElementById('exp-modal').classList.add('open');
 }
-function closeModal(){
-  document.getElementById('exp-modal').classList.remove('open');
-}
+function closeModal(){document.getElementById('exp-modal').classList.remove('open');}
 function closeModalBg(e){if(e.target===document.getElementById('exp-modal'))closeModal();}
 
 function setFmt(f, silent){
@@ -635,11 +705,9 @@ function doExportPdf(dates,branches){
   var dateStr=now.toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"}).toUpperCase();
   var timeStr=now.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"});
   var agmColorMap={"Siva":"#0284c7","John":"#4f46e5","Jeeva":"#059669","Seenivasan":"#d97706","Muthuselvam":"#7c3aed","Venkatesh":"#e11d48"};
-
   var periodLabel=dates.length===1?formatDate(dates[0]):(formatDate(dates[0])+' \u2192 '+formatDate(dates[dates.length-1]));
   var isMulti=dates.length>1;
   var visibleDates=isMulti?(dates.length<=8?dates:dates.slice(dates.length-8)):dates;
-
   function getSnap(b,d){var bid=String(b.id);return(D.daily[d]&&D.daily[d][bid])||{};}
   function getLastSnap(b){
     var bid=String(b.id);
@@ -650,7 +718,6 @@ function doExportPdf(dates,branches){
     var bid=String(b.id);
     return dates.reduce(function(a,d){return a+((D.daily[d]&&D.daily[d][bid])?(D.daily[d][bid].daily_count||0):0);},0);
   }
-  // Get plain rating string for PDF (no HTML animations)
   function getRatingPdf(b,lastDate){
     var bid=String(b.id);
     var curSnap=(D.daily[lastDate]||{})[bid]||{};
@@ -666,7 +733,6 @@ function doExportPdf(dates,branches){
     return '<span style="text-decoration:line-through;color:#94a3b8;font-size:9px">'+prev+'★</span>'
       +' <span style="color:'+(up?'#059669':'#e11d48')+';font-weight:700">'+(up?'▲':'▼')+cur+'★ ('+diff+')</span>';
   }
-
   function buildColHeader(){
     if(!isMulti) return '<th class="th-l">Branch</th><th>Stars</th><th>Overall</th><th>Monthly</th><th>'+formatDateShort(dates[0])+'</th>';
     var h='<th class="th-l">Branch</th><th>Stars</th><th>Overall</th><th>Monthly</th>';
@@ -675,7 +741,6 @@ function doExportPdf(dates,branches){
     h+='<th style="background:#1a3f7c">Range&#10;Total</th>';
     return h;
   }
-
   var lastDateForRating=dates[dates.length-1];
   var sections=Object.entries(
     branches.reduce(function(map,b){if(!map[b.agm])map[b.agm]=[];map[b.agm].push(b);return map;},{})
@@ -685,7 +750,6 @@ function doExportPdf(dates,branches){
     var agmTotal=brs.reduce(function(a,b){var s=getLastSnap(b);return a+(s.total_snap||b.overall||0);},0);
     var agmDaily=brs.reduce(function(a,b){return a+getBranchRangeTotal(b);},0);
     var agmMonthly=brs.reduce(function(a,b){var s=getLastSnap(b);return a+(s.monthly||b.monthly||0);},0);
-
     var rows=brs.slice().sort(function(a,b){return getBranchRangeTotal(b)-getBranchRangeTotal(a);}).map(function(b){
       var snap=getLastSnap(b);
       var rt=getBranchRangeTotal(b);
@@ -706,75 +770,30 @@ function doExportPdf(dates,branches){
       }
       return'<tr>'+cells+'</tr>';
     }).join('');
-
     return'<div class="sec">'
       +'<div class="sec-hdr" style="border-left-color:'+color+'"><div class="sec-hdr-left"><span class="agm-name" style="color:'+color+'">'+agm+'</span><span class="branch-count">'+brs.length+' branches</span></div>'
       +'<div class="sec-stats"><span>Total: <b>'+fmt(agmTotal)+'</b></span><span>'+(isMulti?'Range':'Daily')+': <b style="color:'+color+'">'+agmDaily+'</b></span><span>Monthly: <b>'+fmt(agmMonthly)+'</b></span></div></div>'
       +'<table><thead><tr>'+buildColHeader()+'</tr></thead><tbody>'+rows+'</tbody></table></div>';
   }).join('');
-
   var kpiOverall=branches.reduce(function(a,b){var s=getLastSnap(b);return a+(s.total_snap||b.overall||0);},0);
   var kpiDaily=branches.reduce(function(a,b){return a+getBranchRangeTotal(b);},0);
   var kpiMonthly=branches.reduce(function(a,b){var s=getLastSnap(b);return a+(s.monthly||b.monthly||0);},0);
   var sb2=branches.filter(function(b){var s=getLastSnap(b);return(s.star_rating||b.star_rating||0)>0;});
   var avg=sb2.length?(sb2.reduce(function(a,b){var s=getLastSnap(b);return a+(s.star_rating||b.star_rating||0);},0)/sb2.length).toFixed(2):"&#8212;";
   var kpiDailyLabel=isMulti?'Range Reviews':formatDateShort(dates[0]);
-
-  var html='<!DOCTYPE html><html><head><meta charset="UTF-8">'
-    +'<title>Sathya Review Report</title>'
+  var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Sathya Review Report</title>'
     +'<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">'
-    +'<style>'
-    +'*{box-sizing:border-box;margin:0;padding:0}'
-    +'body{font-family:"Plus Jakarta Sans",Arial,sans-serif;font-size:11px;color:#1e293b;background:#fff}'
-    +'.wrap{padding:16mm 15mm 12mm}'
-    +'.hdr{display:flex;align-items:center;justify-content:space-between;border-bottom:2.5px solid #1e3a5f;padding-bottom:10px;margin-bottom:16px}'
-    +'.hdr-left{display:flex;align-items:center;gap:12px}'
-    +'.hdr-left img{height:38px;object-fit:contain}'
-    +'.hdr-title{font-size:17px;font-weight:700;color:#1e3a5f}'
-    +'.hdr-sub{font-size:9px;color:#64748b;margin-top:2px;letter-spacing:.4px;text-transform:uppercase}'
-    +'.hdr-right{text-align:right;font-size:9px;color:#64748b;line-height:1.9}'
-    +'.hdr-right b{color:#1e293b}'
-    +'.kpi-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}'
-    +'.kpi-box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:8px 10px}'
-    +'.kpi-lbl{font-size:8px;color:#94a3b8;text-transform:uppercase;letter-spacing:.6px;font-weight:600;margin-bottom:3px}'
-    +'.kpi-val{font-size:17px;font-weight:700;color:#1e293b}'
-    +'.kpi-sub{font-size:8px;color:#94a3b8;margin-top:2px}'
-    +'.sec{margin-bottom:18px;page-break-inside:avoid}'
-    +'.sec-hdr{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:#f8fafc;border-left:3px solid #1e3a5f;margin-bottom:7px;border-radius:0 4px 4px 0}'
-    +'.sec-hdr-left{display:flex;align-items:center;gap:10px}'
-    +'.agm-name{font-size:12px;font-weight:700}'
-    +'.branch-count{font-size:9px;color:#94a3b8;background:#e2e8f0;padding:2px 7px;border-radius:8px}'
-    +'.sec-stats{display:flex;gap:14px;font-size:9px;color:#64748b}'
-    +'table{width:100%;border-collapse:collapse}'
-    +'thead th{background:#1e3a5f;color:#fff;font-size:9px;font-weight:700;padding:5px 9px;text-align:center;letter-spacing:.3px;text-transform:uppercase;white-space:pre}'
-    +'th.th-l{text-align:left}'
-    +'tbody td{padding:5px 9px;text-align:center;font-size:10px;border-bottom:1px solid #f0f4f8}'
-    +'td.td-l{text-align:left;font-weight:600;color:#0f172a}'
-    +'tbody tr:nth-child(even) td{background:#f8fafc}'
-    +'.footer{margin-top:16px;border-top:1px solid #e2e8f0;padding-top:8px;display:flex;justify-content:space-between;font-size:8px;color:#94a3b8}'
-    +'@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}.sec{page-break-inside:avoid}@page{margin:0;size:A4}.wrap{padding:12mm 13mm 10mm}}'
-    +'</style></head><body><div class="wrap">'
-    +'<div class="hdr"><div class="hdr-left">'
-    +'<img src="https://www.sathya.store/new_frontend/assets/img/sathya.webp" alt="Sathya" onerror="this.style.display=\'none\'">'
-    +'<div><div class="hdr-title">Google Review Report</div>'
-    +'<div class="hdr-sub">Sathya Agencies &middot; '+periodLabel+(selectedAgms.has('__all__')?'':' &middot; '+[...selectedAgms].join(', '))+'</div>'
-    +'</div></div>'
-    +'<div class="hdr-right"><div>Date: <b>'+dateStr+'</b></div><div>Time: <b>'+timeStr+'</b></div>'
-    +'<div>Branches: <b>'+branches.length+'</b></div>'
-    +(isMulti?'<div>Period: <b>'+dates.length+' days</b></div>':'')
-    +'</div></div>';
-
-  html+='<div class="kpi-strip">'
-    +'<div class="kpi-box"><div class="kpi-lbl">Total Reviews</div><div class="kpi-val">'+fmt(kpiOverall)+'</div><div class="kpi-sub">Latest snapshot</div></div>'
+    +'<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:"Plus Jakarta Sans",Arial,sans-serif;font-size:11px;color:#1e293b;background:#fff}.wrap{padding:16mm 15mm 12mm}.hdr{display:flex;align-items:center;justify-content:space-between;border-bottom:2.5px solid #1e3a5f;padding-bottom:10px;margin-bottom:16px}.hdr-left{display:flex;align-items:center;gap:12px}.hdr-left img{height:38px;object-fit:contain}.hdr-title{font-size:17px;font-weight:700;color:#1e3a5f}.hdr-sub{font-size:9px;color:#64748b;margin-top:2px;letter-spacing:.4px;text-transform:uppercase}.hdr-right{text-align:right;font-size:9px;color:#64748b;line-height:1.9}.hdr-right b{color:#1e293b}.kpi-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}.kpi-box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:8px 10px}.kpi-lbl{font-size:8px;color:#94a3b8;text-transform:uppercase;letter-spacing:.6px;font-weight:600;margin-bottom:3px}.kpi-val{font-size:17px;font-weight:700;color:#1e293b}.kpi-sub{font-size:8px;color:#94a3b8;margin-top:2px}.sec{margin-bottom:18px;page-break-inside:avoid}.sec-hdr{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:#f8fafc;border-left:3px solid #1e3a5f;margin-bottom:7px;border-radius:0 4px 4px 0}.sec-hdr-left{display:flex;align-items:center;gap:10px}.agm-name{font-size:12px;font-weight:700}.branch-count{font-size:9px;color:#94a3b8;background:#e2e8f0;padding:2px 7px;border-radius:8px}.sec-stats{display:flex;gap:14px;font-size:9px;color:#64748b}table{width:100%;border-collapse:collapse}thead th{background:#1e3a5f;color:#fff;font-size:9px;font-weight:700;padding:5px 9px;text-align:center;letter-spacing:.3px;text-transform:uppercase;white-space:pre}th.th-l{text-align:left}tbody td{padding:5px 9px;text-align:center;font-size:10px;border-bottom:1px solid #f0f4f8}td.td-l{text-align:left;font-weight:600;color:#0f172a}tbody tr:nth-child(even) td{background:#f8fafc}.footer{margin-top:16px;border-top:1px solid #e2e8f0;padding-top:8px;display:flex;justify-content:space-between;font-size:8px;color:#94a3b8}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}.sec{page-break-inside:avoid}@page{margin:0;size:A4}.wrap{padding:12mm 13mm 10mm}}</style>'
+    +'</head><body><div class="wrap">'
+    +'<div class="hdr"><div class="hdr-left"><img src="https://www.sathya.store/new_frontend/assets/img/sathya.webp" alt="Sathya" onerror="this.style.display=\'none\'"><div><div class="hdr-title">Google Review Report</div><div class="hdr-sub">Sathya Agencies &middot; '+periodLabel+(selectedAgms.has('__all__')?'':' &middot; '+[...selectedAgms].join(', '))+'</div></div></div>'
+    +'<div class="hdr-right"><div>Date: <b>'+dateStr+'</b></div><div>Time: <b>'+timeStr+'</b></div><div>Branches: <b>'+branches.length+'</b></div>'+(isMulti?'<div>Period: <b>'+dates.length+' days</b></div>':'')+'</div></div>';
+  html+='<div class="kpi-strip"><div class="kpi-box"><div class="kpi-lbl">Total Reviews</div><div class="kpi-val">'+fmt(kpiOverall)+'</div><div class="kpi-sub">Latest snapshot</div></div>'
     +'<div class="kpi-box"><div class="kpi-lbl">'+kpiDailyLabel+'</div><div class="kpi-val" style="color:#059669">'+kpiDaily+'</div><div class="kpi-sub">New reviews</div></div>'
     +'<div class="kpi-box"><div class="kpi-lbl">Monthly</div><div class="kpi-val" style="color:#d97706">'+fmt(kpiMonthly)+'</div><div class="kpi-sub">This month so far</div></div>'
-    +'<div class="kpi-box"><div class="kpi-lbl">Avg Rating</div><div class="kpi-val" style="color:#d97706">'+avg+'&#9733;</div><div class="kpi-sub">Selected branches</div></div>'
-    +'</div>';
-
+    +'<div class="kpi-box"><div class="kpi-lbl">Avg Rating</div><div class="kpi-val" style="color:#d97706">'+avg+'&#9733;</div><div class="kpi-sub">Selected branches</div></div></div>';
   html+=sections;
   html+='<div class="footer"><span>Sathya Agencies &mdash; Review Tracker &middot; '+periodLabel+'</span><span>Generated: '+dateStr+' '+timeStr+'</span></div>';
   html+='</div></body></html>';
-
   var frame=document.getElementById("pdf-frame");
   frame.style.cssText="position:fixed;top:0;left:0;width:210mm;height:297mm;visibility:visible;z-index:9999;border:none";
   var doc=frame.contentDocument||frame.contentWindow.document;
@@ -786,7 +805,6 @@ function doExportPdf(dates,branches){
   },950);
 }
 
-/* legacy shims */
 function exportExcel(){openModal('xls');}
 function exportPdf(){openModal('pdf');}
 
@@ -799,30 +817,55 @@ function closeSidebar(){document.getElementById('main-sidebar').classList.remove
 async function init(){tickClock();setInterval(tickClock,1000);await loadData();setInterval(loadData,300000);}
 function tickClock(){var now=new Date();document.getElementById("clock").textContent=now.toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"})+"  "+now.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit",second:"2-digit"});}
 
+/* ═══════════════════════════════════════════
+   LOAD DATA  ← fixed: enrichAll + updateNegBadge in correct order
+═══════════════════════════════════════════ */
 async function loadData(){
   try{
-    var r=await fetch(DATA_URL+"?t="+Date.now());D=await r.json();
+    var r=await fetch("./data/reviews.json?t="+Date.now());
+    if(!r.ok) throw new Error("HTTP "+r.status+" "+r.statusText);
+    D=await r.json();
+    if(!D||!D.branches) throw new Error("Invalid data structure: missing 'branches'");
+
     if(!selectedDate){
       var logDate=(D.logs&&D.logs.length)?D.logs[0].snap_date:null;
       var dates=Object.keys(D.daily||{}).sort().reverse();
       var dataDate=dates.length?dates[0]:null;
       selectedDate=(logDate&&dataDate)?(logDate>dataDate?logDate:dataDate):(logDate||dataDate||isoYesterday());
     }
-    enrichAll(selectedDate);
+
+    enrichAll(selectedDate);  /* ← must run BEFORE renderView / updateNegBadge */
+
     var lu=D.last_updated?new Date(D.last_updated).toLocaleString("en-IN"):"—";
     document.getElementById("last-update").textContent="Last sync: "+lu;
-    buildAgmSidebar();renderView();
+    buildAgmSidebar();
+    renderView();
+    updateNegBadge();
+
   }catch(e){
-    document.getElementById("mc").innerHTML='<div class="loading"><span style="font-size:28px">&#9888;&#65039;</span><b>Could not load data/reviews.json</b><span style="font-size:12px">Make sure GitHub Pages is enabled.</span></div>';
+    console.error("Load data failed:",e);
+    document.getElementById("mc").innerHTML=
+      '<div class="loading" style="padding:80px 20px">'
+      +'<span style="font-size:42px">⚠️</span>'
+      +'<b>Could not load data/reviews.json</b>'
+      +'<span style="font-size:13px;color:var(--muted);max-width:420px;display:block;margin:12px auto">'
+      +'Make sure the file exists at <code>data/reviews.json</code> in your repository '
+      +'and GitHub Pages is enabled on the correct branch.</span>'
+      +'<small style="color:#e11d48">Error: '+e.message+'</small>'
+      +'</div>';
   }
 }
 
+/* ═══════════════════════════════════════════
+   ENRICH ALL  ← was missing from file 2!
+═══════════════════════════════════════════ */
 function enrichAll(d){
   ALL=Object.values(D.branches||{}).map(function(b){
     var day=(D.daily[d]||{})[String(b.id)]||{};
     return{id:b.id,name:b.name,agm:b.agm,star_rating:day.star_rating||b.star_rating||0,overall:day.total_snap||0,monthly:day.monthly||0,daily_count:day.daily_count||0,snap_date:d};
   });
 }
+
 function showView(v,el){
   currentView=v;
   document.querySelectorAll(".s-item").forEach(function(i){i.classList.remove("active");});
@@ -841,6 +884,9 @@ function renderView(){
   else if(currentView==="edit")mc.innerHTML=buildEditView();
 }
 
+/* ═══════════════════════════════════════════
+   DASHBOARD
+═══════════════════════════════════════════ */
 function buildDashboard(){
   if(!ALL.length)return'<div class="loading">No data yet — run the workflow first.</div>';
   var total=ALL.reduce(function(a,b){return a+(b.overall||0);},0);
@@ -861,14 +907,15 @@ function buildDashboard(){
     +'</div>'+buildBranchesView();
 }
 
+/* ═══════════════════════════════════════════
+   BRANCHES VIEW
+═══════════════════════════════════════════ */
 function buildBranchesView(){
   if(!ALL.length)return'<div class="loading">No data yet.</div>';
   var rows=[].concat(ALL);
   rows.sort(function(a,b){var va=a[sortCol]||0,vb=b[sortCol]||0;if(typeof va==="string"){va=va.toLowerCase();vb=vb.toLowerCase();}return sortAsc?(va>vb?1:-1):(va<vb?1:-1);});
   var agmOpts=[...new Set(ALL.map(function(b){return b.agm;}))].sort().map(function(a){return'<option>'+a+'</option>';}).join("");
   var dateOpts=Object.keys(D.daily||{}).sort().reverse().map(function(d){return'<option value="'+d+'"'+(d===selectedDate?" selected":"")+'>'+formatDate(d)+'</option>';}).join("");
-
-  // Count rating changes for legend hint
   var prevDate=getPrevDate(selectedDate);
   var changedCount=0;
   if(prevDate){
@@ -879,7 +926,6 @@ function buildBranchesView(){
       if(cur&&prev&&cur!==prev) changedCount++;
     });
   }
-
   var legendHint='';
   if(changedCount>0){
     legendHint='<span style="display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);margin-left:8px">'
@@ -888,7 +934,6 @@ function buildBranchesView(){
       +changedCount+' rating change'+(changedCount>1?'s':'')+' vs previous day'
       +'</span>';
   }
-
   return'<div class="date-bar"><label>&#x1F4C5; Date:</label><select class="fsel" onchange="switchDate(this.value)">'+dateOpts+'</select><span style="font-size:11px;color:var(--muted)">Daily = reviews on '+formatDate(selectedDate)+'</span>'+legendHint+'</div>'
     +'<div class="section"><div class="section-hdr"><span class="section-title">All Branches <span style="font-size:12px;color:var(--muted);font-weight:400">('+rows.length+')</span></span>'
     +'<div class="ctrls"><input class="sbox" id="sbox" placeholder="&#x1F50D; Search..." oninput="ft()"><select class="fsel" id="asel" onchange="ft()"><option value="">All AGMs</option>'+agmOpts+'</select></div></div>'
@@ -916,6 +961,9 @@ function rowHTML(b){
 
 function starsHTML(r){var s="";for(var i=0;i<Math.floor(r);i++)s+="&#9733;";if(r%1>=0.5)s+="&#189;";return'<span class="stars">'+s+'</span> <span style="font-family:var(--mono);font-size:11px;color:var(--text2)">'+r+'</span>';}
 
+/* ═══════════════════════════════════════════
+   AGM VIEW
+═══════════════════════════════════════════ */
 function buildAgmView(){
   if(!ALL.length)return'<div class="loading">No data yet.</div>';
   var map={};ALL.forEach(function(b){if(!map[b.agm])map[b.agm]=[];map[b.agm].push(b);});
@@ -940,6 +988,9 @@ function buildAgmView(){
 }
 function AS(l,v,c){return'<div class="agm-stat"><span class="agm-stat-label">'+l+'</span><span class="agm-stat-value" style="color:'+c+'">'+v+'</span></div>';}
 
+/* ═══════════════════════════════════════════
+   HISTORY / LOGS / BACKUPS / EDIT
+═══════════════════════════════════════════ */
 function buildHistoryView(){
   var dates=Object.keys(D.daily||{}).sort().reverse();
   if(!dates.length)return'<div class="loading">No history yet.</div>';
@@ -989,7 +1040,9 @@ function formatDate(iso){if(!iso)return"—";return new Date(iso+"T00:00:00").to
 var tTimer=null;
 function showToast(msg){var t=document.getElementById("toast");t.innerHTML=msg;t.classList.add("show");if(tTimer)clearTimeout(tTimer);tTimer=setTimeout(function(){t.classList.remove("show");},3500);}
 
-/* Edit view */
+/* ═══════════════════════════════════════════
+   EDIT VIEW
+═══════════════════════════════════════════ */
 var pendingEdits={},editDate=null;
 function buildEditView(){
   if(!D)return'<div class="loading">No data yet.</div>';
@@ -1017,6 +1070,340 @@ function hf(id){var el=document.getElementById(id);if(el){el.style.borderColor='
 function editSwitchDate(d){if(Object.keys(pendingEdits).length>0){if(!confirm('Unsaved changes. Switch anyway?')){renderView();return;}}pendingEdits={};editDate=d;selectedDate=d;enrichAll(d);buildAgmSidebar();renderView();}
 function saveEdits(){var keys=Object.keys(pendingEdits);if(!keys.length){showToast('No changes.');return;}var count=0;keys.forEach(function(bid){var edits=pendingEdits[bid];if(!D.daily[editDate])D.daily[editDate]={};if(!D.daily[editDate][bid])D.daily[editDate][bid]={};Object.keys(edits).forEach(function(field){D.daily[editDate][bid][field]=edits[field];count++;});var latestDate=Object.keys(D.daily).sort().reverse()[0];if(editDate===latestDate&&D.branches[bid]){if(edits.total_snap!==undefined)D.branches[bid].overall=edits.total_snap;if(edits.star_rating!==undefined)D.branches[bid].star_rating=edits.star_rating;if(edits.monthly!==undefined)D.branches[bid].monthly=edits.monthly;}});pendingEdits={};enrichAll(editDate);buildAgmSidebar();document.getElementById('mc').innerHTML=buildEditView();showToast('Saved '+count+' fields. Download JSON to persist.');}
 function downloadEditedJSON(){var blob=new Blob([JSON.stringify(D,null,2)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='reviews.json';a.click();showToast('Downloaded!');}
+
+/* ═══════════════════════════════════════════
+   REVIEWS PANEL — HF CONFIG
+═══════════════════════════════════════════ */
+var HF_REPO = "RocklinKS/sathya-reviews";
+var HF_WRITE_TOKEN = "";
+var HF_BASE = HF_REPO ? "https://huggingface.co/datasets/"+HF_REPO+"/resolve/main/data/" : "";
+var HF_COMMIT= HF_REPO ? "https://huggingface.co/api/datasets/"+HF_REPO+"/commit/main" : "";
+
+var REV = {
+  tab: "delta",
+  hfOk: false,
+  hfChecked: false,
+  revData: [],
+  loadedDate: null,
+  sortDelta: "delta",
+  sortDeltaAsc: true,
+  filterBranch: "",
+  filterRating: "",
+  filterSearch: "",
+  filterDate: "",
+  pendingDeletes: new Set()
+};
+
+function openRevPanel(){
+  document.getElementById("rev-backdrop").classList.add("open");
+  revRender();
+  if(!REV.hfChecked && HF_REPO) probeHF();
+}
+function closeRevPanel(){
+  document.getElementById("rev-backdrop").classList.remove("open");
+}
+function revBackdropClick(e){
+  if(e.target===document.getElementById("rev-backdrop")) closeRevPanel();
+}
+
+function updateNegBadge(){
+  if(!D) return;
+  var rows=buildDeltaRows(selectedDate);
+  var neg=rows.filter(function(r){return r.delta<0;}).length;
+  var badge=document.getElementById("rev-neg-badge");
+  if(!badge) return;
+  if(neg>0){badge.textContent=neg;badge.classList.add("show");}
+  else{badge.classList.remove("show");}
+}
+
+function revRender(){
+  if(!D){revSetBody('<div class="rev-empty"><span>No data loaded yet.</span></div>');return;}
+  var html=revBuildTabs();
+  html+='<div id="rev-tab-content">';
+  if(REV.tab==="delta") html+=revBuildDelta();
+  else if(REV.tab==="reviews") html+=revBuildReviewsTab();
+  else html+=revBuildDeletedTab();
+  html+='</div>';
+  revSetBody(html);
+}
+function revSetBody(html){
+  document.getElementById("rev-panel-body").innerHTML=html;
+}
+
+function revBuildTabs(){
+  function t(id,label,active){return'<button class="rev-tab'+(active?" active":"")+'" onclick="revSwitchTab(\''+id+'\')">'+label+'</button>';}
+  return'<div class="rev-tabs">'
+    +t("delta","📊 Count Delta",REV.tab==="delta")
+    +t("reviews","💬 Review Text",REV.tab==="reviews")
+    +t("deleted","🗑️ Deleted ("+REV.pendingDeletes.size+")",REV.tab==="deleted")
+    +'</div>';
+}
+function revSwitchTab(tab){REV.tab=tab;revRender();}
+
+function revBuildStats(deltaRows){
+  var total=ALL.reduce(function(a,b){return a+(b.overall||0);},0);
+  var dailyN=ALL.reduce(function(a,b){return a+(b.daily_count||0);},0);
+  var neg=deltaRows.filter(function(r){return r.delta<0;}).length;
+  var pos=deltaRows.filter(function(r){return r.delta>0;}).length;
+  return'<div class="rev-stats-row">'
+    +'<div class="rev-stat"><div class="rev-stat-lbl">Total Reviews</div><div class="rev-stat-val" style="color:var(--indigo)">'+fmt(total)+'</div></div>'
+    +'<div class="rev-stat"><div class="rev-stat-lbl">Today New</div><div class="rev-stat-val" style="color:var(--green)">+'+dailyN+'</div></div>'
+    +'<div class="rev-stat"><div class="rev-stat-lbl">Branches Gained</div><div class="rev-stat-val" style="color:var(--green)">'+pos+'</div></div>'
+    +'<div class="rev-stat"><div class="rev-stat-lbl">Branches Lost ⚠</div><div class="rev-stat-val" style="color:var(--rose)">'+neg+'</div></div>'
+    +'</div>';
+}
+
+function buildDeltaRows(dateStr){
+  var dates=Object.keys(D.daily||{}).sort();
+  var target=dateStr||selectedDate||dates[dates.length-1];
+  var idx=dates.indexOf(target);
+  var prev=idx>0?dates[idx-1]:null;
+  return Object.values(D.branches||{}).map(function(b){
+    var bid=String(b.id);
+    var cur=(D.daily[target]||{})[bid]||{};
+    var pre=prev?(D.daily[prev]||{})[bid]:null;
+    var curTotal=cur.total_snap||0;
+    var prevTotal=pre?pre.total_snap||0:0;
+    var delta=prevTotal>0?(curTotal-prevTotal):(cur.daily_count||0);
+    return{id:b.id,name:b.name,agm:b.agm,overall:curTotal,daily:cur.daily_count||0,delta:delta,curTotal:curTotal,prevTotal:prevTotal,prevDate:prev};
+  });
+}
+
+function revBuildDelta(){
+  var dates=Object.keys(D.daily||{}).sort().reverse();
+  var viewDate=REV.filterDate||selectedDate;
+  var rows=buildDeltaRows(viewDate);
+  rows.sort(function(a,b){
+    var va,vb;
+    if(REV.sortDelta==="name"){va=a.name.toLowerCase();vb=b.name.toLowerCase();}
+    else if(REV.sortDelta==="overall"){va=a.overall;vb=b.overall;}
+    else{va=a.delta;vb=b.delta;}
+    if(va<vb) return REV.sortDeltaAsc?-1:1;
+    if(va>vb) return REV.sortDeltaAsc?1:-1;
+    return 0;
+  });
+  var srch=(REV.filterSearch||"").toLowerCase();
+  if(srch) rows=rows.filter(function(r){return r.name.toLowerCase().includes(srch)||(r.agm||"").toLowerCase().includes(srch);});
+  var negRows=rows.filter(function(r){return r.delta<0;});
+  var html='';
+  html+=revBuildStats(buildDeltaRows(viewDate));
+  if(negRows.length){
+    html+='<div class="rev-warn"><span>⚠️</span><div><b>'+negRows.length+' branch'+(negRows.length>1?'es have':'has')+' lost reviews</b> vs the previous date. '
+      +'These are branches where Google\'s overall count dropped. '
+      +'Enable Hugging Face integration to see which exact reviews were removed.</div></div>';
+  } else {
+    html+='<div class="rev-info">✅ No branches lost reviews on this date vs the previous.</div>';
+  }
+  var dateOpts=dates.map(function(d){return'<option value="'+d+'"'+(d===viewDate?" selected":"")+'>'+formatDate(d)+'</option>';}).join("");
+  html+='<div class="rev-toolbar">'
+    +'<select class="rev-sel" onchange="revDeltaDateChange(this.value)">'+dateOpts+'</select>'
+    +'<input class="rev-search-inp" placeholder="🔍 Filter branch / AGM…" value="'+(REV.filterSearch||"")+'" oninput="revFilterSearch(this.value)">'
+    +revSortBtn("delta","Delta")+revSortBtn("overall","Overall")+revSortBtn("name","Name")
+    +'</div>';
+  html+='<div class="rev-delta-wrap"><table class="rev-delta-tbl"><thead><tr>'
+    +'<th>Branch</th><th>AGM</th><th>Overall</th><th>Prev Date</th><th>Daily Count</th><th>Delta</th>'
+    +'</tr></thead><tbody>';
+  rows.forEach(function(r){
+    var dCls=r.delta>0?"rev-delta-pos":r.delta<0?"rev-delta-neg":"rev-delta-zero";
+    var dSign=r.delta>0?"+":"";
+    var cs=AGM_COLORS[r.agm]||{text:"var(--text2)"};
+    var prevDisp=r.prevDate?'<span class="rev-delta-na">'+fmt(r.prevTotal)+'</span>':'<span class="rev-delta-na">—</span>';
+    html+='<tr>'
+      +'<td class="td-b" style="font-size:12px">'+r.name+'</td>'
+      +'<td><span style="font-size:11px;font-weight:600;color:'+cs.text+'">'+r.agm+'</span></td>'
+      +'<td><span class="badge b-indigo" style="font-size:10px">'+fmt(r.overall)+'</span></td>'
+      +'<td>'+prevDisp+'</td>'
+      +'<td><span class="badge b-amber" style="font-size:10px">'+r.daily+'</span></td>'
+      +'<td class="'+dCls+'">'+dSign+r.delta+'</td>'
+      +'</tr>';
+  });
+  html+='</tbody></table></div>';
+  if(!HF_REPO){html+=revHFNotice();}
+  else if(REV.hfChecked&&!REV.hfOk){
+    html+='<div class="rev-notice" style="border-color:rgba(217,119,6,.25);background:rgba(217,119,6,.05);color:var(--amber)">'
+      +'⚠️ HF dataset <code>'+HF_REPO+'</code> is not reachable or has no data yet. '
+      +'Push at least one day\'s data from your scraper to activate the Reviews tab.'
+      +'</div>';
+  }
+  return html;
+}
+
+function revSortBtn(col,label){
+  var active=REV.sortDelta===col;
+  var arrow=active?(REV.sortDeltaAsc?" ↑":" ↓"):"";
+  return'<button class="rev-sort-btn'+(active?" active":"")+'" onclick="revSetSort(\''+col+'\')">'+label+arrow+'</button>';
+}
+function revSetSort(col){if(REV.sortDelta===col)REV.sortDeltaAsc=!REV.sortDeltaAsc;else{REV.sortDelta=col;REV.sortDeltaAsc=col==="name";}revRender();}
+function revDeltaDateChange(d){REV.filterDate=d;revRender();}
+function revFilterSearch(v){REV.filterSearch=v;revRender();}
+
+function revBuildReviewsTab(){
+  if(!HF_REPO){
+    return'<div class="rev-empty">'
+      +'<span style="font-size:36px">🤗</span>'
+      +'<b>Hugging Face not configured</b>'
+      +'<span style="color:var(--muted);font-size:12px;text-align:center;max-width:300px">Set up a free HF dataset to store and browse individual review text, including deleted reviews. See setup guide in the Delta tab.</span>'
+      +revHFNotice()
+      +'</div>';
+  }
+  if(!REV.hfOk){return'<div class="rev-empty"><div class="spinner"></div><span>Connecting to Hugging Face…</span></div>';}
+  var branches=Object.values(D.branches||{}).sort(function(a,b){return a.id-b.id;});
+  var branchOpts=branches.map(function(b){return'<option value="'+b.id+'"'+(REV.filterBranch===String(b.id)?" selected":"")+'>'+b.name+'</option>';}).join("");
+  var dates=Object.keys(D.daily||{}).sort().reverse();
+  var dateOpts=dates.map(function(d){return'<option value="'+d+'"'+(d===(REV.loadedDate||dates[0])?" selected":"")+'>'+formatDate(d)+'</option>';}).join("");
+  var ratingOpts='<option value="">All ratings</option>'+'54321'.split('').map(function(n){return'<option value="'+n+'"'+(REV.filterRating===n?" selected":"")+'>'+n+' ★</option>';}).join("");
+  var html='<div class="rev-toolbar">'
+    +'<select class="rev-sel" onchange="revLoadDate(this.value)"><option value="">All branches</option>'+branchOpts+'</select>'
+    +'<select class="rev-sel" onchange="revLoadDate(this.value)">'+dateOpts+'</select>'
+    +'<select class="rev-sel" onchange="revFilterRating(this.value)">'+ratingOpts+'</select>'
+    +'<input class="rev-search-inp" placeholder="🔍 Search author, text…" value="'+(REV.filterSearch||"")+'" oninput="revFilterSearch(this.value)">'
+    +'</div>';
+  var revs=getFilteredRevs();
+  if(!revs.length){html+='<div class="rev-empty"><span style="font-size:28px">📭</span><span>No reviews match your filters.</span></div>';return html;}
+  html+=revs.map(revBuildCard).join("");
+  return html;
+}
+
+function getFilteredRevs(){
+  return REV.revData.filter(function(r){
+    if(r.deleted) return false;
+    if(REV.filterBranch&&String(r.branch_id)!==REV.filterBranch) return false;
+    if(REV.filterRating&&String(r.rating)!==REV.filterRating) return false;
+    if(REV.filterSearch){var hay=((r.text||"")+" "+(r.author||"")).toLowerCase();if(!hay.includes(REV.filterSearch.toLowerCase())) return false;}
+    return true;
+  });
+}
+
+function revBuildCard(r){
+  var init=((r.author||"?").split(" ").map(function(w){return w[0]||"";}).slice(0,2).join("")).toUpperCase()||"?";
+  var stars=""; for(var i=0;i<Math.min(r.rating||0,5);i++) stars+="★";
+  var bn=(D.branches&&D.branches[String(r.branch_id)])?D.branches[String(r.branch_id)].name:(r.branch_name||"Unknown");
+  var isPending=REV.pendingDeletes.has(r.review_id);
+  var brObj=D.branches&&D.branches[String(r.branch_id)];
+  var agmC=brObj?(AGM_COLORS[brObj.agm]||{bar:"#4f46e5"}).bar:"#4f46e5";
+  return'<div class="rev-card'+(isPending?" is-deleted":"")+'"><div class="rev-card-hdr">'
+    +'<div class="rev-avatar" style="background:'+agmC+'">'+init+'</div>'
+    +'<div class="rev-meta"><div class="rev-author">'+escH(r.author||"Anonymous")+'</div>'
+    +'<div class="rev-branch-tag">'+escH(bn)+'</div></div>'
+    +'<div style="text-align:right"><div class="rev-stars">'+stars+'</div>'
+    +'<div class="rev-time">'+(r.relative_date||r.date||"")+'</div></div></div>'
+    +(r.text?'<div class="rev-text">'+escH(r.text)+'</div>':'<div class="rev-text"><em>No review text</em></div>')
+    +'<div class="rev-actions">'
+    +(r.is_new?'<span class="rev-tag rev-tag-new">new today</span>':'')
+    +'<span class="rev-tag rev-tag-hf">HF</span>'
+    +(!isPending
+      ?'<button class="rev-del-btn" onclick="revDelete(\''+r.review_id+'\')">🗑 Delete</button>'
+      :'<button class="rev-restore-btn" onclick="revRestore(\''+r.review_id+'\')">↩ Restore</button>')
+    +'</div></div>';
+}
+
+function revBuildDeletedTab(){
+  if(!HF_REPO) return'<div class="rev-empty"><span>Connect HF dataset to track deleted reviews across sessions.</span></div>';
+  var deleted=REV.revData.filter(function(r){return r.deleted||REV.pendingDeletes.has(r.review_id);});
+  if(!deleted.length) return'<div class="rev-empty"><span style="font-size:28px">✅</span><span>No deleted reviews in this session.</span></div>';
+  return deleted.map(function(r){
+    var init=((r.author||"?").split(" ").map(function(w){return w[0]||"";}).slice(0,2).join("")).toUpperCase()||"?";
+    var stars=""; for(var i=0;i<Math.min(r.rating||0,5);i++) stars+="★";
+    var bn=(D.branches&&D.branches[String(r.branch_id)])?D.branches[String(r.branch_id)].name:(r.branch_name||"Unknown");
+    var brObj=D.branches&&D.branches[String(r.branch_id)];
+    var agmC=brObj?(AGM_COLORS[brObj.agm]||{bar:"#4f46e5"}).bar:"#4f46e5";
+    return'<div class="rev-card is-deleted"><div class="rev-card-hdr">'
+      +'<div class="rev-avatar" style="background:'+agmC+'">'+init+'</div>'
+      +'<div class="rev-meta"><div class="rev-author">'+escH(r.author||"Anonymous")+'</div>'
+      +'<div class="rev-branch-tag">'+escH(bn)+'</div></div>'
+      +'<div style="text-align:right"><div class="rev-stars">'+stars+'</div>'
+      +'<div class="rev-time">'+(r.relative_date||r.date||"")+'</div></div></div>'
+      +(r.text?'<div class="rev-text">'+escH(r.text)+'</div>':'<div class="rev-text"><em>No review text</em></div>')
+      +'<div class="rev-actions"><span class="rev-tag rev-tag-del">deleted</span>'
+      +'<button class="rev-restore-btn" onclick="revRestore(\''+r.review_id+'\')">↩ Restore</button>'
+      +'</div></div>';
+  }).join("");
+}
+
+function revFilterRating(v){REV.filterRating=v;revRender();}
+
+async function revLoadDate(dateStr){
+  if(!REV.hfOk) return;
+  var url=HF_BASE+dateStr+".json";
+  try{
+    var r=await fetch(url);
+    if(!r.ok) throw new Error("404");
+    REV.revData=await r.json();
+    REV.loadedDate=dateStr;
+    revRender();
+  }catch(e){showToast("No review text data for "+formatDate(dateStr));}
+}
+
+async function revDelete(reviewId){
+  if(!confirm("Mark this review as deleted? It stays in history but is hidden.")) return;
+  REV.pendingDeletes.add(reviewId);
+  var rev=REV.revData.find(function(r){return r.review_id===reviewId;});
+  if(rev) rev.deleted=true;
+  if(HF_WRITE_TOKEN&&REV.loadedDate) await pushRevsToHF(REV.loadedDate);
+  else showToast("Marked locally. Add HF_WRITE_TOKEN to persist to Hugging Face.");
+  revRender();
+}
+async function revRestore(reviewId){
+  REV.pendingDeletes.delete(reviewId);
+  var rev=REV.revData.find(function(r){return r.review_id===reviewId;});
+  if(rev) rev.deleted=false;
+  if(HF_WRITE_TOKEN&&REV.loadedDate) await pushRevsToHF(REV.loadedDate);
+  revRender();
+}
+
+async function pushRevsToHF(dateStr){
+  if(!HF_WRITE_TOKEN||!HF_REPO) return;
+  try{
+    var content=btoa(unescape(encodeURIComponent(JSON.stringify(REV.revData,null,2))));
+    var res=await fetch(HF_COMMIT,{
+      method:"POST",
+      headers:{"Authorization":"Bearer "+HF_WRITE_TOKEN,"Content-Type":"application/json"},
+      body:JSON.stringify({summary:"reviews update "+dateStr,files:[{path:"data/"+dateStr+".json",content:content}]})
+    });
+    if(res.ok) showToast("Saved to Hugging Face ✓");
+    else showToast("HF save failed ("+res.status+")");
+  }catch(e){showToast("HF error: "+e.message);}
+}
+
+async function probeHF(){
+  if(!HF_REPO) return;
+  var pill=document.getElementById("rev-hf-pill");
+  try{
+    var dates=Object.keys(D.daily||{}).sort().reverse();
+    var testDate=dates[0];
+    var r=await fetch(HF_BASE+testDate+".json",{method:"HEAD"});
+    REV.hfOk=r.ok;REV.hfChecked=true;
+    if(pill){pill.textContent=r.ok?"🤗 HF connected":"HF: no data yet";pill.className="rev-hf-pill"+(r.ok?" connected":" error");}
+    if(r.ok) await revLoadDate(testDate);
+    else revRender();
+  }catch(e){
+    REV.hfOk=false;REV.hfChecked=true;
+    if(pill){pill.textContent="HF: unreachable";pill.className="rev-hf-pill error";}
+    revRender();
+  }
+}
+
+function revHFNotice(){
+  return'<div class="rev-notice">'
+    +'<b style="color:var(--indigo)">🤗 Enable full review-text storage (free, no card needed)</b><br><br>'
+    +'<b>Step 1</b> — Create free account at <b>huggingface.co</b><br>'
+    +'<b>Step 2</b> — Create a new <b>Dataset</b> repo, name it <code>sathya-reviews</code>, set it <b>Public</b><br>'
+    +'<b>Step 3</b> — Go to HF Settings → Access Tokens → create a <b>Write</b> token<br>'
+    +'<b>Step 4</b> — In your <b>scraper GitHub repo</b> → Settings → Secrets → add <code>HF_TOKEN</code><br>'
+    +'<b>Step 5</b> — In this file set <code>HF_REPO = "your-username/sathya-reviews"</code><br>'
+    +'<b>Step 6</b> — Update your scraper to push review text to HF (see README in the separate scraper repo)<br><br>'
+    +'<span style="color:var(--muted)">Until then, the <b>Delta tab</b> works perfectly using your existing <code>reviews.json</code> and already shows you which branches are losing reviews.</span>'
+    +'</div>';
+}
+
+function escH(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+
+document.addEventListener("keydown",function(e){
+  if(e.key==="Escape"){
+    if(document.getElementById("rev-backdrop").classList.contains("open")) closeRevPanel();
+    if(document.getElementById("exp-modal").classList.contains("open")) closeModal();
+  }
+});
 
 init();
 </script>
