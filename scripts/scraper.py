@@ -229,6 +229,15 @@ async def run():
         bid = str(b["id"])
         baseline[bid] = baseline_snap.get(bid, {}).get("total_snap", 
                         data.get("branches", {}).get(bid, {}).get("overall", 0))
+    # ── Gap warning ──────────────────────────────────────────────
+    if baseline_date:
+        gap = (datetime.strptime(snap_date, "%Y-%m-%d") - 
+               datetime.strptime(baseline_date, "%Y-%m-%d")).days
+        if gap > 1:
+            print(f"⚠ WARNING: Baseline is {gap} days old ({baseline_date} → {snap_date}).")
+            print(f"  Daily counts will reflect {gap} days of reviews, not 1.")
+            print(f"  Consider running missed dates manually before proceeding.")
+    # ─────────────────────────────────────────────────────────────
 
     results = {}
     success = 0
