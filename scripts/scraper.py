@@ -376,7 +376,7 @@ async def run():
 
     if all_reviews:
         try:
-            api = HfApi(token=os.getenv("HF_TOKEN"))
+            api = HfApi(token=os.getenv("REVIEWS"))
             json_bytes = json.dumps(all_reviews, ensure_ascii=False, indent=2).encode("utf-8")
             api.upload_file(
                 path_or_fileobj=json_bytes,
