@@ -11847,14 +11847,14 @@
     "2026-04-21": {
       "1": {
         "total_snap": 6503,
-        "daily_count": 0,
-        "monthly": 80,
+        "daily_count": 5,
+        "monthly": 5,
         "star_rating": 4.9
       },
       "2": {
         "total_snap": 6021,
-        "daily_count": 1,
-        "monthly": 118,
+        "daily_count": 12,
+        "monthly": 119,
         "star_rating": 4.8
       },
       "3": {
@@ -11883,8 +11883,8 @@
       },
       "7": {
         "total_snap": 3835,
-        "daily_count": 1,
-        "monthly": -62,
+        "daily_count": 2,
+        "monthly": -61,
         "star_rating": 4.8
       },
       "8": {
@@ -11955,8 +11955,8 @@
       },
       "19": {
         "total_snap": 2171,
-        "daily_count": -1,
-        "monthly": -18,
+        "daily_count": 0,
+        "monthly": -17,
         "star_rating": 4.8
       },
       "20": {
@@ -11996,9 +11996,9 @@
         "star_rating": 5.0
       },
       "26": {
-        "total_snap": 5857,
-        "daily_count": 1,
-        "monthly": 5,
+        "total_snap": 5858,
+        "daily_count": 2,
+        "monthly": 6,
         "star_rating": 4.9
       },
       "27": {
