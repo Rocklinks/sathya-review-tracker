@@ -99,7 +99,7 @@ input[type=date]{background:var(--surface2);border:1px solid var(--border2);bord
 .agm-stat-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
 .agm-stat-value{font-weight:700;font-size:16px;font-family:var(--mono)}
 .backup-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:16px}
-.bcard{border:1px solid var(--border);border-radius:10px;padding:13px 15px;background:var(--surface2);transition:.15s}
+.bcard{border:1px solid var(--border);border-radius:10px;padding:13px 15px;background:var(--surface2);transition:.15px}
 .bcard:hover{border-color:var(--indigo2);background:#fff;box-shadow:0 2px 12px rgba(79,70,229,.1)}
 .bcard-date{font-weight:700;font-size:13px;color:var(--text);margin-bottom:7px;display:flex;align-items:center;justify-content:space-between;gap:4px}
 .bcard-stats{font-size:11px;color:var(--text2);display:flex;flex-direction:column;gap:3px;margin-bottom:9px;line-height:1.5}
@@ -194,7 +194,7 @@ input[type=date]{background:var(--surface2);border:1px solid var(--border2);bord
 .rev-hf-pill{font-size:10px;padding:3px 9px;border-radius:20px;font-weight:600;white-space:nowrap;background:rgba(79,70,229,.1);color:var(--indigo);border:1px solid rgba(79,70,229,.2);}
 .rev-hf-pill.connected{background:rgba(5,150,105,.1);color:var(--green);border-color:rgba(5,150,105,.2)}
 .rev-hf-pill.error{background:rgba(217,119,6,.1);color:var(--amber);border-color:rgba(217,119,6,.2)}
-.rev-panel-body{flex:1;overflow-y:auto;padding:16px 20px}
+.rev-panel-body{flex:1;overflow-y:auto;padding:0}
 .rev-tabs{display:flex;gap:0;border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--surface2);margin-bottom:16px;flex-shrink:0;}
 .rev-tab{flex:1;padding:9px 6px;font-size:12px;font-weight:600;font-family:inherit;border:none;background:none;cursor:pointer;color:var(--text2);transition:.12s;border-right:1px solid var(--border);}
 .rev-tab:last-child{border-right:none}
@@ -351,7 +351,8 @@ input[type=date]{background:var(--surface2);border:1px solid var(--border2);bord
     <div class="rev-panel-hdr">
       <span style="font-size:18px">⭐</span>
       <span class="rev-panel-title">Reviews Explorer</span>
-      <span class="rev-hf-pill" id="rev-hf-pill">● not configured</span>
+      <!-- HF pill hidden since panel loads iframe directly -->
+      <span class="rev-hf-pill" id="rev-hf-pill" style="display:none"></span>
       <button class="modal-close" onclick="closeRevPanel()" style="flex-shrink:0">&#x2715;</button>
     </div>
     <div class="rev-panel-body" id="rev-panel-body">
@@ -491,6 +492,31 @@ function getRatingChangeCellAGM(b, currentDate){
   return getRatingChangeHTML(b.id, currentDate);
 }
 
+/* ── Plain-text rating with change indicator for Excel export ── */
+function getRatingTextForExcel(bid, currentDate){
+  var curSnap=(D.daily[currentDate]||{})[String(bid)]||{};
+  var cur=parseFloat(curSnap.star_rating)||0;
+  if(!cur){
+    var b=D.branches[String(bid)]||{};
+    cur=parseFloat(b.star_rating)||0;
+  }
+  if(!cur) return "";
+
+  var prevDate=getPrevDate(currentDate);
+  if(!prevDate) return cur+"\u2605"; // ★
+
+  var prevSnap=(D.daily[prevDate]||{})[String(bid)]||{};
+  var prev=parseFloat(prevSnap.star_rating)||0;
+
+  if(!prev || prev===cur) return cur+"\u2605";
+
+  var up=cur>prev;
+  var diff=Math.abs(cur-prev).toFixed(1);
+  var arrow=up?"\u25B2":"\u25BC"; // ▲ ▼
+  // Format: 4.8★ → 4.9★ (▲+0.1)
+  return prev+"\u2605 \u2192 "+cur+"\u2605 ("+arrow+(up?"+":"-")+diff+")";
+}
+
 /* ═══════════════════════════════════════════
    MODAL STATE
 ═══════════════════════════════════════════ */
@@ -617,7 +643,7 @@ function doExportExcel(dates,branches){
         var bid=String(b.id);
         var lastSnap=(D.daily[lastDate]&&D.daily[lastDate][bid])||{};
         var row=[b.id,b.name,b.agm,
-          lastSnap.star_rating||b.star_rating||"",
+          getRatingTextForExcel(bid, lastDate),
           lastSnap.total_snap||b.overall||0,
           lastSnap.monthly||b.monthly||0
         ];
@@ -657,7 +683,7 @@ function doExportExcel(dates,branches){
           };
         }
       }
-      var wscols=[{wch:4},{wch:22},{wch:14},{wch:12},{wch:16},{wch:16}];
+      var wscols=[{wch:4},{wch:22},{wch:14},{wch:20},{wch:16},{wch:16}];
       dates.forEach(function(){wscols.push({wch:14});});
       ws['!cols']=wscols;
       ws['!rows']=allRows.map(function(_,i){return{hpt:i===0?22:18};});
@@ -823,7 +849,7 @@ async function init(){tickClock();setInterval(tickClock,1000);await loadData();s
 function tickClock(){var now=new Date();document.getElementById("clock").textContent=now.toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"})+"  "+now.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit",second:"2-digit"});}
 
 /* ═══════════════════════════════════════════
-   LOAD DATA  ← fixed: enrichAll + updateNegBadge in correct order
+   LOAD DATA
 ═══════════════════════════════════════════ */
 async function loadData(){
   try{
@@ -839,7 +865,7 @@ async function loadData(){
       selectedDate=(logDate&&dataDate)?(logDate>dataDate?logDate:dataDate):(logDate||dataDate||isoYesterday());
     }
 
-    enrichAll(selectedDate);  /* ← must run BEFORE renderView / updateNegBadge */
+    enrichAll(selectedDate);
 
     var lu=D.last_updated?new Date(D.last_updated).toLocaleString("en-IN"):"—";
     document.getElementById("last-update").textContent="Last sync: "+lu;
@@ -862,7 +888,7 @@ async function loadData(){
 }
 
 /* ═══════════════════════════════════════════
-   ENRICH ALL  ← was missing from file 2!
+   ENRICH ALL
 ═══════════════════════════════════════════ */
 function enrichAll(d){
   ALL=Object.values(D.branches||{}).map(function(b){
@@ -1077,7 +1103,7 @@ function saveEdits(){var keys=Object.keys(pendingEdits);if(!keys.length){showToa
 function downloadEditedJSON(){var blob=new Blob([JSON.stringify(D,null,2)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='reviews.json';a.click();showToast('Downloaded!');}
 
 /* ═══════════════════════════════════════════
-   REVIEWS PANEL — HF CONFIG
+   REVIEWS PANEL
 ═══════════════════════════════════════════ */
 var HF_REPO = "RocklinKS/sathya-reviews";
 var HF_WRITE_TOKEN = "";
@@ -1101,7 +1127,7 @@ var REV = {
 
 function openRevPanel(){
   document.getElementById("rev-backdrop").classList.add("open");
-  document.getElementById("rev-panel-body").innerHTML = 
+  document.getElementById("rev-panel-body").innerHTML =
     '<iframe src="https://rocklinks.github.io/reviews/" style="width:100%;height:100%;border:none;flex:1;display:block;min-height:calc(100vh - 60px)"></iframe>';
 }
 function closeRevPanel(){
@@ -1378,28 +1404,32 @@ async function probeHF(){
     var testDate=dates[0];
     var r=await fetch(HF_BASE+testDate+".json",{method:"HEAD"});
     REV.hfOk=r.ok;REV.hfChecked=true;
-    if(pill){pill.textContent=r.ok?"🤗 HF connected":"HF: no data yet";pill.className="rev-hf-pill"+(r.ok?" connected":" error");}
+    if(pill){
+      pill.textContent=r.ok?"no":"data";
+      pill.className="rev-hf-pill"+(r.ok?" connected":" error");
+      pill.style.display="";
+    }
     if(r.ok) await revLoadDate(testDate);
     else revRender();
   }catch(e){
     REV.hfOk=false;REV.hfChecked=true;
-    if(pill){pill.textContent="HF: unreachable";pill.className="rev-hf-pill error";}
+    if(pill){pill.textContent="HF: unreachable";pill.className="rev-hf-pill error";pill.style.display="";}
     revRender();
   }
 }
 
-function revHFNotice(){
-  return'<div class="rev-notice">'
-    +'<b style="color:var(--indigo)">🤗 Enable full review-text storage (free, no card needed)</b><br><br>'
-    +'<b>Step 1</b> — Create free account at <b>huggingface.co</b><br>'
-    +'<b>Step 2</b> — Create a new <b>Dataset</b> repo, name it <code>sathya-reviews</code>, set it <b>Public</b><br>'
-    +'<b>Step 3</b> — Go to HF Settings → Access Tokens → create a <b>Write</b> token<br>'
-    +'<b>Step 4</b> — In your <b>scraper GitHub repo</b> → Settings → Secrets → add <code>HF_TOKEN</code><br>'
-    +'<b>Step 5</b> — In this file set <code>HF_REPO = "your-username/sathya-reviews"</code><br>'
-    +'<b>Step 6</b> — Update your scraper to push review text to HF (see README in the separate scraper repo)<br><br>'
-    +'<span style="color:var(--muted)">Until then, the <b>Delta tab</b> works perfectly using your existing <code>reviews.json</code> and already shows you which branches are losing reviews.</span>'
-    +'</div>';
-}
+//function revHFNotice(){
+//  return'<div class="rev-notice">'
+//    +'<b style="color:var(--indigo)"> Enable full review-text storage (free, no card needed)</b><br><br>'
+//    +'<b>Step 1</b> — Create free account at <b>huggingface.co</b><br>'
+//    +'<b>Step 2</b> — Create a new <b>Dataset</b> repo, name it <code>sathya-reviews</code>, set it <b>Public</b><br>'
+//    +'<b>Step 3</b> — Go to HF Settings → Access Tokens → create a <b>Write</b> token<br>'
+//    +'<b>Step 4</b> — In your <b>scraper GitHub repo</b> → Settings → Secrets → add <code>HF_TOKEN</code><br>'
+//    +'<b>Step 5</b> — In this file set <code>HF_REPO = "Rocklinks/sathya-reviews"</code><br>'
+//    +'<b>Step 6</b> — Update your scraper to push review text to HF (see README in the separate scraper repo)<br><br>'
+//    +'<span style="color:var(--muted)">Until then, the <b>Delta tab</b> works perfectly using your existing <code>reviews.json</code> and already shows you which branches are losing reviews.</span>'
+//    +'</div>';
+//}
 
 function escH(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 
