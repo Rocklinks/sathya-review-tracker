@@ -14899,7 +14899,7 @@
     "2026-05-05": {
       "1": {
         "total_snap": 6517,
-        "daily_count": 3,
+        "daily_count":4 ,
         "monthly": 10,
         "star_rating": 4.9
       },
@@ -14917,8 +14917,8 @@
       },
       "4": {
         "total_snap": 265,
-        "daily_count": -1,
-        "monthly": 2,
+        "daily_count": 0,
+        "monthly": 3,
         "star_rating": 5.0
       },
       "5": {
@@ -14930,12 +14930,12 @@
       "6": {
         "total_snap": 1877,
         "daily_count": 2,
-        "monthly": 9,
+        "monthly": 11,
         "star_rating": 4.9
       },
       "7": {
         "total_snap": 3787,
-        "daily_count": 1,
+        "daily_count": 3,
         "monthly": 10,
         "star_rating": 4.8
       },
@@ -14959,8 +14959,8 @@
       },
       "11": {
         "total_snap": 2905,
-        "daily_count": -1,
-        "monthly": 3,
+        "daily_count": 0,
+        "monthly": 4,
         "star_rating": 4.7
       },
       "12": {
@@ -15007,8 +15007,8 @@
       },
       "19": {
         "total_snap": 2177,
-        "daily_count": 0,
-        "monthly": 2,
+        "daily_count": 1,
+        "monthly": 3,
         "star_rating": 4.8
       },
       "20": {
@@ -15049,8 +15049,8 @@
       },
       "26": {
         "total_snap": 5895,
-        "daily_count": 6,
-        "monthly": 17,
+        "daily_count": 8,
+        "monthly": 19,
         "star_rating": 4.9
       },
       "27": {
@@ -15061,8 +15061,8 @@
       },
       "28": {
         "total_snap": 1982,
-        "daily_count": -2,
-        "monthly": 1,
+        "daily_count": 0,
+        "monthly": 3,
         "star_rating": 4.9
       },
       "29": {
@@ -15073,8 +15073,8 @@
       },
       "30": {
         "total_snap": 574,
-        "daily_count": 1,
-        "monthly": 8,
+        "daily_count": 2,
+        "monthly": 9,
         "star_rating": 5.0
       },
       "31": {
