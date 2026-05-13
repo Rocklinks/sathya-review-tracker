@@ -16461,8 +16461,8 @@
       },
       "7": {
         "total_snap": 3833,
-        "daily_count": -1,
-        "monthly": 70,
+        "daily_count": 8,
+        "monthly": 79,
         "star_rating": 4.8
       },
       "8": {
@@ -16473,14 +16473,14 @@
       },
       "9": {
         "total_snap": 754,
-        "daily_count": -1,
-        "monthly": 33,
+        "daily_count": 1,
+        "monthly": 35,
         "star_rating": 4.9
       },
       "10": {
         "total_snap": 646,
-        "daily_count": 0,
-        "monthly": 13,
+        "daily_count": 2,
+        "monthly": 15,
         "star_rating": 4.9
       },
       "11": {
@@ -16623,8 +16623,8 @@
       },
       "34": {
         "total_snap": 1899,
-        "daily_count": 0,
-        "monthly": 32,
+        "daily_count": 1,
+        "monthly": 33,
         "star_rating": 4.8
       },
       "35": {
@@ -16635,8 +16635,8 @@
       },
       "36": {
         "total_snap": 1131,
-        "daily_count": 0,
-        "monthly": 21,
+        "daily_count": 1,
+        "monthly": 22,
         "star_rating": 4.7
       }
     }
