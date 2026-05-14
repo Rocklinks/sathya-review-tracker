@@ -16679,8 +16679,8 @@
       },
       "7": {
         "total_snap": 3834,
-        "daily_count": 1,
-        "monthly": 80,
+        "daily_count": 3,
+        "monthly": 82,
         "star_rating": 4.8
       },
       "8": {
@@ -16721,8 +16721,8 @@
       },
       "14": {
         "total_snap": 229,
-        "daily_count": 0,
-        "monthly": 6,
+        "daily_count": 1,
+        "monthly": 7,
         "star_rating": 4.9
       },
       "15": {
@@ -16905,7 +16905,7 @@
       "snap_date": "2026-05-08",
       "baseline_date": "2026-05-07",
       "success": 36,
-      "failed": 0,
+      "failed": 0,E
       "failed_names": []
     },
     {
