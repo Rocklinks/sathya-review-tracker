@@ -17297,14 +17297,14 @@
     "2026-05-16": {
       "1": {
         "total_snap": 6587,
-        "daily_count": 19,
-        "monthly": 116,
+        "daily_count": 20,
+        "monthly": 117,
         "star_rating": 4.9
       },
       "2": {
         "total_snap": 6082,
-        "daily_count": -16,
-        "monthly": 55,
+        "daily_count": 4,
+        "monthly": 75,
         "star_rating": 4.8
       },
       "3": {
@@ -17315,26 +17315,26 @@
       },
       "4": {
         "total_snap": 286,
-        "daily_count": 0,
-        "monthly": 25,
+        "daily_count": 1,
+        "monthly": 27,
         "star_rating": 5.0
       },
       "5": {
         "total_snap": 1014,
-        "daily_count": 5,
-        "monthly": 33,
+        "daily_count": 6,
+        "monthly": 34,
         "star_rating": 4.9
       },
       "6": {
         "total_snap": 1917,
         "daily_count": 6,
-        "monthly": 53,
+        "monthly": 54,
         "star_rating": 4.9
       },
       "7": {
         "total_snap": 3852,
-        "daily_count": 13,
-        "monthly": 109,
+        "daily_count": 14,
+        "monthly": 113,
         "star_rating": 4.8
       },
       "8": {
@@ -17369,8 +17369,8 @@
       },
       "13": {
         "total_snap": 988,
-        "daily_count": -14,
-        "monthly": 16,
+        "daily_count": 2,
+        "monthly": 32,
         "star_rating": 4.7
       },
       "14": {
@@ -17453,8 +17453,8 @@
       },
       "27": {
         "total_snap": 3767,
-        "daily_count": -5,
-        "monthly": 70,
+        "daily_count": 4,
+        "monthly": 79,
         "star_rating": 5.0
       },
       "28": {
@@ -17483,8 +17483,8 @@
       },
       "32": {
         "total_snap": 2046,
-        "daily_count": 0,
-        "monthly": 21,
+        "daily_count": 1,
+        "monthly": 22,
         "star_rating": 4.8
       },
       "33": {
@@ -17507,8 +17507,8 @@
       },
       "36": {
         "total_snap": 1123,
-        "daily_count": 0,
-        "monthly": 22,
+        "daily_count": 1,
+        "monthly": 29,
         "star_rating": 4.7
       }
     }
