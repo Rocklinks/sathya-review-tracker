@@ -17733,14 +17733,14 @@
     "2026-05-18": {
       "1": {
         "total_snap": 6598,
-        "daily_count": 4,
-        "monthly": 133,
+        "daily_count": 6,
+        "monthly": 135,
         "star_rating": 4.9
       },
       "2": {
         "total_snap": 6085,
-        "daily_count": 1,
-        "monthly": 79,
+        "daily_count": 2,
+        "monthly": 80,
         "star_rating": 4.8
       },
       "3": {
@@ -17769,8 +17769,8 @@
       },
       "7": {
         "total_snap": 3872,
-        "daily_count": 7,
-        "monthly": 135,
+        "daily_count": 9,
+        "monthly": 137,
         "star_rating": 4.8
       },
       "8": {
@@ -17799,8 +17799,8 @@
       },
       "12": {
         "total_snap": 1052,
-        "daily_count": 35,
-        "monthly": 47,
+        "daily_count": 37,
+        "monthly": 49,
         "star_rating": 4.7
       },
       "13": {
@@ -17889,8 +17889,8 @@
       },
       "27": {
         "total_snap": 3768,
-        "daily_count": 0,
-        "monthly": 80,
+        "daily_count": 5,
+        "monthly": 85,
         "star_rating": 5.0
       },
       "28": {
@@ -17943,8 +17943,8 @@
       },
       "36": {
         "total_snap": 1121,
-        "daily_count": -3,
-        "monthly": 27,
+        "daily_count": 1,
+        "monthly": 31,
         "star_rating": 4.7
       }
     }
