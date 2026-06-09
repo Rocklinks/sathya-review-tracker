@@ -22311,8 +22311,8 @@
     "2026-06-08": {
       "1": {
         "total_snap": 6791,
-        "daily_count": 10,
-        "monthly": 129,
+        "daily_count": 17,
+        "monthly": 136,
         "star_rating": 4.9
       },
       "2": {
@@ -22329,14 +22329,14 @@
       },
       "4": {
         "total_snap": 339,
-        "daily_count": -1,
-        "monthly": 27,
+        "daily_count": 1,
+        "monthly": 29,
         "star_rating": 5.0
       },
       "5": {
         "total_snap": 1060,
-        "daily_count": -2,
-        "monthly": 20,
+        "daily_count": 3,
+        "monthly": 25,
         "star_rating": 4.9
       },
       "6": {
@@ -22347,20 +22347,20 @@
       },
       "7": {
         "total_snap": 4066,
-        "daily_count": 4,
-        "monthly": 82,
+        "daily_count": 5,
+        "monthly": 83,
         "star_rating": 4.8
       },
       "8": {
         "total_snap": 1110,
-        "daily_count": 0,
-        "monthly": 20,
+        "daily_count": 1,
+        "monthly": 21,
         "star_rating": 4.8
       },
       "9": {
         "total_snap": 843,
-        "daily_count": 1,
-        "monthly": 37,
+        "daily_count": 2,
+        "monthly": 38,
         "star_rating": 4.9
       },
       "10": {
@@ -22425,8 +22425,8 @@
       },
       "20": {
         "total_snap": 1093,
-        "daily_count": -3,
-        "monthly": 41,
+        "daily_count": 2,
+        "monthly": 46,
         "star_rating": 4.8
       },
       "21": {
@@ -22497,8 +22497,8 @@
       },
       "32": {
         "total_snap": 2087,
-        "daily_count": 1,
-        "monthly": 12,
+        "daily_count": 2,
+        "monthly": 13,
         "star_rating": 4.8
       },
       "33": {
@@ -22515,14 +22515,14 @@
       },
       "35": {
         "total_snap": 879,
-        "daily_count": 1,
-        "monthly": 38,
+        "daily_count": 4,
+        "monthly": 41,
         "star_rating": 5.0
       },
       "36": {
         "total_snap": 1170,
-        "daily_count": -1,
-        "monthly": 21,
+        "daily_count": 2,
+        "monthly": 24,
         "star_rating": 4.7
       }
     }
