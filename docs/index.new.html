@@ -396,17 +396,12 @@ tbody td{padding:11px 14px;white-space:nowrap}
     <span class="mob-tag">Agency</span>
   </div>
   <div class="topbar-right">
-    <div class="live-pill"><span class="live-dot"></span></div>
+    <div class="live-pill"><span class="live-dot"></span>Auto-updated nightly</div>
     <span id="last-update"></span>
     <span id="clock"></span>
-    <button class="btn-live" onclick="openLivePanel()">⚡ <span>Live</span></button>
     <button class="btn-reviews" onclick="openOldRevPanel()" title="Reviews Explorer" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;box-shadow:0 2px 8px rgba(217,119,6,.35);border:none;padding:7px 14px;border-radius:9px;cursor:pointer;font-size:12px;font-weight:700;font-family:inherit;display:flex;align-items:center;gap:5px;white-space:nowrap;transition:.15s">
       ⭐ <span>Reviews</span>
       <span class="neg-badge" id="rev-neg-badge"></span>
-    </button>
-    <button class="btn-rev" onclick="openRevPanel()">
-      ⭐ <span>Reviews</span>
-      <span class="neg-badge" id="neg-badge"></span>
     </button>
     <div class="exp-split">
       <button class="exp-split-main" onclick="openModal('xls')">⬇ Export</button>
@@ -465,11 +460,12 @@ tbody td{padding:11px 14px;white-space:nowrap}
    CONFIG
 ═══════════════════════════════════════════════════════════ */
 var HF_REPO = "sathya-agencies/reviews";
-var HF_BASE = "https://huggingface.co/datasets/" + HF_REPO + "/resolve/main/data/";
-var HF_WRITE_TOKEN = ""; // Set via Secrets or leave blank for read-only
 var GITHUB_REPO    = "RocklinKS/sathya-review-tracker";
+var HF_WRITE_TOKEN = ""; // Set via Secrets or leave blank for read-only
+var HF_BASE = "https://huggingface.co/datasets/" + HF_REPO + "/resolve/main/data/";
 var GITHUB_PAT     = "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";
 var DASHBOARD_PASS = "prame26@";
+
 
 /* ═══════════════════════════════════════════════════════════
    AGM CONFIG
@@ -1511,25 +1507,21 @@ function showToast(msg){var t=document.getElementById("toast");t.innerHTML=msg;t
 
 async function pushToGitHub(){
   if(!checkPass()) return;
-  if(!CF_WORKER||!GITHUB_REPO){showToast("Set CF_WORKER + GITHUB_REPO in index.html");return;}
+  if(!GITHUB_REPO||!GITHUB_PAT){showToast("Set GITHUB_REPO + GITHUB_PAT in index.html");return;}
   showToast("Pushing to GitHub...");
-  var apiPath = GITHUB_REPO+"/contents/docs/data/reviews.json";
+  var url="https://api.github.com/repos/"+GITHUB_REPO+"/contents/docs/data/reviews.json";
+  var hdrs={"Authorization":"Bearer "+GITHUB_PAT,"Content-Type":"application/json","Accept":"application/vnd.github+json"};
   try{
-    // GET current SHA via CF Worker (PAT never touches browser)
-    var infoR=await fetch(CF_WORKER+"/github/"+apiPath);
     var sha="";
-    if(infoR.ok){var info=await infoR.json();sha=info.sha||"";}
-    var content=btoa(unescape(encodeURIComponent(JSON.stringify(D,null,2))));
-    var body={message:"manual edit "+new Date().toISOString().slice(0,10),content:content};
+    var infoR=await fetch(url,{headers:hdrs});
+    if(infoR.ok){sha=(await infoR.json()).sha||"";}
+    var body={message:"edit "+new Date().toISOString().slice(0,10),
+              content:btoa(unescape(encodeURIComponent(JSON.stringify(D,null,2))))};
     if(sha) body.sha=sha;
-    var r=await fetch(CF_WORKER+"/github/"+apiPath,{
-      method:"PUT",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify(body)
-    });
+    var r=await fetch(url,{method:"PUT",headers:hdrs,body:JSON.stringify(body)});
     if(r.ok) showToast("✅ Saved to GitHub! Live in ~30s.");
-    else{var er=await r.json();showToast("GitHub error: "+(er.message||r.status));}
-  }catch(e){showToast("Push failed: "+e.message);}
+    else{var er=await r.json();showToast("Error: "+(er.message||r.status));}
+  }catch(e){showToast("Failed: "+e.message);}
 }
 
 function importExcel(input){
