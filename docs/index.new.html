@@ -461,10 +461,10 @@ tbody td{padding:11px 14px;white-space:nowrap}
 ═══════════════════════════════════════════════════════════ */
 var HF_REPO = "sathya-agencies/reviews";
 var GITHUB_REPO    = "RocklinKS/sathya-review-tracker";
-var HF_WRITE_TOKEN = ""; // Set via Secrets or leave blank for read-only
-var HF_BASE = "https://huggingface.co/datasets/" + HF_REPO + "/resolve/main/data/";
-var GITHUB_PAT     = "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";
 var DASHBOARD_PASS = "prame26@";
+var HF_BASE = "https://huggingface.co/datasets/" + HF_REPO + "/resolve/main/data/";
+var HF_WRITE_TOKEN = ""; // Set via Secrets or leave blank for read-only
+var GITHUB_PAT     = "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";
 
 
 /* ═══════════════════════════════════════════════════════════
@@ -1509,7 +1509,7 @@ async function pushToGitHub(){
   if(!checkPass()) return;
   if(!GITHUB_REPO||!GITHUB_PAT){showToast("Set GITHUB_REPO + GITHUB_PAT in index.html");return;}
   showToast("Pushing to GitHub...");
-  var url="https://api.github.com/repos/"+GITHUB_REPO+"/contents/docs/data/reviews.json";
+  var url="https://api.github.com/repos/"+GITHUB_REPO+"/contents/data/reviews.json";
   var hdrs={"Authorization":"Bearer "+GITHUB_PAT,"Content-Type":"application/json","Accept":"application/vnd.github+json"};
   try{
     var sha="";
