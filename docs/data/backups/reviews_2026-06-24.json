@@ -52,9 +52,9 @@
       "id": 7,
       "name": "Tirunelveli-1",
       "agm": "John",
-      "overall": 4226,
+      "overall": 4225,
       "star_rating": 4.8,
-      "monthly": 259
+      "monthly": 258
     },
     "8": {
       "id": 8,
@@ -25834,9 +25834,9 @@
         "star_rating": 4.9
       },
       "7": {
-        "total_snap": 4226,
-        "daily_count": -16,
-        "monthly": 259,
+        "total_snap": 4225,
+        "daily_count": -17,
+        "monthly": 258,
         "star_rating": 4.8
       },
       "8": {
@@ -26016,6 +26016,14 @@
     }
   },
   "logs": [
+    {
+      "ran_at": "2026-06-24T20:51:35.922890",
+      "snap_date": "2026-06-24",
+      "baseline_date": "2026-06-23",
+      "success": 36,
+      "failed": 0,
+      "failed_names": []
+    },
     {
       "ran_at": "2026-06-24T20:18:09.764175",
       "snap_date": "2026-06-24",
@@ -26407,15 +26415,7 @@
       "success": 36,
       "failed": 0,
       "failed_names": []
-    },
-    {
-      "ran_at": "2026-05-10T20:01:37.079490",
-      "snap_date": "2026-05-10",
-      "baseline_date": "2026-05-09",
-      "success": 36,
-      "failed": 0,
-      "failed_names": []
     }
   ],
-  "last_updated": "2026-06-24T20:18:09.764175"
+  "last_updated": "2026-06-24T20:51:35.922890"
 }
