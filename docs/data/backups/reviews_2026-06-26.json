@@ -26453,6 +26453,14 @@
   },
   "logs": [
     {
+      "ran_at": "2026-06-26T20:49:54.632649",
+      "snap_date": "2026-06-26",
+      "baseline_date": "2026-06-25",
+      "success": 36,
+      "failed": 0,
+      "failed_names": []
+    },
+    {
       "ran_at": "2026-06-26T20:17:55.238352",
       "snap_date": "2026-06-26",
       "baseline_date": "2026-06-25",
@@ -26843,15 +26851,7 @@
       "success": 36,
       "failed": 0,
       "failed_names": []
-    },
-    {
-      "ran_at": "2026-05-14T20:40:14.007690",
-      "snap_date": "2026-05-14",
-      "baseline_date": "2026-05-13",
-      "success": 36,
-      "failed": 0,
-      "failed_names": []
     }
   ],
-  "last_updated": "2026-06-26T20:17:55.238352"
+  "last_updated": "2026-06-26T20:49:54.632649"
 }
