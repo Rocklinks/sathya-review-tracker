@@ -135,13 +135,9 @@ input[type=date]{background:var(--surface2);border:1px solid var(--border2);bord
 .rating-tooltip{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;font-size:11px;font-weight:500;padding:5px 10px;border-radius:7px;white-space:nowrap;z-index:50;gap:4px;align-items:center;box-shadow:0 4px 16px rgba(0,0,0,.25);pointer-events:none}
 .rating-tooltip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:#1e293b}
 
-/* export split button */
-.exp-split{display:flex;align-items:center;border-radius:9px;overflow:hidden;box-shadow:0 2px 8px rgba(5,150,105,.22)}
-.exp-split-main{display:flex;align-items:center;gap:5px;padding:7px 14px;font-size:12px;font-weight:600;font-family:inherit;border:none;cursor:pointer;background:linear-gradient(135deg,var(--green),var(--teal));color:#fff;white-space:nowrap;transition:.15s}
-.exp-split-main:hover{filter:brightness(1.08);transform:translateY(-1px)}
-.exp-split-sep{width:1px;background:rgba(255,255,255,.35);align-self:stretch;flex-shrink:0}
-.exp-split-pdf{display:flex;align-items:center;justify-content:center;padding:7px 10px;font-size:11px;font-weight:700;font-family:inherit;border:none;cursor:pointer;background:linear-gradient(135deg,var(--rose),#be123c);color:#fff;white-space:nowrap;transition:.15s;letter-spacing:.3px}
-.exp-split-pdf:hover{filter:brightness(1.1);transform:translateY(-1px)}
+/* export save button (half green / half red) */
+.exp-save{display:flex;align-items:center;justify-content:center;gap:6px;padding:7px 18px;font-size:12px;font-weight:700;font-family:inherit;border:none;cursor:pointer;border-radius:9px;color:#fff;white-space:nowrap;transition:.15s;background:linear-gradient(90deg,var(--green) 50%,var(--rose) 50%);box-shadow:0 2px 8px rgba(5,150,105,.22)}
+.exp-save:hover{filter:brightness(1.08);transform:translateY(-1px)}
 #pdf-frame{position:fixed;top:-9999px;left:-9999px;width:210mm;border:none;visibility:hidden}
 
 /* ── EXPORT MODAL ── */
@@ -277,7 +273,6 @@ input[type=date]{background:var(--surface2);border:1px solid var(--border2);bord
   .topbar h1{display:none}
   .backup-grid{grid-template-columns:1fr}
   .main{padding:8px}
-  .exp-split-lbl{display:none}
   .rev-btn-lbl{display:none}
   .rev-stats-row{grid-template-columns:1fr 1fr}
 }
@@ -389,11 +384,7 @@ input[type=date]{background:var(--surface2);border:1px solid var(--border2);bord
       ⭐ <span class="rev-btn-lbl">Reviews</span>
       <span class="btn-reviews-badge" id="rev-neg-badge">!</span>
     </button>
-    <div class="exp-split">
-      <button class="exp-split-main" onclick="openModal('xls')">&#x2B07; <span class="exp-split-lbl">Export Excel</span></button>
-      <div class="exp-split-sep"></div>
-      <button class="exp-split-pdf" onclick="openModal('pdf')" title="Export as PDF">PDF</button>
-    </div>
+    <button class="exp-save" onclick="openModal('xls')" title="Export as Excel or PDF">Save</button>
   </div>
 </div>
 
