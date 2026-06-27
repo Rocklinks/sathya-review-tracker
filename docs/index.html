@@ -448,6 +448,7 @@ var AGM_COLORS={
   "Muthuselvam":{bg:"rgba(124,58,237,.12)",text:"#7c3aed",bar:"#7c3aed"},
   "Venkatesh":{bg:"rgba(225,29,72,.12)", text:"#e11d48",bar:"#e11d48"}
 };
+var BAR_PALETTE=["#0284c7","#4f46e5","#059669","#d97706","#7c3aed","#e11d48","#0891b2","#ca8a04","#9333ea","#be123c","#0d9488","#c026d3"];
 
 function getAvailableDates(){return Object.keys(D.daily||{}).sort();}
 
@@ -1027,7 +1028,7 @@ function buildDashboard(){
   return buildRangeBar()
     +'<div class="kpi-row">'+K("1","💬","Total Reviews",fmt(total),"All branches lifetime")+K("2","⭐",isMulti?"Range Reviews":"Daily Reviews",fmt(rangeNew),rl)+K("3","📈","Monthly Reviews",fmt(monthly),"This month so far")+K("4","🌟","Avg Stars",avgStar,"Across all branches")+'</div>'
     +'<div class="charts-row">'
-    +'<div class="chart-card"><div class="chart-title">🏆 Top Branches — '+rl+'</div><div class="bar-chart">'+top8.map(function(b){return BR(b.name,b.range_total||0,maxD,(AGM_COLORS[b.agm]||{bar:"#4f46e5"}).bar);}).join("")+'</div></div>'
+    +'<div class="chart-card"><div class="chart-title">🏆 Top Branches — '+rl+'</div><div class="bar-chart">'+top8.map(function(b,i){return BR(b.name,b.range_total||0,maxD,BAR_PALETTE[i%BAR_PALETTE.length]);}).join("")+'</div></div>'
     +'<div class="chart-card"><div class="chart-title">👤 AGM Performance — '+rl+'</div><div class="bar-chart">'+agmArr.map(function(e){return BR(e[0],e[1].t,maxAD,(AGM_COLORS[e[0]]||{bar:"#4f46e5"}).bar);}).join("")+'</div></div>'
     +'</div>'+buildBranchesView(true);
 }
