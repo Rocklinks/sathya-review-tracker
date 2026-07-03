@@ -436,7 +436,7 @@ input[type=date]{background:var(--surface2);border:1px solid var(--border2);bord
 /* ═══════════════════════════════════════════
    APP STATE
 ═══════════════════════════════════════════ */
-var DATA_URL="data/reviews.json",D=null,ALL=[],currentView="dashboard",sortCol="range_total",sortAsc=false;
+var DATA_URL="data/reviews.json?t="+Date.now(),D=null,ALL=[],currentView="dashboard",sortCol="range_total",sortAsc=false;
 var selectedDate=null;   // last date in range
 var selectedRange=[];    // active date array
 var rangeMode="single";  // "single"|"range"|"month"
