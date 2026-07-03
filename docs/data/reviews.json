@@ -6,7 +6,7 @@
       "agm": "Siva",
       "overall": 7087,
       "star_rating": 4.9,
-      "monthly": 39
+      "monthly": 44
     },
     "2": {
       "id": 2,
@@ -30,7 +30,7 @@
       "agm": "Siva",
       "overall": 393,
       "star_rating": 5.0,
-      "monthly": 2
+      "monthly": 3
     },
     "5": {
       "id": 5,
@@ -38,7 +38,7 @@
       "agm": "Siva",
       "overall": 1108,
       "star_rating": 4.9,
-      "monthly": 3
+      "monthly": 4
     },
     "6": {
       "id": 6,
@@ -54,7 +54,7 @@
       "agm": "John",
       "overall": 4279,
       "star_rating": 4.8,
-      "monthly": 16
+      "monthly": 17
     },
     "8": {
       "id": 8,
@@ -78,7 +78,7 @@
       "agm": "John",
       "overall": 726,
       "star_rating": 4.9,
-      "monthly": 2
+      "monthly": 4
     },
     "11": {
       "id": 11,
@@ -86,7 +86,7 @@
       "agm": "Jeeva",
       "overall": 3153,
       "star_rating": 4.8,
-      "monthly": 22
+      "monthly": 25
     },
     "12": {
       "id": 12,
@@ -110,7 +110,7 @@
       "agm": "Jeeva",
       "overall": 290,
       "star_rating": 4.9,
-      "monthly": 2
+      "monthly": 4
     },
     "15": {
       "id": 15,
@@ -134,7 +134,7 @@
       "agm": "Jeeva",
       "overall": 757,
       "star_rating": 4.9,
-      "monthly": 1
+      "monthly": 4
     },
     "18": {
       "id": 18,
@@ -150,7 +150,7 @@
       "agm": "Seenivasan",
       "overall": 2400,
       "star_rating": 4.8,
-      "monthly": 7
+      "monthly": 9
     },
     "20": {
       "id": 20,
@@ -158,7 +158,7 @@
       "agm": "Seenivasan",
       "overall": 1148,
       "star_rating": 4.9,
-      "monthly": 4
+      "monthly": 7
     },
     "21": {
       "id": 21,
@@ -198,7 +198,7 @@
       "agm": "Seenivasan",
       "overall": 996,
       "star_rating": 5.0,
-      "monthly": 11
+      "monthly": 12
     },
     "26": {
       "id": 26,
@@ -262,7 +262,7 @@
       "agm": "Venkatesh",
       "overall": 1708,
       "star_rating": 4.9,
-      "monthly": 2
+      "monthly": 4
     },
     "34": {
       "id": 34,
@@ -270,7 +270,7 @@
       "agm": "Venkatesh",
       "overall": 2046,
       "star_rating": 4.8,
-      "monthly": 1
+      "monthly": 2
     },
     "35": {
       "id": 35,
@@ -8131,8 +8131,8 @@
     "2026-07-02": {
       "1": {
         "total_snap": 7087,
-        "daily_count": 23,
-        "monthly": 39,
+        "daily_count": 28,
+        "monthly": 44,
         "star_rating": 4.9
       },
       "2": {
@@ -8149,14 +8149,14 @@
       },
       "4": {
         "total_snap": 393,
-        "daily_count": 1,
-        "monthly": 2,
+        "daily_count": 2,
+        "monthly": 3,
         "star_rating": 5.0
       },
       "5": {
         "total_snap": 1108,
-        "daily_count": 1,
-        "monthly": 3,
+        "daily_count": 2,
+        "monthly": 4,
         "star_rating": 4.9
       },
       "6": {
@@ -8167,8 +8167,8 @@
       },
       "7": {
         "total_snap": 4279,
-        "daily_count": 10,
-        "monthly": 16,
+        "daily_count": 11,
+        "monthly": 17,
         "star_rating": 4.8
       },
       "8": {
@@ -8185,14 +8185,14 @@
       },
       "10": {
         "total_snap": 726,
-        "daily_count": 1,
-        "monthly": 2,
+        "daily_count": 3,
+        "monthly": 4,
         "star_rating": 4.9
       },
       "11": {
         "total_snap": 3153,
-        "daily_count": 17,
-        "monthly": 22,
+        "daily_count": 20,
+        "monthly": 25,
         "star_rating": 4.8
       },
       "12": {
@@ -8209,8 +8209,8 @@
       },
       "14": {
         "total_snap": 290,
-        "daily_count": 0,
-        "monthly": 2,
+        "daily_count": 2,
+        "monthly": 4,
         "star_rating": 4.9
       },
       "15": {
@@ -8227,8 +8227,8 @@
       },
       "17": {
         "total_snap": 757,
-        "daily_count": 0,
-        "monthly": 1,
+        "daily_count": 3,
+        "monthly": 4,
         "star_rating": 4.9
       },
       "18": {
@@ -8239,14 +8239,14 @@
       },
       "19": {
         "total_snap": 2400,
-        "daily_count": 3,
-        "monthly": 7,
+        "daily_count": 5,
+        "monthly": 9,
         "star_rating": 4.8
       },
       "20": {
         "total_snap": 1148,
-        "daily_count": -1,
-        "monthly": 4,
+        "daily_count": 2,
+        "monthly": 7,
         "star_rating": 4.9
       },
       "21": {
@@ -8275,8 +8275,8 @@
       },
       "25": {
         "total_snap": 996,
-        "daily_count": 7,
-        "monthly": 11,
+        "daily_count": 8,
+        "monthly": 12,
         "star_rating": 5.0
       },
       "26": {
@@ -8323,14 +8323,14 @@
       },
       "33": {
         "total_snap": 1708,
-        "daily_count": -1,
-        "monthly": 2,
+        "daily_count": 1,
+        "monthly": 4,
         "star_rating": 4.9
       },
       "34": {
         "total_snap": 2046,
-        "daily_count": -1,
-        "monthly": 1,
+        "daily_count": 0,
+        "monthly": 2,
         "star_rating": 4.8
       },
       "35": {
