@@ -6,7 +6,7 @@
       "agm": "Siva",
       "overall": 7107,
       "star_rating": 4.9,
-      "monthly": 64
+      "monthly": 65
     },
     "2": {
       "id": 2,
@@ -86,7 +86,7 @@
       "agm": "Jeeva",
       "overall": 3155,
       "star_rating": 4.8,
-      "monthly": 27
+      "monthly": 28
     },
     "12": {
       "id": 12,
@@ -126,7 +126,7 @@
       "agm": "Jeeva",
       "overall": 355,
       "star_rating": 4.9,
-      "monthly": 7
+      "monthly": 8
     },
     "17": {
       "id": 17,
@@ -8349,8 +8349,8 @@
     "2026-07-03": {
       "1": {
         "total_snap": 7107,
-        "daily_count": 20,
-        "monthly": 64,
+        "daily_count": 21,
+        "monthly": 65,
         "star_rating": 4.9
       },
       "2": {
@@ -8409,8 +8409,8 @@
       },
       "11": {
         "total_snap": 3155,
-        "daily_count": 2,
-        "monthly": 27,
+        "daily_count": 3,
+        "monthly": 28,
         "star_rating": 4.8
       },
       "12": {
@@ -8439,8 +8439,8 @@
       },
       "16": {
         "total_snap": 355,
-        "daily_count": 1,
-        "monthly": 7,
+        "daily_count": 2,
+        "monthly": 8,
         "star_rating": 4.9
       },
       "17": {
@@ -8967,5 +8967,5 @@
       "failed_names": []
     }
   ],
-  "last_updated": "2026-07-03T20:18:28.800635"
+  "last_updated": "2026-07-04T00:00:00"
 }
