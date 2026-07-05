@@ -8781,6 +8781,260 @@
         "monthly": 2,
         "star_rating": 4.8
       }
+    },
+    "2026-07-05": {
+      "1": {
+        "daily_count": 24,
+        "total_snap": 7122,
+        "monthly": 80,
+        "star_rating": 4.9,
+        "method": "excel"
+      },
+      "2": {
+        "daily_count": 7,
+        "total_snap": 6416,
+        "monthly": 24,
+        "star_rating": 4.8,
+        "method": "excel"
+      },
+      "3": {
+        "daily_count": 3,
+        "total_snap": 1249,
+        "monthly": 10,
+        "star_rating": 4.9,
+        "method": "excel"
+      },
+      "4": {
+        "daily_count": 2,
+        "total_snap": 393,
+        "monthly": 3,
+        "star_rating": 5.0,
+        "method": "excel"
+      },
+      "5": {
+        "daily_count": 3,
+        "total_snap": 1115,
+        "monthly": 11,
+        "star_rating": 4.9,
+        "method": "excel"
+      },
+      "6": {
+        "daily_count": 4,
+        "total_snap": 2025,
+        "monthly": 12,
+        "star_rating": 4.9,
+        "method": "excel"
+      },
+      "7": {
+        "daily_count": 14,
+        "total_snap": 4299,
+        "monthly": 37,
+        "star_rating": 4.8,
+        "method": "excel"
+      },
+      "8": {
+        "daily_count": 8,
+        "total_snap": 1181,
+        "monthly": 11,
+        "star_rating": 4.8,
+        "method": "excel"
+      },
+      "9": {
+        "daily_count": 5,
+        "total_snap": 931,
+        "monthly": 14,
+        "star_rating": 4.9,
+        "method": "excel"
+      },
+      "10": {
+        "daily_count": 2,
+        "total_snap": 728,
+        "monthly": 6,
+        "star_rating": 4.9,
+        "method": "excel"
+      },
+      "11": {
+        "daily_count": 4,
+        "total_snap": 3156,
+        "monthly": 29,
+        "star_rating": 4.8,
+        "method": "excel"
+      },
+      "12": {
+        "daily_count": 6,
+        "total_snap": 1143,
+        "monthly": 16,
+        "star_rating": 4.7,
+        "method": "excel"
+      },
+      "13": {
+        "daily_count": 4,
+        "total_snap": 1128,
+        "monthly": 8,
+        "star_rating": 4.7,
+        "method": "excel"
+      },
+      "14": {
+        "daily_count": 2,
+        "total_snap": 291,
+        "monthly": 5,
+        "star_rating": 4.9,
+        "method": "excel"
+      },
+      "15": {
+        "daily_count": 3,
+        "total_snap": 431,
+        "monthly": 6,
+        "star_rating": 4.9,
+        "method": "excel"
+      },
+      "16": {
+        "daily_count": 5,
+        "total_snap": 360,
+        "monthly": 13,
+        "star_rating": 4.9,
+        "method": "excel"
+      },
+      "17": {
+        "daily_count": 4,
+        "total_snap": 761,
+        "monthly": 8,
+        "star_rating": 4.9,
+        "method": "excel"
+      },
+      "18": {
+        "daily_count": 9,
+        "total_snap": 2497,
+        "monthly": 43,
+        "star_rating": 4.6,
+        "method": "excel"
+      },
+      "19": {
+        "daily_count": 16,
+        "total_snap": 2422,
+        "monthly": 31,
+        "star_rating": 4.8,
+        "method": "excel"
+      },
+      "20": {
+        "daily_count": 2,
+        "total_snap": 1150,
+        "monthly": 9,
+        "star_rating": 4.9,
+        "method": "excel"
+      },
+      "21": {
+        "daily_count": 2,
+        "total_snap": 670,
+        "monthly": 11,
+        "star_rating": 4.9,
+        "method": "excel"
+      },
+      "22": {
+        "daily_count": 2,
+        "total_snap": 622,
+        "monthly": 8,
+        "star_rating": 4.8,
+        "method": "excel"
+      },
+      "23": {
+        "daily_count": 3,
+        "total_snap": 981,
+        "monthly": 11,
+        "star_rating": 4.8,
+        "method": "excel"
+      },
+      "24": {
+        "daily_count": 8,
+        "total_snap": 1023,
+        "monthly": 11,
+        "star_rating": 4.9,
+        "method": "excel"
+      },
+      "25": {
+        "daily_count": 4,
+        "total_snap": 999,
+        "monthly": 15,
+        "star_rating": 5.0,
+        "method": "excel"
+      },
+      "26": {
+        "daily_count": 10,
+        "total_snap": 6166,
+        "monthly": 27,
+        "star_rating": 4.9,
+        "method": "excel"
+      },
+      "27": {
+        "daily_count": 13,
+        "total_snap": 3959,
+        "monthly": 29,
+        "star_rating": 5.0,
+        "method": "excel"
+      },
+      "28": {
+        "daily_count": 4,
+        "total_snap": 2264,
+        "monthly": 13,
+        "star_rating": 4.9,
+        "method": "excel"
+      },
+      "29": {
+        "daily_count": 0,
+        "total_snap": 1018,
+        "monthly": 5,
+        "star_rating": 4.9,
+        "method": "excel"
+      },
+      "30": {
+        "daily_count": 3,
+        "total_snap": 718,
+        "monthly": 7,
+        "star_rating": 5.0,
+        "method": "excel"
+      },
+      "31": {
+        "daily_count": 5,
+        "total_snap": 2096,
+        "monthly": 18,
+        "star_rating": 4.8,
+        "method": "excel"
+      },
+      "32": {
+        "daily_count": 3,
+        "total_snap": 2131,
+        "monthly": 5,
+        "star_rating": 4.8,
+        "method": "excel"
+      },
+      "33": {
+        "daily_count": 6,
+        "total_snap": 1715,
+        "monthly": 11,
+        "star_rating": 4.9,
+        "method": "excel"
+      },
+      "34": {
+        "daily_count": 2,
+        "total_snap": 2050,
+        "monthly": 6,
+        "star_rating": 4.8,
+        "method": "excel"
+      },
+      "35": {
+        "daily_count": 7,
+        "total_snap": 974,
+        "monthly": 14,
+        "star_rating": 5.0,
+        "method": "excel"
+      },
+      "36": {
+        "daily_count": 0,
+        "total_snap": 1214,
+        "monthly": 2,
+        "star_rating": 4.8,
+        "method": "excel"
+      }
     }
   },
   "logs": [
