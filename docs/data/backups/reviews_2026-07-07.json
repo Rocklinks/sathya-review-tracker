@@ -60,9 +60,9 @@
       "id": 8,
       "name": "Valliyur-1",
       "agm": "John",
-      "overall": 1185,
+      "overall": 1184,
       "star_rating": 4.8,
-      "monthly": 17
+      "monthly": 16
     },
     "9": {
       "id": 9,
@@ -9370,9 +9370,9 @@
         "star_rating": 4.8
       },
       "8": {
-        "total_snap": 1185,
-        "daily_count": 1,
-        "monthly": 17,
+        "total_snap": 1184,
+        "daily_count": 0,
+        "monthly": 16,
         "star_rating": 4.8
       },
       "9": {
@@ -9546,6 +9546,14 @@
     }
   },
   "logs": [
+    {
+      "ran_at": "2026-07-07T20:52:17.890375",
+      "snap_date": "2026-07-07",
+      "baseline_date": "2026-07-06",
+      "success": 36,
+      "failed": 0,
+      "failed_names": []
+    },
     {
       "ran_at": "2026-07-07T20:25:31.617453",
       "snap_date": "2026-07-07",
@@ -9937,15 +9945,7 @@
       "success": 36,
       "failed": 0,
       "failed_names": []
-    },
-    {
-      "ran_at": "2026-06-09T21:03:15.845787",
-      "snap_date": "2026-06-09",
-      "baseline_date": "2026-06-08",
-      "success": 36,
-      "failed": 0,
-      "failed_names": []
     }
   ],
-  "last_updated": "2026-07-07T20:25:31.617453"
+  "last_updated": "2026-07-07T20:52:17.890375"
 }
