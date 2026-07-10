@@ -84,9 +84,9 @@
       "id": 11,
       "name": "Nagercoil",
       "agm": "Jeeva",
-      "overall": 3140,
+      "overall": 3139,
       "star_rating": 4.8,
-      "monthly": 76
+      "monthly": 75
     },
     "12": {
       "id": 12,
@@ -212,9 +212,9 @@
       "id": 27,
       "name": "Thenkasi-2",
       "agm": "Muthuselvam",
-      "overall": 3991,
+      "overall": 3987,
       "star_rating": 5.0,
-      "monthly": 92
+      "monthly": 88
     },
     "28": {
       "id": 28,
@@ -10115,9 +10115,9 @@
         "star_rating": 4.9
       },
       "11": {
-        "total_snap": 3140,
-        "daily_count": 1,
-        "monthly": 76,
+        "total_snap": 3139,
+        "daily_count": 0,
+        "monthly": 75,
         "star_rating": 4.8
       },
       "12": {
@@ -10211,9 +10211,9 @@
         "star_rating": 4.9
       },
       "27": {
-        "total_snap": 3991,
-        "daily_count": 7,
-        "monthly": 92,
+        "total_snap": 3987,
+        "daily_count": 3,
+        "monthly": 88,
         "star_rating": 5.0
       },
       "28": {
@@ -10273,6 +10273,14 @@
     }
   },
   "logs": [
+    {
+      "ran_at": "2026-07-10T20:28:07.259895",
+      "snap_date": "2026-07-10",
+      "baseline_date": "2026-07-09",
+      "success": 36,
+      "failed": 0,
+      "failed_names": []
+    },
     {
       "ran_at": "2026-07-10T19:59:04.821014",
       "snap_date": "2026-07-10",
@@ -10664,15 +10672,7 @@
       "success": 36,
       "failed": 0,
       "failed_names": []
-    },
-    {
-      "ran_at": "2026-06-15T21:47:50.956127",
-      "snap_date": "2026-06-15",
-      "baseline_date": "2026-06-14",
-      "success": 36,
-      "failed": 0,
-      "failed_names": []
     }
   ],
-  "last_updated": "2026-07-10T19:59:04.821014"
+  "last_updated": "2026-07-10T20:28:07.259895"
 }
