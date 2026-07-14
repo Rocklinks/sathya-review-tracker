@@ -52,9 +52,9 @@
       "id": 7,
       "name": "Tirunelveli-1",
       "agm": "John",
-      "overall": 4346,
+      "overall": 4345,
       "star_rating": 4.8,
-      "monthly": 137
+      "monthly": 136
     },
     "8": {
       "id": 8,
@@ -84,9 +84,9 @@
       "id": 11,
       "name": "Nagercoil",
       "agm": "Jeeva",
-      "overall": 3147,
+      "overall": 3146,
       "star_rating": 4.7,
-      "monthly": 103
+      "monthly": 102
     },
     "12": {
       "id": 12,
@@ -156,9 +156,9 @@
       "id": 20,
       "name": "Paramakudi",
       "agm": "Seenivasan",
-      "overall": 1186,
+      "overall": 1185,
       "star_rating": 4.9,
-      "monthly": 54
+      "monthly": 53
     },
     "21": {
       "id": 21,
@@ -212,9 +212,9 @@
       "id": 27,
       "name": "Thenkasi-2",
       "agm": "Muthuselvam",
-      "overall": 4015,
+      "overall": 4014,
       "star_rating": 5.0,
-      "monthly": 130
+      "monthly": 129
     },
     "28": {
       "id": 28,
@@ -11107,9 +11107,9 @@
         "star_rating": 4.9
       },
       "7": {
-        "total_snap": 4346,
-        "daily_count": 2,
-        "monthly": 137,
+        "total_snap": 4345,
+        "daily_count": 1,
+        "monthly": 136,
         "star_rating": 4.8
       },
       "8": {
@@ -11131,9 +11131,9 @@
         "star_rating": 4.9
       },
       "11": {
-        "total_snap": 3147,
-        "daily_count": 8,
-        "monthly": 103,
+        "total_snap": 3146,
+        "daily_count": 7,
+        "monthly": 102,
         "star_rating": 4.7
       },
       "12": {
@@ -11185,9 +11185,9 @@
         "star_rating": 4.8
       },
       "20": {
-        "total_snap": 1186,
-        "daily_count": -3,
-        "monthly": 54,
+        "total_snap": 1185,
+        "daily_count": -4,
+        "monthly": 53,
         "star_rating": 4.9
       },
       "21": {
@@ -11227,9 +11227,9 @@
         "star_rating": 4.9
       },
       "27": {
-        "total_snap": 4015,
-        "daily_count": 3,
-        "monthly": 130,
+        "total_snap": 4014,
+        "daily_count": 2,
+        "monthly": 129,
         "star_rating": 5.0
       },
       "28": {
@@ -11289,6 +11289,14 @@
     }
   },
   "logs": [
+    {
+      "ran_at": "2026-07-14T20:16:44.258192",
+      "snap_date": "2026-07-14",
+      "baseline_date": "2026-07-13",
+      "success": 36,
+      "failed": 0,
+      "failed_names": []
+    },
     {
       "ran_at": "2026-07-14T19:51:53.478161",
       "snap_date": "2026-07-14",
@@ -11680,15 +11688,7 @@
       "success": 36,
       "failed": 0,
       "failed_names": []
-    },
-    {
-      "ran_at": "2026-06-18T21:24:45.657294",
-      "snap_date": "2026-06-18",
-      "baseline_date": "2026-06-17",
-      "success": 36,
-      "failed": 0,
-      "failed_names": []
     }
   ],
-  "last_updated": "2026-07-14T19:51:53.478161"
+  "last_updated": "2026-07-14T20:16:44.258192"
 }
