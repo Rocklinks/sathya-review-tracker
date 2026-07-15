@@ -1,6 +1,6 @@
 """
 Sathya Review Scraper - Fast Async Parallel Version
-Scrapes 36 branches in ~30 seconds using controlled concurrency.
+Scrapes 37 branches in ~30 seconds using controlled concurrency.
 """
 
 import re
