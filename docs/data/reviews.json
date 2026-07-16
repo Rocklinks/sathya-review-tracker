@@ -6,7 +6,7 @@
       "agm": "Siva",
       "overall": 7251,
       "star_rating": 4.9,
-      "monthly": 338
+      "monthly": 362
     },
     "2": {
       "id": 2,
@@ -22,7 +22,7 @@
       "agm": "Siva",
       "overall": 1292,
       "star_rating": 4.9,
-      "monthly": 57
+      "monthly": 58
     },
     "4": {
       "id": 4,
@@ -30,7 +30,7 @@
       "agm": "Siva",
       "overall": 410,
       "star_rating": 5.0,
-      "monthly": 26
+      "monthly": 28
     },
     "5": {
       "id": 5,
@@ -38,7 +38,7 @@
       "agm": "Siva",
       "overall": 1126,
       "star_rating": 4.9,
-      "monthly": 32
+      "monthly": 33
     },
     "6": {
       "id": 6,
@@ -54,7 +54,7 @@
       "agm": "John",
       "overall": 4346,
       "star_rating": 4.8,
-      "monthly": 139
+      "monthly": 144
     },
     "8": {
       "id": 8,
@@ -62,7 +62,7 @@
       "agm": "John",
       "overall": 1201,
       "star_rating": 4.8,
-      "monthly": 45
+      "monthly": 47
     },
     "9": {
       "id": 9,
@@ -78,7 +78,7 @@
       "agm": "John",
       "overall": 731,
       "star_rating": 4.9,
-      "monthly": 17
+      "monthly": 19
     },
     "11": {
       "id": 11,
@@ -86,7 +86,7 @@
       "agm": "Jeeva",
       "overall": 3148,
       "star_rating": 4.8,
-      "monthly": 108
+      "monthly": 111
     },
     "12": {
       "id": 12,
@@ -94,7 +94,7 @@
       "agm": "Jeeva",
       "overall": 1143,
       "star_rating": 4.7,
-      "monthly": 25
+      "monthly": 26
     },
     "13": {
       "id": 13,
@@ -134,7 +134,7 @@
       "agm": "Jeeva",
       "overall": 789,
       "star_rating": 4.9,
-      "monthly": 43
+      "monthly": 45
     },
     "18": {
       "id": 18,
@@ -150,7 +150,7 @@
       "agm": "Seenivasan",
       "overall": 2473,
       "star_rating": 4.8,
-      "monthly": 114
+      "monthly": 117
     },
     "20": {
       "id": 20,
@@ -158,7 +158,7 @@
       "agm": "Seenivasan",
       "overall": 1187,
       "star_rating": 4.9,
-      "monthly": 63
+      "monthly": 65
     },
     "21": {
       "id": 21,
@@ -198,7 +198,7 @@
       "agm": "Seenivasan",
       "overall": 1025,
       "star_rating": 5.0,
-      "monthly": 59
+      "monthly": 62
     },
     "26": {
       "id": 26,
@@ -206,7 +206,7 @@
       "agm": "Muthuselvam",
       "overall": 6173,
       "star_rating": 4.9,
-      "monthly": 65
+      "monthly": 72
     },
     "27": {
       "id": 27,
@@ -214,7 +214,7 @@
       "agm": "Muthuselvam",
       "overall": 6180,
       "star_rating": 4.9,
-      "monthly": 2301
+      "monthly": 145
     },
     "28": {
       "id": 28,
@@ -222,7 +222,7 @@
       "agm": "Muthuselvam",
       "overall": 4016,
       "star_rating": 5.0,
-      "monthly": 1766
+      "monthly": 43
     },
     "29": {
       "id": 29,
@@ -230,7 +230,7 @@
       "agm": "Muthuselvam",
       "overall": 2293,
       "star_rating": 4.9,
-      "monthly": 1280
+      "monthly": 36
     },
     "30": {
       "id": 30,
@@ -238,7 +238,7 @@
       "agm": "Muthuselvam",
       "overall": 1048,
       "star_rating": 4.9,
-      "monthly": 339
+      "monthly": 31
     },
     "31": {
       "id": 31,
@@ -246,7 +246,7 @@
       "agm": "Muthuselvam",
       "overall": 740,
       "star_rating": 5.0,
-      "monthly": -1331
+      "monthly": 73
     },
     "32": {
       "id": 32,
@@ -254,7 +254,7 @@
       "agm": "Muthuselvam",
       "overall": 2144,
       "star_rating": 4.8,
-      "monthly": 19
+      "monthly": 30
     },
     "33": {
       "id": 33,
@@ -262,7 +262,7 @@
       "agm": "Venkadesan",
       "overall": 2155,
       "star_rating": 4.8,
-      "monthly": 469
+      "monthly": 64
     },
     "34": {
       "id": 34,
@@ -270,7 +270,7 @@
       "agm": "Venkadesan",
       "overall": 1750,
       "star_rating": 4.9,
-      "monthly": -285
+      "monthly": 33
     },
     "35": {
       "id": 35,
@@ -278,7 +278,7 @@
       "agm": "Venkadesan",
       "overall": 2066,
       "star_rating": 4.8,
-      "monthly": 1108
+      "monthly": 55
     },
     "36": {
       "id": 36,
@@ -294,7 +294,7 @@
       "agm": "Venkadesan",
       "overall": 1229,
       "star_rating": 4.8,
-      "monthly": 0
+      "monthly": 25
     }
   },
   "daily": {
