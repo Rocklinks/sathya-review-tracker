@@ -4,7 +4,7 @@ Sathya Review Scraper - Parallel + Actual Review Counting
 - snap_date = yesterday IST
 - Counts actual reviews by scrolling Newest sort, stopping when date < snap_date
 - Keeps parallel architecture (MAX_CONCURRENT=4 for scroll stability)
-- Falls back to snapshot diff if scroll fails
+- Falls back to snapshot diff (with max(0) guard) if scroll fails
 """
 import re, json, os, asyncio, traceback, sys, random
 from datetime import datetime, timedelta
@@ -12,19 +12,20 @@ from playwright.async_api import async_playwright
 
 DATA_FILE = os.path.join(os.path.dirname(__file__), "..", "docs", "data", "reviews.json")
 BACKUP_DIR = os.path.join(os.path.dirname(DATA_FILE), "backups")
-MAX_CONCURRENT = 4  # Lower than before — scrolling needs more memory per tab
+MAX_CONCURRENT = 4
+TOTAL_BRANCHES = 37
 
 BRANCHES = [
-    {"id":1,  "name":"Tuticorin-1",     "place_id":"ChIJ5zJNoJfvAzsR-bJE_3bbNYw",  "agm":"Sivaperumal"},
-    {"id":2,  "name":"Tuticorin-2",     "place_id":"ChIJH6gY4-PvAzsRJ50skTlx3cs",  "agm":"Sivaperumal"},
-    {"id":3,  "name":"Thiruchendur-1",  "place_id":"ChIJeXA4vJKRAzsRBovAtv6lMuQ",  "agm":"Sivaperumal"},
-    {"id":4,  "name":"Thisayanvilai-1", "place_id":"ChIJVWkvdfh_BDsRdvtimKCLS5Y",  "agm":"Sivaperumal"},
-    {"id":5,  "name":"Eral-2",          "place_id":"ChIJbwAA0KGMAzsRkQilW5PceeA",   "agm":"Sivaperumal"},
-    {"id":6,  "name":"Udankudi",        "place_id":"ChIJPQAAACyEAzsRgjznQ1GLom0",   "agm":"Sivaperumal"},
-    {"id":7,  "name":"Tirunelveli-1",   "place_id":"ChIJ2RU2NvQRBDsRq-Fw7IVwx7k",  "agm":"Johnson"},
-    {"id":8,  "name":"Valliyur-1",      "place_id":"ChIJcVNk6TtnBDsRBoP4zpExt5k",  "agm":"Johnson"},
-    {"id":9,  "name":"Ambasamudram-1",  "place_id":"ChIJ9SGeIi85BDsRZk4QdyW9BSY",  "agm":"Johnson"},
-    {"id":10, "name":"Anjugramam-1",    "place_id":"ChIJ4yeJebLtBDsRDceoxujdGyc",   "agm":"Johnson"},
+    {"id":1,  "name":"Tuticorin-1",     "place_id":"ChIJ5zJNoJfvAzsR-bJE_3bbNYw",  "agm":"Siva"},
+    {"id":2,  "name":"Tuticorin-2",     "place_id":"ChIJH6gY4-PvAzsRJ50skTlx3cs",  "agm":"Siva"},
+    {"id":3,  "name":"Thiruchendur-1",  "place_id":"ChIJeXA4vJKRAzsRBovAtv6lMuQ",  "agm":"Siva"},
+    {"id":4,  "name":"Thisayanvilai-1", "place_id":"ChIJVWkvdfh_BDsRdvtimKCLS5Y",  "agm":"Siva"},
+    {"id":5,  "name":"Eral-2",          "place_id":"ChIJbwAA0KGMAzsRkQilW5PceeA",   "agm":"Siva"},
+    {"id":6,  "name":"Udankudi",        "place_id":"ChIJPQAAACyEAzsRgjznQ1GLom0",   "agm":"Siva"},
+    {"id":7,  "name":"Tirunelveli-1",   "place_id":"ChIJ2RU2NvQRBDsRq-Fw7IVwx7k",  "agm":"John"},
+    {"id":8,  "name":"Valliyur-1",      "place_id":"ChIJcVNk6TtnBDsRBoP4zpExt5k",  "agm":"John"},
+    {"id":9,  "name":"Ambasamudram-1",  "place_id":"ChIJ9SGeIi85BDsRZk4QdyW9BSY",  "agm":"John"},
+    {"id":10, "name":"Anjugramam-1",    "place_id":"ChIJ4yeJebLtBDsRDceoxujdGyc",   "agm":"John"},
     {"id":11, "name":"Nagercoil",       "place_id":"ChIJe1LZBiTxBDsRJFLjlbgZoIs",  "agm":"Jeeva"},
     {"id":12, "name":"Marthandam",      "place_id":"ChIJcWptCRdVBDsRlJh2q0-rnfY",  "agm":"Jeeva"},
     {"id":13, "name":"Thuckalay-1",     "place_id":"ChIJc9QgEub4BDsRoyDR4Wd6tYA",  "agm":"Jeeva"},
@@ -40,17 +41,18 @@ BRANCHES = [
     {"id":23, "name":"Sattur-2",        "place_id":"ChIJNVVVVcHKBjsR7xMX97RFn8Q",   "agm":"Seenivasan"},
     {"id":24, "name":"Sankarankovil-1", "place_id":"ChIJE1mKnhSXBjsRKMQ-9JKQf_c",  "agm":"Seenivasan"},
     {"id":25, "name":"Kayathar-1",      "place_id":"ChIJx5ebtUgRBDsRMquPZNUJVpw",  "agm":"Seenivasan"},
-    {"id":26, "name":"Thenkasi",        "place_id":"ChIJuaqqquEpBDsRVITw0MMYklc",   "agm":"Muthuselvam"},
-    {"id":27, "name":"Thenkasi-2",      "place_id":"ChIJiwqLye6DBjsRo9v1mWXaycI",  "agm":"Muthuselvam"},
-    {"id":28, "name":"Surandai-1",      "place_id":"ChIJPb1_eEOdBjsRjL9IVCVJhi8",  "agm":"Muthuselvam"},
-    {"id":29, "name":"Puliyankudi-1",   "place_id":"ChIJjZqoc46RBjsRQTGHnNC8xxA",  "agm":"Muthuselvam"},
-    {"id":30, "name":"Sengottai-1",     "place_id":"ChIJw3zzKiaBBjsR9KDyGpn1nXU",  "agm":"Muthuselvam"},
-    {"id":31, "name":"Rajapalayam",     "place_id":"ChIJW2ot-NDpBjsRMTfMF2IV-xE",  "agm":"Muthuselvam"},
-    {"id":32, "name":"Virudhunagar",    "place_id":"ChIJN3jzNJgsATsRCU3nrB5ntKE",  "agm":"Venkadesan"},
-    {"id":33, "name":"Virudhunagar-2",  "place_id":"ChIJPezaX7wtATsR9sHhFOG6A1c",  "agm":"Venkadesan"},
-    {"id":34, "name":"Aruppukottai",    "place_id":"ChIJy6qqqgYwATsRbcp-hXnoruM",  "agm":"Venkadesan"},
-    {"id":35, "name":"Aruppukottai-2",  "place_id":"ChIJY04wY58xATsRuoJSichVQQE",  "agm":"Venkadesan"},
-    {"id":36, "name":"Sivakasi",        "place_id":"ChIJI2JvEePOBjsREh8b-x4WF4U",  "agm":"Venkadesan"},
+    {"id":26, "name":"Ramnad-2",        "place_id":"ChIJcWPpFSSZATsR1ai6lxBXkAw",  "agm":"Seenivasan"},
+    {"id":27, "name":"Thenkasi",        "place_id":"ChIJuaqqquEpBDsRVITw0MMYklc",   "agm":"Muthuselvam"},
+    {"id":28, "name":"Thenkasi-2",      "place_id":"ChIJiwqLye6DBjsRo9v1mWXaycI",  "agm":"Muthuselvam"},
+    {"id":29, "name":"Surandai-1",      "place_id":"ChIJPb1_eEOdBjsRjL9IVCVJhi8",  "agm":"Muthuselvam"},
+    {"id":30, "name":"Puliyankudi-1",   "place_id":"ChIJjZqoc46RBjsRQTGHnNC8xxA",  "agm":"Muthuselvam"},
+    {"id":31, "name":"Sengottai-1",     "place_id":"ChIJw3zzKiaBBjsR9KDyGpn1nXU",  "agm":"Muthuselvam"},
+    {"id":32, "name":"Rajapalayam",     "place_id":"ChIJW2ot-NDpBjsRMTfMF2IV-xE",  "agm":"Muthuselvam"},
+    {"id":33, "name":"Virudhunagar",    "place_id":"ChIJN3jzNJgsATsRCU3nrB5ntKE",  "agm":"Venkadesan"},
+    {"id":34, "name":"Virudhunagar-2",  "place_id":"ChIJPezaX7wtATsR9sHhFOG6A1c",  "agm":"Venkadesan"},
+    {"id":35, "name":"Aruppukottai",    "place_id":"ChIJy6qqqgYwATsRbcp-hXnoruM",  "agm":"Venkadesan"},
+    {"id":36, "name":"Aruppukottai-2",  "place_id":"ChIJY04wY58xATsRuoJSichVQQE", "agm":"Venkadesan"},
+    {"id":37, "name":"Sivakasi",        "place_id":"ChIJI2JvEePOBjsREh8b-x4WF4U",  "agm":"Venkadesan"},
 ]
 
 IST_OFFSET = timedelta(hours=5, minutes=30)
@@ -323,7 +325,7 @@ async def run():
                 prev_total = baseline_snap.get(bid,{}).get("total_snap",
                              data.get("branches",{}).get(bid,{}).get("overall",0))
                 old_stars = data.get("branches",{}).get(bid,{}).get("star_rating",0)
-                print(f" [{branch['id']:02d}/36] {branch['name']:<25}", end=" ", flush=True)
+                print(f" [{branch['id']:02d}/{TOTAL_BRANCHES}] {branch['name']:<25}", end=" ", flush=True)
                 res = await scrape_branch(context, branch, snap_date, prev_total, old_stars)
                 if res["error"]:
                     failed.append(branch["name"])
@@ -340,13 +342,13 @@ async def run():
         if bid not in results: continue
         r = results[bid]
         prev_monthly = monthly_snap.get(bid,{}).get("monthly",0)
-        monthly = prev_monthly + r["daily"]
+        monthly = max(0, prev_monthly + r["daily"])
         raw_delta = (r["live"] - baseline_snap.get(bid,{}).get("total_snap",
                     data.get("branches",{}).get(bid,{}).get("overall",0)))
 
         data["daily"][snap_date][bid] = {
             "total_snap":  r["live"],
-            "daily_count": r["daily"],
+            "daily_count": max(0, r["daily"]),
             "raw_delta":   raw_delta,
             "has_deletion":raw_delta < 0,
             "monthly":     monthly,
@@ -365,7 +367,7 @@ async def run():
     data["logs"] = data["logs"][:50]
     data["last_updated"] = run_time
     save_data(data)
-    print(f"\nDone: {success}/36 for {snap_date}")
+    print(f"\nDone: {success}/{TOTAL_BRANCHES} for {snap_date}")
 
 if __name__ == "__main__":
     try: asyncio.run(run())
