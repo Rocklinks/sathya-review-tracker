@@ -274,8 +274,9 @@ async def _count_reviews_by_scroll(page, snap_date):
             continue
 
     seen, count, stop, no_new = set(), 0, False, 0
+    max_scroll_attempts = 15
 
-    while not stop and no_new < 5:
+    while not stop and no_new < 8:
         cards = await page.query_selector_all('div[data-review-id],div.jftiEf')
         new = 0
         for card in cards:
@@ -310,9 +311,22 @@ async def _count_reviews_by_scroll(page, snap_date):
                     await page.keyboard.press("End")
             except Exception:
                 pass
-            await page.wait_for_timeout(random.randint(600, 1200))
+            await page.wait_for_timeout(random.randint(800, 1500))
 
     return count
+
+
+def _is_suspicious_count(count, prev_total, live):
+    """Detect suspiciously round counts that indicate scroll capping."""
+    if count == 0:
+        return False
+    if count in (10, 20, 30, 40, 50):
+        return True
+    if live and prev_total:
+        expected_diff = live - prev_total
+        if expected_diff > 0 and count > expected_diff * 2:
+            return True
+    return False
 
 
 async def scrape_branch(context, branch, snap_date, prev_total, old_stars):
@@ -342,8 +356,14 @@ async def scrape_branch(context, branch, snap_date, prev_total, old_stars):
 
             try:
                 count = await _count_reviews_by_scroll(page, snap_date)
-                result["daily"] = count
-                result["method"] = "scroll"
+                raw_diff = live - prev_total if prev_total else 0
+
+                if _is_suspicious_count(count, prev_total, live):
+                    result["daily"] = max(0, raw_diff)
+                    result["method"] = "diff_corrected"
+                else:
+                    result["daily"] = count
+                    result["method"] = "scroll"
                 break
             except Exception:
                 raw = live - prev_total if prev_total else 0
