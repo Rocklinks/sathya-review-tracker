@@ -725,13 +725,13 @@ function doExportExcel(dates,branches){
   showToast("Generating Excel&#8230;");
   setTimeout(function(){
     try{
-      var header=["#","Branch","AGM","Star Rating","Overall Reviews","Monthly Reviews"];
+      var header=["Branch","Star Rating","Overall Reviews","Monthly Reviews"];
       dates.forEach(function(d){header.push(formatDate(d)+" Daily");});
       var lastDate=dates[dates.length-1];
       var dataRows=branches.map(function(b){
         var bid=String(b.id);
         var lastSnap=(D.daily[lastDate]&&D.daily[lastDate][bid])||{};
-        var row=[b.id,b.name,b.agm,
+        var row=[b.name,
           getRatingTextForExcel(bid, lastDate),
           lastSnap.total_snap||b.overall||0,
           lastSnap.monthly||b.monthly||0
@@ -741,7 +741,7 @@ function doExportExcel(dates,branches){
         });
         return row;
       });
-      var totalRow=["","","TOTAL","","",""];
+      var totalRow=["","","TOTAL","",""];
       dates.forEach(function(d){
         var s=branches.reduce(function(a,b){
           var bid=String(b.id);
@@ -772,7 +772,7 @@ function doExportExcel(dates,branches){
           };
         }
       }
-      var wscols=[{wch:4},{wch:22},{wch:14},{wch:20},{wch:16},{wch:16}];
+      var wscols=[{wch:22},{wch:20},{wch:16},{wch:16}];
       dates.forEach(function(){wscols.push({wch:14});});
       ws['!cols']=wscols;
       ws['!rows']=allRows.map(function(_,i){return{hpt:i===0?22:18};});
