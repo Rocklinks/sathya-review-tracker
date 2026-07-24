@@ -124,7 +124,7 @@
       "id": 16,
       "name": "Monday Market",
       "agm": "Jeeva",
-      "overall": 398,
+      "overall": 403,
       "star_rating": 4.9,
       "monthly": 57
     },
@@ -8211,7 +8211,7 @@
       },
       "16": {
         "daily_count": 3,
-        "total_snap": 398,
+        "total_snap": 351,
         "monthly": 57,
         "star_rating": 4.9,
         "method": "excel"
@@ -8456,7 +8456,7 @@
         "star_rating": 4.9
       },
       "16": {
-        "total_snap": 398,
+        "total_snap": 354,
         "daily_count": 3,
         "monthly": 57,
         "star_rating": 4.9
@@ -8690,7 +8690,7 @@
         "star_rating": 4.9
       },
       "16": {
-        "total_snap": 398,
+        "total_snap": 356,
         "daily_count": 2,
         "monthly": 57,
         "star_rating": 4.9
@@ -8940,7 +8940,7 @@
       },
       "16": {
         "daily_count": 5,
-        "total_snap": 398,
+        "total_snap": 361,
         "monthly": 57,
         "star_rating": 4.9,
         "method": "excel"
@@ -9201,7 +9201,7 @@
       },
       "16": {
         "daily_count": 2,
-        "total_snap": 398,
+        "total_snap": 363,
         "monthly": 57,
         "star_rating": 4.9,
         "method": "excel"
@@ -9462,7 +9462,7 @@
       },
       "16": {
         "daily_count": 3,
-        "total_snap": 398,
+        "total_snap": 366,
         "monthly": 57,
         "star_rating": 4.9,
         "method": "excel"
@@ -9723,7 +9723,7 @@
       },
       "16": {
         "daily_count": 4,
-        "total_snap": 398,
+        "total_snap": 370,
         "monthly": 57,
         "star_rating": 4.9,
         "method": "excel"
@@ -9968,7 +9968,7 @@
         "star_rating": 4.9
       },
       "16": {
-        "total_snap": 398,
+        "total_snap": 374,
         "daily_count": 4,
         "monthly": 57,
         "star_rating": 4.9
@@ -10259,7 +10259,7 @@
         "method": "excel"
       },
       "16": {
-        "total_snap": 398,
+        "total_snap": 376,
         "daily_count": 2,
         "monthly": 57,
         "star_rating": 4.9,
@@ -10457,7 +10457,7 @@
         "method": "excel"
       },
       "16": {
-        "total_snap": 398,
+        "total_snap": 380,
         "daily_count": 4,
         "monthly": 57,
         "star_rating": 4.9,
@@ -10740,7 +10740,7 @@
       },
       "16": {
         "daily_count": 3,
-        "total_snap": 398,
+        "total_snap": 383,
         "monthly": 57,
         "star_rating": 4.9,
         "method": "excel"
@@ -11001,7 +11001,7 @@
       },
       "16": {
         "daily_count": 1,
-        "total_snap": 398,
+        "total_snap": 384,
         "monthly": 57,
         "star_rating": 4.9,
         "method": "excel"
@@ -11261,7 +11261,7 @@
         "method": "excel"
       },
       "16": {
-        "total_snap": 398,
+        "total_snap": 384,
         "daily_count": 0,
         "monthly": 57,
         "star_rating": 4.9,
@@ -11507,7 +11507,7 @@
         "star_rating": 4.9
       },
       "16": {
-        "total_snap": 398,
+        "total_snap": 387,
         "daily_count": 3,
         "monthly": 57,
         "star_rating": 4.9
@@ -11741,7 +11741,7 @@
         "star_rating": 4.9
       },
       "16": {
-        "total_snap": 398,
+        "total_snap": 389,
         "daily_count": 2,
         "monthly": 57,
         "star_rating": 4.9
@@ -11981,7 +11981,7 @@
         "star_rating": 4.9
       },
       "16": {
-        "total_snap": 398,
+        "total_snap": 390,
         "daily_count": 1,
         "monthly": 57,
         "star_rating": 4.9
@@ -12218,7 +12218,7 @@
         "star_rating": 4.9
       },
       "16": {
-        "total_snap": 398,
+        "total_snap": 395,
         "daily_count": 5,
         "monthly": 57,
         "star_rating": 4.9
@@ -12719,7 +12719,7 @@
       },
       "16": {
         "daily_count": 2,
-        "total_snap": 398,
+        "total_snap": 400,
         "monthly": 57,
         "star_rating": 4.9,
         "method": "excel"
@@ -12979,7 +12979,7 @@
         "method": "scroll"
       },
       "16": {
-        "total_snap": 398,
+        "total_snap": 401,
         "daily_count": 1,
         "monthly": 57,
         "star_rating": 4.9,
@@ -13240,7 +13240,7 @@
         "method": "excel"
       },
       "16": {
-        "total_snap": 398,
+        "total_snap": 402,
         "daily_count": 1,
         "monthly": 57,
         "star_rating": 4.9,
@@ -13501,7 +13501,7 @@
         "method": "scroll"
       },
       "16": {
-        "total_snap": 398,
+        "total_snap": 403,
         "daily_count": 1,
         "monthly": 57,
         "star_rating": 4.9,
@@ -14324,5 +14324,5 @@
       "failed_names": []
     }
   ],
-  "last_updated": "2026-07-24T14:06:55.677988"
+  "last_updated": "2026-07-24T14:13:53.118300"
 }
