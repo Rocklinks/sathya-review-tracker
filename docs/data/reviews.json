@@ -10102,7 +10102,6 @@
         "star_rating": 5.0,
         "method": "excel"
       },
-      "total_snap": 67795,
       "37": {
         "total_snap": 1246,
         "daily_count": 1,
@@ -14325,5 +14324,5 @@
       "failed_names": []
     }
   ],
-  "last_updated": "2026-07-24T13:15:09.114089"
+  "last_updated": "2026-07-24T14:06:55.677988"
 }
