@@ -1,7 +1,7 @@
 """
-Sathya Review Scraper - Async Parallel + Scroll Counting
-Scrapes 37 branches using controlled concurrency with actual review date counting.
-Falls back to snapshot diff (with max(0) guard) when scroll fails.
+Sathya Review Scraper - Async Parallel + Scroll-Only Counting
+Scrapes 37 branches using controlled concurrency.
+Uses ONLY the scroll method to count reviews by date (no diff fallback).
 """
 
 import re
@@ -174,6 +174,7 @@ async def _get_overall_and_rating(page):
     count, stars = None, None
     content = await page.content()
 
+    candidates = []
     for sel in ['[aria-label*="reviews"]', '[aria-label*="Reviews"]']:
         els = await page.locator(sel).all()
         for el in els:
@@ -182,10 +183,9 @@ async def _get_overall_and_rating(page):
             if m:
                 v = int(m.group(1).replace(",", ""))
                 if v > 0:
-                    count = v
-                    break
-        if count:
-            break
+                    candidates.append(v)
+    if candidates:
+        count = max(candidates)
 
     if not count:
         for pat in [
@@ -197,8 +197,9 @@ async def _get_overall_and_rating(page):
             if m:
                 v = int(m.group(1).replace(",", ""))
                 if v > 10:
-                    count = v
-                    break
+                    candidates.append(v)
+        if candidates:
+            count = max(candidates)
 
     for sel in ['[aria-label*="stars"]', 'span[aria-label*="stars"]', '[aria-label*="star rating"]']:
         els = await page.locator(sel).all()
@@ -316,30 +317,17 @@ async def _count_reviews_by_scroll(page, snap_date):
     return count
 
 
-def _is_suspicious_count(count, prev_total, live):
-    """Detect suspiciously round counts that indicate scroll capping."""
-    if count == 0:
-        return False
-    if count in (10, 20, 30, 40, 50):
-        return True
-    if live and prev_total:
-        expected_diff = live - prev_total
-        if expected_diff > 0 and count > expected_diff * 2:
-            return True
-    return False
-
-
-async def scrape_branch(context, branch, snap_date, prev_total, old_stars):
-    """Scrape a single branch: scroll count + fallback to snapshot diff."""
+async def scrape_branch(context, branch, snap_date, old_stars):
+    """Scrape a single branch using scroll-only counting (no diff fallback)."""
     name = branch["name"]
     place_id = branch["place_id"]
     page = None
-    result = {"live": None, "stars": None, "daily": 0, "method": "diff", "error": None}
+    result = {"live": None, "stars": None, "daily": 0, "method": "scroll", "error": None}
 
-    for attempt in range(1, 4):
+    for attempt in range(1, 6):
         try:
             if attempt > 1:
-                await asyncio.sleep(attempt * 2)
+                await asyncio.sleep(attempt * 3)
 
             page = await context.new_page()
             url = f"https://www.google.com/maps/place/?q=place_id:{place_id}"
@@ -354,22 +342,10 @@ async def scrape_branch(context, branch, snap_date, prev_total, old_stars):
                 result["error"] = "no count"
                 continue
 
-            try:
-                count = await _count_reviews_by_scroll(page, snap_date)
-                raw_diff = live - prev_total if prev_total else 0
-
-                if _is_suspicious_count(count, prev_total, live):
-                    result["daily"] = max(0, raw_diff)
-                    result["method"] = "diff_corrected"
-                else:
-                    result["daily"] = count
-                    result["method"] = "scroll"
-                break
-            except Exception:
-                raw = live - prev_total if prev_total else 0
-                result["daily"] = max(0, raw)
-                result["method"] = "diff"
-                break
+            count = await _count_reviews_by_scroll(page, snap_date)
+            result["daily"] = count
+            result["method"] = "scroll"
+            break
 
         except Exception as e:
             result["error"] = str(e)
@@ -401,14 +377,6 @@ async def run():
         [d for d in data.get("daily", {}) if d < snap_date], reverse=True
     )
     baseline_date = all_dates_before[0] if all_dates_before else None
-    baseline_snap = data["daily"].get(baseline_date, {}) if baseline_date else {}
-
-    baseline = {}
-    for b in BRANCHES:
-        bid = str(b["id"])
-        baseline[bid] = baseline_snap.get(bid, {}).get(
-            "total_snap", data.get("branches", {}).get(bid, {}).get("overall", 0)
-        )
 
     if baseline_date:
         gap = (
@@ -479,7 +447,6 @@ async def run():
             async with semaphore:
                 bid = str(branch["id"])
                 name = branch["name"]
-                prev_total = baseline.get(bid, 0)
                 old_stars = data.get("branches", {}).get(bid, {}).get("star_rating", 0)
 
                 print(
@@ -488,7 +455,7 @@ async def run():
                     flush=True,
                 )
 
-                res = await scrape_branch(context, branch, snap_date, prev_total, old_stars)
+                res = await scrape_branch(context, branch, snap_date, old_stars)
 
                 if res["error"]:
                     failed.append(name)
