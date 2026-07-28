@@ -12,9 +12,9 @@
       "id": 2,
       "name": "Tuticorin-2",
       "agm": "Siva",
-      "overall": 6554,
+      "overall": 6558,
       "star_rating": 4.8,
-      "monthly": 168
+      "monthly": 172
     },
     "3": {
       "id": 3,
@@ -30,7 +30,7 @@
       "agm": "Siva",
       "overall": 430,
       "star_rating": 4.9,
-      "monthly": 53
+      "monthly": 55
     },
     "5": {
       "id": 5,
@@ -14699,9 +14699,68 @@
         "method": "scroll"
       }
     },
-    "2026-07-27": {}
+    "2026-07-27": {
+      "2": {
+        "total_snap": 6558,
+        "daily_count": 4,
+        "monthly": 172,
+        "star_rating": 4.8,
+        "method": "scroll"
+      },
+      "4": {
+        "total_snap": 430,
+        "daily_count": 2,
+        "monthly": 55,
+        "star_rating": 4.9,
+        "method": "scroll"
+      }
+    }
   },
   "logs": [
+    {
+      "ran_at": "2026-07-28T02:01:44.011376",
+      "snap_date": "2026-07-27",
+      "baseline_date": "2026-07-26",
+      "success": 2,
+      "failed": 35,
+      "failed_names": [
+        "Tuticorin-1",
+        "Thiruchendur-1",
+        "Eral-2",
+        "Udankudi",
+        "Valliyur-1",
+        "Tirunelveli-1",
+        "Ambasamudram-1",
+        "Anjugramam-1",
+        "Nagercoil",
+        "Marthandam",
+        "Thuckalay-1",
+        "Colachel-1",
+        "Monday Market",
+        "Kulasekharam-1",
+        "Karungal-1",
+        "Kovilpatti",
+        "Ramnad",
+        "Paramakudi",
+        "Sayalkudi-1",
+        "Villathikullam",
+        "Sankarankovil-1",
+        "Sattur-2",
+        "Kayathar-1",
+        "Ramnad-2",
+        "Thenkasi",
+        "Thenkasi-2",
+        "Surandai-1",
+        "Puliyankudi-1",
+        "Rajapalayam",
+        "Sengottai-1",
+        "Virudhunagar",
+        "Virudhunagar-2",
+        "Aruppukottai-2",
+        "Aruppukottai",
+        "Sivakasi"
+      ]
+    },
     {
       "ran_at": "2026-07-27T20:26:21.707867",
       "snap_date": "2026-07-27",
@@ -15181,15 +15240,7 @@
       "success": 36,
       "failed": 0,
       "failed_names": []
-    },
-    {
-      "ran_at": "2026-07-01T20:50:02.009344",
-      "snap_date": "2026-07-01",
-      "baseline_date": "2026-06-30",
-      "success": 36,
-      "failed": 0,
-      "failed_names": []
     }
   ],
-  "last_updated": "2026-07-27T20:26:21.707867"
+  "last_updated": "2026-07-28T02:01:44.011376"
 }
