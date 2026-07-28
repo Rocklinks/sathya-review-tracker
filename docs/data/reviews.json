@@ -14705,14 +14705,259 @@
         "daily_count": 4,
         "monthly": 172,
         "star_rating": 4.8,
-        "method": "scroll"
+        "method": "excel"
       },
       "4": {
         "total_snap": 430,
         "daily_count": 2,
         "monthly": 55,
         "star_rating": 4.9,
-        "method": "scroll"
+        "method": "excel"
+      },
+      "1": {
+        "daily_count": 23,
+        "method": "excel",
+        "total_snap": 7366,
+        "star_rating": 4.9,
+        "monthly": 590
+      },
+      "3": {
+        "daily_count": 1,
+        "method": "excel",
+        "total_snap": 1327,
+        "star_rating": 4.9,
+        "monthly": 94
+      },
+      "5": {
+        "daily_count": 3,
+        "method": "excel",
+        "total_snap": 1146,
+        "star_rating": 4.9,
+        "monthly": 60
+      },
+      "6": {
+        "daily_count": 2,
+        "method": "excel",
+        "total_snap": 2068,
+        "star_rating": 4.9,
+        "monthly": 56
+      },
+      "7": {
+        "daily_count": 12,
+        "method": "excel",
+        "total_snap": 4509,
+        "star_rating": 4.8,
+        "monthly": 362
+      },
+      "8": {
+        "daily_count": 2,
+        "method": "excel",
+        "total_snap": 1219,
+        "star_rating": 4.8,
+        "monthly": 71
+      },
+      "9": {
+        "daily_count": 2,
+        "method": "excel",
+        "total_snap": 998,
+        "star_rating": 4.9,
+        "monthly": 108
+      },
+      "10": {
+        "daily_count": 3,
+        "method": "excel",
+        "total_snap": 744,
+        "star_rating": 4.9,
+        "monthly": 46
+      },
+      "11": {
+        "daily_count": 10,
+        "method": "excel",
+        "total_snap": 3218,
+        "star_rating": 4.8,
+        "monthly": 201
+      },
+      "12": {
+        "daily_count": 1,
+        "method": "excel",
+        "total_snap": 1150,
+        "star_rating": 4.7,
+        "monthly": 33
+      },
+      "13": {
+        "daily_count": 1,
+        "method": "excel",
+        "total_snap": 1175,
+        "star_rating": 4.7,
+        "monthly": 59
+      },
+      "14": {
+        "daily_count": 0,
+        "method": "excel",
+        "total_snap": 313,
+        "star_rating": 4.9,
+        "monthly": 40
+      },
+      "15": {
+        "daily_count": 0,
+        "method": "excel",
+        "total_snap": 455,
+        "star_rating": 4.9,
+        "monthly": 31
+      },
+      "16": {
+        "daily_count": 1,
+        "method": "excel",
+        "total_snap": 405,
+        "star_rating": 4.9,
+        "monthly": 64
+      },
+      "17": {
+        "daily_count": 5,
+        "method": "excel",
+        "total_snap": 815,
+        "star_rating": 4.9,
+        "monthly": 84
+      },
+      "18": {
+        "daily_count": 7,
+        "method": "excel",
+        "total_snap": 2655,
+        "star_rating": 4.7,
+        "monthly": 202
+      },
+      "19": {
+        "daily_count": 8,
+        "method": "excel",
+        "total_snap": 2544,
+        "star_rating": 4.8,
+        "monthly": 205
+      },
+      "20": {
+        "daily_count": 5,
+        "method": "excel",
+        "total_snap": 1205,
+        "star_rating": 4.9,
+        "monthly": 97
+      },
+      "21": {
+        "daily_count": 2,
+        "method": "excel",
+        "total_snap": 707,
+        "star_rating": 4.9,
+        "monthly": 55
+      },
+      "22": {
+        "daily_count": 1,
+        "method": "excel",
+        "total_snap": 670,
+        "star_rating": 4.8,
+        "monthly": 56
+      },
+      "23": {
+        "daily_count": 4,
+        "method": "excel",
+        "total_snap": 1013,
+        "star_rating": 4.8,
+        "monthly": 57
+      },
+      "24": {
+        "daily_count": 1,
+        "method": "excel",
+        "total_snap": 1065,
+        "star_rating": 4.9,
+        "monthly": 54
+      },
+      "25": {
+        "daily_count": 1,
+        "method": "excel",
+        "total_snap": 1044,
+        "star_rating": 5.0,
+        "monthly": 104
+      },
+      "26": {
+        "daily_count": 2,
+        "method": "excel",
+        "total_snap": 20,
+        "star_rating": 5.0,
+        "monthly": 21
+      },
+      "27": {
+        "daily_count": 3,
+        "method": "excel",
+        "total_snap": 6224,
+        "star_rating": 4.9,
+        "monthly": 132
+      },
+      "28": {
+        "daily_count": 1,
+        "method": "excel",
+        "total_snap": 4048,
+        "star_rating": 5.0,
+        "monthly": 226
+      },
+      "29": {
+        "daily_count": 4,
+        "method": "excel",
+        "total_snap": 2322,
+        "star_rating": 4.9,
+        "monthly": 75
+      },
+      "30": {
+        "daily_count": 3,
+        "method": "excel",
+        "total_snap": 1037,
+        "star_rating": 4.9,
+        "monthly": 57
+      },
+      "31": {
+        "daily_count": 1,
+        "method": "excel",
+        "total_snap": 759,
+        "star_rating": 5.0,
+        "monthly": 50
+      },
+      "32": {
+        "daily_count": 3,
+        "method": "excel",
+        "total_snap": 2119,
+        "star_rating": 4.8,
+        "monthly": 118
+      },
+      "33": {
+        "daily_count": 2,
+        "method": "excel",
+        "total_snap": 2171,
+        "star_rating": 4.8,
+        "monthly": 44
+      },
+      "34": {
+        "daily_count": 1,
+        "method": "excel",
+        "total_snap": 1760,
+        "star_rating": 4.9,
+        "monthly": 88
+      },
+      "35": {
+        "daily_count": 5,
+        "method": "excel",
+        "total_snap": 2113,
+        "star_rating": 4.8,
+        "monthly": 90
+      },
+      "36": {
+        "daily_count": 7,
+        "method": "excel",
+        "total_snap": 1071,
+        "star_rating": 5.0,
+        "monthly": 117
+      },
+      "37": {
+        "daily_count": 3,
+        "method": "excel",
+        "total_snap": 1249,
+        "star_rating": 4.8,
+        "monthly": 49
       }
     }
   },
