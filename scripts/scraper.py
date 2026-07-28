@@ -170,77 +170,69 @@ def resolve_date(rel, snap_date_str):
 
 
 async def _get_overall_and_rating(page):
-    """Extract overall review count and star rating from a Google Maps page.
-
-    Primary approach: dump ALL visible page text and search for patterns.
-    This avoids brittle CSS selector dependencies.
-    """
+    """Extract overall review count and star rating by intercepting Google Maps
+    internal API responses. Falls back to DOM text extraction."""
     count, stars = None, None
 
-    # Get ALL visible text from the page in one shot
+    # ── STRATEGY 1: Intercept API responses already captured ──
+    # The page may have already loaded API data. Search for it in scripts/text.
     try:
-        all_text = await page.evaluate("""() => {
-            // Walk entire DOM and collect all visible text
-            const walker = document.createTreeWalker(
-                document.body, NodeFilter.SHOW_TEXT, null, false
-            );
-            const texts = [];
-            let node;
-            while (node = walker.nextNode()) {
-                const t = node.textContent.trim();
-                if (t) texts.push(t);
+        api_data = await page.evaluate("""() => {
+            const results = [];
+            // Check all script tags for embedded JSON with review data
+            const scripts = document.querySelectorAll('script');
+            for (const s of scripts) {
+                const t = s.textContent || '';
+                if (t.includes('reviewCount') || t.includes('userRatingCount')
+                    || t.includes('ratingCount') || t.includes('totalScore')) {
+                    results.push(t.substring(0, 8000));
+                }
             }
-            return texts.join('\\n');
+            // Check window globals
+            try {
+                const keys = Object.keys(window).filter(k =>
+                    k.includes('APP') || k.includes('INIT') || k.includes('DATA')
+                );
+                for (const k of keys) {
+                    try {
+                        const v = JSON.stringify(window[k]);
+                        if (v.includes('reviewCount') || v.includes('ratingCount')
+                            || v.includes('userRatingCount')) {
+                            results.push(v.substring(0, 8000));
+                        }
+                    } catch(e) {}
+                }
+            } catch(e) {}
+            return results.join('\\n---SPLIT---\\n');
         }""")
     except Exception:
-        all_text = ""
+        api_data = ""
 
-    # Also get aria-labels from ALL elements
-    try:
-        aria_labels = await page.evaluate("""() => {
-            const els = document.querySelectorAll('[aria-label]');
-            return Array.from(els).map(e => e.getAttribute('aria-label')).join('\\n');
-        }""")
-    except Exception:
-        aria_labels = ""
-
-    combined = all_text + "\\n" + aria_labels
-
-    # ── Extract review count ──
-    # Patterns ordered by specificity
-    count_patterns = [
-        r'([\d,]+)\s*Google\s+reviews?',
-        r'([\d,]+)\s*reviews?',
-        r'([\d,]+)\s*customer\s+reviews?',
-        r'reviewCount["\s:]+(\d+)',
-        r'"reviewCount"["\s:]+(\d+)',
-        r'"totalReviewCount"["\s:]+(\d+)',
-        r'"numReviews"["\s:]+(\d+)',
-        r'"reviewsCount"["\s:]+(\d+)',
-        r'"review_count"["\s:]+(\d+)',
-        r'aria-label="[^"]*?(\d[\d,]+)\s*review',
-    ]
-    for pat in count_patterns:
-        m = re.search(pat, combined, re.IGNORECASE)
+    # Search for review count in API data
+    for pat in [
+        r'"userRatingCount"[:\s]*(\d+)',
+        r'"reviewCount"[:\s]*(\d+)',
+        r'"ratingCount"[:\s]*(\d+)',
+        r'"totalReviewCount"[:\s]*(\d+)',
+        r'"numReviews"[:\s]*(\d+)',
+        r'"reviewsCount"[:\s]*(\d+)',
+    ]:
+        m = re.search(pat, api_data)
         if m:
-            v = int(m.group(1).replace(",", ""))
-            if v > 5:
+            v = int(m.group(1))
+            if v > 0:
                 count = v
                 break
 
-    # ── Extract star rating ──
-    star_patterns = [
-        r'(\d\.\d)\s*stars?',
-        r'(\d\.\d)\s*out\s+of\s+5',
-        r'(\d\.\d)\s*/\s*5',
-        r'Rated\s+(\d\.\d)',
-        r'ratingValue["\s:]+["\']?([\d.]+)',
-        r'starRating["\s:]+["\']?([\d.]+)',
-        r'aria-label="[^"]*?(\d\.\d)\s*star',
-        r'aria-label="[^"]*?Rated\s+(\d\.\d)',
-    ]
-    for pat in star_patterns:
-        m = re.search(pat, combined, re.IGNORECASE)
+    # Search for star rating in API data
+    for pat in [
+        r'"ratingValue"[:\s]*"?([\d.]+)"?',
+        r'"starRating"[:\s]*"?([\d.]+)"?',
+        r'"averageRating"[:\s]*"?([\d.]+)"?',
+        r'"score"[:\s]*"?([\d.]+)"?',
+        r'"rating"[:\s]*"?([\d.]+)"?',
+    ]:
+        m = re.search(pat, api_data)
         if m:
             try:
                 v = float(m.group(1))
@@ -250,7 +242,66 @@ async def _get_overall_and_rating(page):
             except ValueError:
                 pass
 
-    # ── Fallback: search raw HTML for structured data ──
+    # ── STRATEGY 2: Walk visible DOM text ──
+    if not count or not stars:
+        try:
+            all_text = await page.evaluate("""() => {
+                const walker = document.createTreeWalker(
+                    document.body, NodeFilter.SHOW_TEXT, null, false
+                );
+                const texts = [];
+                let node;
+                while (node = walker.nextNode()) {
+                    const t = node.textContent.trim();
+                    if (t && t.length < 200) texts.push(t);
+                }
+                return texts.join('\\n');
+            }""")
+        except Exception:
+            all_text = ""
+
+        try:
+            aria_labels = await page.evaluate("""() => {
+                const els = document.querySelectorAll('[aria-label]');
+                return Array.from(els).map(e => e.getAttribute('aria-label')).join('\\n');
+            }""")
+        except Exception:
+            aria_labels = ""
+
+        combined = all_text + "\n" + aria_labels
+
+        if not count:
+            for pat in [
+                r'([\d,]+)\s*Google\s+reviews?',
+                r'([\d,]+)\s*reviews?',
+                r'aria-label="[^"]*?(\d[\d,]+)\s*review',
+            ]:
+                m = re.search(pat, combined, re.IGNORECASE)
+                if m:
+                    v = int(m.group(1).replace(",", ""))
+                    if v > 5:
+                        count = v
+                        break
+
+        if not stars:
+            for pat in [
+                r'(\d\.\d)\s*stars?',
+                r'(\d\.\d)\s*out\s+of\s+5',
+                r'Rated\s+(\d\.\d)',
+                r'aria-label="[^"]*?(\d\.\d)\s*star',
+                r'aria-label="[^"]*?Rated\s+(\d\.\d)',
+            ]:
+                m = re.search(pat, combined, re.IGNORECASE)
+                if m:
+                    try:
+                        v = float(m.group(1))
+                        if 1.0 <= v <= 5.0:
+                            stars = v
+                            break
+                    except ValueError:
+                        pass
+
+    # ── STRATEGY 3: Raw HTML fallback ──
     if not count or not stars:
         try:
             content = await page.content()
@@ -259,9 +310,8 @@ async def _get_overall_and_rating(page):
 
         if not count:
             for pat in [
-                r'"reviewCount"["\s:]+(\d+)',
-                r'"totalReviewCount"["\s:]+(\d+)',
-                r'"numReviews"["\s:]+(\d+)',
+                r'"userRatingCount"[:\s]*(\d+)',
+                r'"reviewCount"[:\s]*(\d+)',
                 r'([\d,]+)\s*Google\s+reviews?',
                 r'([\d,]+)\s*reviews?',
             ]:
@@ -274,9 +324,9 @@ async def _get_overall_and_rating(page):
 
         if not stars:
             for pat in [
-                r'"ratingValue"["\s:]+["\']?([\d.]+)',
-                r'"starRating"["\s:]+["\']?([\d.]+)',
-                r'"aggregateRating".*?"ratingValue"["\s:]+["\']?([\d.]+)',
+                r'"ratingValue"[:\s]*"?([\d.]+)"?',
+                r'"starRating"[:\s]*"?([\d.]+)"?',
+                r'"aggregateRating".*?"ratingValue"[:\s]*"?([\d.]+)"?',
                 r'(\d\.\d)\s*stars?',
             ]:
                 m = re.search(pat, content, re.IGNORECASE)
@@ -403,7 +453,8 @@ async def _count_reviews_by_scroll(page, snap_date):
 
 
 async def scrape_branch(context, branch, snap_date, old_stars):
-    """Scrape a single branch using scroll-only counting (no diff fallback)."""
+    """Scrape a single branch. Uses response interception to capture
+    Google Maps internal API data for overall count + rating."""
     name = branch["name"]
     place_id = branch["place_id"]
     page = None
@@ -417,60 +468,106 @@ async def scrape_branch(context, branch, snap_date, old_stars):
                 await asyncio.sleep(wait)
 
             page = await context.new_page()
+
+            # Capture all network responses for API data
+            captured_responses = []
+
+            async def on_response(response):
+                try:
+                    url = response.url
+                    if any(kw in url for kw in [
+                        '/maps/preview/place', '/maps/preview/review',
+                        '/maps/api/js', '/place', '/review',
+                    ]):
+                        try:
+                            body = await response.text()
+                            if len(body) > 50:
+                                captured_responses.append(body)
+                        except Exception:
+                            pass
+                except Exception:
+                    pass
+
+            page.on("response", on_response)
+
             url = f"https://www.google.com/maps/search/?api=1&place_id={place_id}"
             await page.goto(url, wait_until="networkidle", timeout=45000)
 
-            # Handle Google consent/cookie wall aggressively
+            # Handle Google consent/cookie wall
             for consent_sel in [
                 '#L2AGLb',
                 'button:has-text("Accept all")',
                 'button:has-text("I agree")',
-                'button:has-text("Agree")',
                 'button:has-text("Reject all")',
-                'button[aria-label="Accept all"]',
-                'button[aria-label="Reject all"]',
-                'form[action*="consent"] button',
             ]:
                 try:
                     btn = page.locator(consent_sel).first
                     if await btn.count():
                         await btn.click()
                         await page.wait_for_timeout(2000)
-                        # Re-navigate after consent
                         await page.goto(url, wait_until="networkidle", timeout=45000)
                         break
                 except Exception:
                     pass
 
-            # Wait for JS-rendered content
-            await page.wait_for_timeout(random.randint(4000, 7000))
+            await page.wait_for_timeout(random.randint(3000, 5000))
 
-            # Try to wait for a review-related element to appear
-            for wait_sel in [
-                '[aria-label*="reviews"]', '[aria-label*="Reviews"]',
-                'button[aria-label*="Reviews"]', 'div[role="main"]',
-                'h1', '[data-tab-index]',
-            ]:
-                try:
-                    await page.wait_for_selector(wait_sel, timeout=6000)
-                    break
-                except Exception:
-                    pass
+            # ── Extract from captured API responses ──
+            if captured_responses:
+                api_text = "\n".join(captured_responses)
 
-            live, stars = await _get_overall_and_rating(page)
-            result["live"] = live
-            result["stars"] = stars if stars else old_stars
+                # Search for review count
+                for pat in [
+                    r'"userRatingCount"[:\s,]*(\d+)',
+                    r'"reviewCount"[:\s,]*(\d+)',
+                    r'"ratingCount"[:\s,]*(\d+)',
+                    r'"totalReviewCount"[:\s,]*(\d+)',
+                    r'"numReviews"[:\s,]*(\d+)',
+                ]:
+                    m = re.search(pat, api_text)
+                    if m:
+                        v = int(m.group(1))
+                        if v > 0:
+                            result["live"] = v
+                            break
 
-            if live is None:
-                # Instead of failing completely, use last known data as fallback
+                # Search for star rating
+                for pat in [
+                    r'"ratingValue"[:\s,]*"?([\d.]+)"?',
+                    r'"averageRating"[:\s,]*"?([\d.]+)"?',
+                    r'"starRating"[:\s,]*"?([\d.]+)"?',
+                    r'"score"[:\s,]*"?([\d.]+)"?',
+                    r'"rating"[:\s,]*"?([\d.]+)"?',
+                ]:
+                    m = re.search(pat, api_text)
+                    if m:
+                        try:
+                            v = float(m.group(1))
+                            if 1.0 <= v <= 5.0:
+                                result["stars"] = v
+                                break
+                        except ValueError:
+                            pass
+
+            # ── Fallback: DOM extraction ──
+            if result["live"] is None:
+                live, stars = await _get_overall_and_rating(page)
+                result["live"] = live
+                if stars:
+                    result["stars"] = stars
+
+            # Apply old stars if none found
+            if not result["stars"]:
+                result["stars"] = old_stars
+
+            if result["live"] is None:
+                # Use last known data as fallback
                 old_overall = data.get("branches", {}).get(str(branch["id"]), {}).get("overall", 0)
                 if old_overall and old_overall > 0:
                     result["live"] = old_overall
-                    result["stars"] = old_stars if old_stars else stars
+                    result["stars"] = old_stars if old_stars else result["stars"]
                     result["method"] = "fallback"
                     result["error"] = None
-                    print(f"→ fallback to {old_overall:,} ", end="", flush=True)
-                    # Still try to count daily reviews from scroll
                     count = await _count_reviews_by_scroll(page, snap_date)
                     result["daily"] = count
                     break
