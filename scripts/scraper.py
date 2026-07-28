@@ -17,7 +17,7 @@ from playwright.async_api import async_playwright
 DATA_FILE = os.path.join(os.path.dirname(__file__), "..", "docs", "data", "reviews.json")
 BACKUP_DIR = os.path.join(os.path.dirname(DATA_FILE), "backups")
 
-MAX_CONCURRENT = 4
+MAX_CONCURRENT = 2
 TOTAL_BRANCHES = 37
 IST_OFFSET = timedelta(hours=5, minutes=30)
 
@@ -528,21 +528,47 @@ async def scrape_branch(context, branch, snap_date, old_stars):
     for attempt in range(1, 6):
         try:
             if attempt > 1:
-                await asyncio.sleep(attempt * 3)
+                wait = attempt * 5 + random.randint(2, 8)
+                print(f"    retry in {wait}s...", end=" ", flush=True)
+                await asyncio.sleep(wait)
 
             page = await context.new_page()
             url = f"https://www.google.com/maps/place/?q=place_id:{place_id}"
             await page.goto(url, wait_until="networkidle", timeout=45000)
-            # Wait longer for JS-rendered content to appear
-            await page.wait_for_timeout(random.randint(4000, 6000))
+
+            # Handle Google consent/cookie wall aggressively
+            for consent_sel in [
+                '#L2AGLb',
+                'button:has-text("Accept all")',
+                'button:has-text("I agree")',
+                'button:has-text("Agree")',
+                'button:has-text("Reject all")',
+                'button[aria-label="Accept all"]',
+                'button[aria-label="Reject all"]',
+                'form[action*="consent"] button',
+            ]:
+                try:
+                    btn = page.locator(consent_sel).first
+                    if await btn.count():
+                        await btn.click()
+                        await page.wait_for_timeout(2000)
+                        # Re-navigate after consent
+                        await page.goto(url, wait_until="networkidle", timeout=45000)
+                        break
+                except Exception:
+                    pass
+
+            # Wait for JS-rendered content
+            await page.wait_for_timeout(random.randint(4000, 7000))
 
             # Try to wait for a review-related element to appear
             for wait_sel in [
                 '[aria-label*="reviews"]', '[aria-label*="Reviews"]',
                 'button[aria-label*="Reviews"]', 'div[role="main"]',
+                'h1', '[data-tab-index]',
             ]:
                 try:
-                    await page.wait_for_selector(wait_sel, timeout=5000)
+                    await page.wait_for_selector(wait_sel, timeout=6000)
                     break
                 except Exception:
                     pass
@@ -553,10 +579,10 @@ async def scrape_branch(context, branch, snap_date, old_stars):
 
             if live is None:
                 result["error"] = "no count"
-                # Debug: dump first 2000 chars of visible text for troubleshooting
+                # Debug: dump visible text to understand what page we got
                 try:
-                    debug_text = await page.evaluate("() => document.body.innerText.substring(0, 2000)")
-                    print(f"    [debug] Page text preview: {debug_text[:300]}...")
+                    debug_text = await page.evaluate("() => document.body ? document.body.innerText.substring(0, 1500) : 'no body'")
+                    print(f"\n    [debug] {name} page text: {debug_text[:200]}...")
                 except Exception:
                     pass
                 continue
@@ -719,7 +745,7 @@ async def run():
                     )
                     success += 1
 
-                await asyncio.sleep(0.5)
+                await asyncio.sleep(random.randint(3, 7))
 
         tasks = [bounded_scrape(b) for b in BRANCHES]
         await asyncio.gather(*tasks)
