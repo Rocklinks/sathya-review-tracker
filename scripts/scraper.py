@@ -17,7 +17,7 @@ from playwright.async_api import async_playwright
 DATA_FILE = os.path.join(os.path.dirname(__file__), "..", "docs", "data", "reviews.json")
 BACKUP_DIR = os.path.join(os.path.dirname(DATA_FILE), "backups")
 
-MAX_CONCURRENT = 2
+MAX_CONCURRENT = 6
 TOTAL_BRANCHES = 37
 IST_OFFSET = timedelta(hours=5, minutes=30)
 
@@ -463,7 +463,7 @@ async def scrape_branch(context, branch, snap_date, old_stars):
     for attempt in range(1, 6):
         try:
             if attempt > 1:
-                wait = attempt * 5 + random.randint(2, 8)
+                wait = attempt * 3 + random.randint(1, 4)
                 print(f"    retry in {wait}s...", end=" ", flush=True)
                 await asyncio.sleep(wait)
 
@@ -510,7 +510,7 @@ async def scrape_branch(context, branch, snap_date, old_stars):
                 except Exception:
                     pass
 
-            await page.wait_for_timeout(random.randint(3000, 5000))
+            await page.wait_for_timeout(random.randint(2000, 4000))
 
             # ── Extract from captured API responses ──
             if captured_responses:
@@ -732,7 +732,7 @@ async def run():
                     )
                     success += 1
 
-                await asyncio.sleep(random.randint(3, 7))
+                await asyncio.sleep(random.randint(1, 3))
 
         tasks = [bounded_scrape(b) for b in BRANCHES]
         await asyncio.gather(*tasks)
