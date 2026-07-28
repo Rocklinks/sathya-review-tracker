@@ -14718,6 +14718,52 @@
   },
   "logs": [
     {
+      "ran_at": "2026-07-28T05:42:06.339321",
+      "snap_date": "2026-07-27",
+      "baseline_date": "2026-07-26",
+      "success": 0,
+      "failed": 37,
+      "failed_names": [
+        "Eral-2",
+        "Tuticorin-2",
+        "Tuticorin-1",
+        "Thisayanvilai-1",
+        "Thiruchendur-1",
+        "Udankudi",
+        "Ambasamudram-1",
+        "Tirunelveli-1",
+        "Anjugramam-1",
+        "Valliyur-1",
+        "Marthandam",
+        "Nagercoil",
+        "Thuckalay-1",
+        "Kulasekharam-1",
+        "Colachel-1",
+        "Karungal-1",
+        "Monday Market",
+        "Kovilpatti",
+        "Paramakudi",
+        "Ramnad",
+        "Sattur-2",
+        "Sayalkudi-1",
+        "Villathikullam",
+        "Sankarankovil-1",
+        "Kayathar-1",
+        "Ramnad-2",
+        "Thenkasi",
+        "Thenkasi-2",
+        "Surandai-1",
+        "Puliyankudi-1",
+        "Sengottai-1",
+        "Rajapalayam",
+        "Aruppukottai",
+        "Virudhunagar",
+        "Virudhunagar-2",
+        "Aruppukottai-2",
+        "Sivakasi"
+      ]
+    },
+    {
       "ran_at": "2026-07-28T02:01:44.011376",
       "snap_date": "2026-07-27",
       "baseline_date": "2026-07-26",
@@ -15232,15 +15278,7 @@
       "success": 36,
       "failed": 0,
       "failed_names": []
-    },
-    {
-      "ran_at": "2026-07-02T20:03:03.675215",
-      "snap_date": "2026-07-02",
-      "baseline_date": "2026-07-01",
-      "success": 36,
-      "failed": 0,
-      "failed_names": []
     }
   ],
-  "last_updated": "2026-07-28T02:01:44.011376"
+  "last_updated": "2026-07-28T05:42:06.339321"
 }
