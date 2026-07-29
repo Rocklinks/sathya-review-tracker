@@ -4,7 +4,7 @@
       "id": 1,
       "name": "Tuticorin-1",
       "agm": "Siva",
-      "overall": 7366,
+      "overall": 7392,
       "star_rating": 4.9,
       "monthly": 590
     },
@@ -12,7 +12,7 @@
       "id": 2,
       "name": "Tuticorin-2",
       "agm": "Siva",
-      "overall": 6558,
+      "overall": 6560,
       "star_rating": 4.8,
       "monthly": 172
     },
@@ -20,7 +20,7 @@
       "id": 3,
       "name": "Thiruchendur-1",
       "agm": "Siva",
-      "overall": 1327,
+      "overall": 1329,
       "star_rating": 4.9,
       "monthly": 94
     },
@@ -28,7 +28,7 @@
       "id": 4,
       "name": "Thisayanvilai-1",
       "agm": "Siva",
-      "overall": 430,
+      "overall": 431,
       "star_rating": 4.9,
       "monthly": 55
     },
@@ -36,7 +36,7 @@
       "id": 5,
       "name": "Eral-2",
       "agm": "Siva",
-      "overall": 1146,
+      "overall": 1147,
       "star_rating": 4.9,
       "monthly": 60
     },
@@ -44,7 +44,7 @@
       "id": 6,
       "name": "Udankudi",
       "agm": "Siva",
-      "overall": 2068,
+      "overall": 2071,
       "star_rating": 4.9,
       "monthly": 56
     },
@@ -52,7 +52,7 @@
       "id": 7,
       "name": "Tirunelveli-1",
       "agm": "John",
-      "overall": 4509,
+      "overall": 4496,
       "star_rating": 4.8,
       "monthly": 362
     },
@@ -60,7 +60,7 @@
       "id": 8,
       "name": "Valliyur-1",
       "agm": "John",
-      "overall": 1219,
+      "overall": 1222,
       "star_rating": 4.8,
       "monthly": 71
     },
@@ -68,7 +68,7 @@
       "id": 9,
       "name": "Ambasamudram-1",
       "agm": "John",
-      "overall": 998,
+      "overall": 995,
       "star_rating": 4.9,
       "monthly": 108
     },
@@ -76,7 +76,7 @@
       "id": 10,
       "name": "Anjugramam-1",
       "agm": "John",
-      "overall": 744,
+      "overall": 748,
       "star_rating": 4.9,
       "monthly": 46
     },
@@ -84,7 +84,7 @@
       "id": 11,
       "name": "Nagercoil",
       "agm": "Jeeva",
-      "overall": 3218,
+      "overall": 3228,
       "star_rating": 4.8,
       "monthly": 201
     },
@@ -92,7 +92,7 @@
       "id": 12,
       "name": "Marthandam",
       "agm": "Jeeva",
-      "overall": 1150,
+      "overall": 1149,
       "star_rating": 4.7,
       "monthly": 33
     },
@@ -100,7 +100,7 @@
       "id": 13,
       "name": "Thuckalay-1",
       "agm": "Jeeva",
-      "overall": 1175,
+      "overall": 1171,
       "star_rating": 4.7,
       "monthly": 59
     },
@@ -108,7 +108,7 @@
       "id": 14,
       "name": "Colachel-1",
       "agm": "Jeeva",
-      "overall": 313,
+      "overall": 311,
       "star_rating": 4.9,
       "monthly": 40
     },
@@ -124,7 +124,7 @@
       "id": 16,
       "name": "Monday Market",
       "agm": "Jeeva",
-      "overall": 405,
+      "overall": 407,
       "star_rating": 4.9,
       "monthly": 64
     },
@@ -132,7 +132,7 @@
       "id": 17,
       "name": "Karungal-1",
       "agm": "Jeeva",
-      "overall": 815,
+      "overall": 820,
       "star_rating": 4.9,
       "monthly": 84
     },
@@ -140,7 +140,7 @@
       "id": 18,
       "name": "Kovilpatti",
       "agm": "Seenivasan",
-      "overall": 2655,
+      "overall": 2673,
       "star_rating": 4.7,
       "monthly": 202
     },
@@ -148,7 +148,7 @@
       "id": 19,
       "name": "Ramnad",
       "agm": "Seenivasan",
-      "overall": 2544,
+      "overall": 2551,
       "star_rating": 4.8,
       "monthly": 205
     },
@@ -156,7 +156,7 @@
       "id": 20,
       "name": "Paramakudi",
       "agm": "Seenivasan",
-      "overall": 1205,
+      "overall": 1211,
       "star_rating": 4.9,
       "monthly": 97
     },
@@ -164,7 +164,7 @@
       "id": 21,
       "name": "Sayalkudi-1",
       "agm": "Seenivasan",
-      "overall": 707,
+      "overall": 712,
       "star_rating": 4.9,
       "monthly": 55
     },
@@ -172,7 +172,7 @@
       "id": 22,
       "name": "Villathikullam",
       "agm": "Seenivasan",
-      "overall": 670,
+      "overall": 675,
       "star_rating": 4.8,
       "monthly": 56
     },
@@ -180,7 +180,7 @@
       "id": 23,
       "name": "Sattur-2",
       "agm": "Seenivasan",
-      "overall": 1013,
+      "overall": 1017,
       "star_rating": 4.8,
       "monthly": 57
     },
@@ -188,7 +188,7 @@
       "id": 24,
       "name": "Sankarankovil-1",
       "agm": "Seenivasan",
-      "overall": 1065,
+      "overall": 1066,
       "star_rating": 4.9,
       "monthly": 54
     },
@@ -196,7 +196,7 @@
       "id": 25,
       "name": "Kayathar-1",
       "agm": "Seenivasan",
-      "overall": 1044,
+      "overall": 1042,
       "star_rating": 5.0,
       "monthly": 104
     },
@@ -212,7 +212,7 @@
       "id": 27,
       "name": "Thenkasi",
       "agm": "Muthuselvam",
-      "overall": 6224,
+      "overall": 6220,
       "star_rating": 4.9,
       "monthly": 132
     },
@@ -220,7 +220,7 @@
       "id": 28,
       "name": "Thenkasi-2",
       "agm": "Muthuselvam",
-      "overall": 4048,
+      "overall": 4042,
       "star_rating": 5.0,
       "monthly": 226
     },
@@ -228,7 +228,7 @@
       "id": 29,
       "name": "Surandai-1",
       "agm": "Muthuselvam",
-      "overall": 2322,
+      "overall": 2330,
       "star_rating": 4.9,
       "monthly": 75
     },
@@ -236,7 +236,7 @@
       "id": 30,
       "name": "Puliyankudi-1",
       "agm": "Muthuselvam",
-      "overall": 1037,
+      "overall": 1043,
       "star_rating": 4.9,
       "monthly": 57
     },
@@ -244,7 +244,7 @@
       "id": 31,
       "name": "Sengottai-1",
       "agm": "Muthuselvam",
-      "overall": 759,
+      "overall": 763,
       "star_rating": 5.0,
       "monthly": 50
     },
@@ -252,7 +252,7 @@
       "id": 32,
       "name": "Rajapalayam",
       "agm": "Muthuselvam",
-      "overall": 2119,
+      "overall": 2121,
       "star_rating": 4.8,
       "monthly": 118
     },
@@ -260,7 +260,7 @@
       "id": 33,
       "name": "Virudhunagar",
       "agm": "Venkadesan",
-      "overall": 2171,
+      "overall": 2173,
       "star_rating": 4.8,
       "monthly": 44
     },
@@ -268,7 +268,7 @@
       "id": 34,
       "name": "Virudhunagar-2",
       "agm": "Venkadesan",
-      "overall": 1760,
+      "overall": 1763,
       "star_rating": 4.9,
       "monthly": 88
     },
@@ -276,7 +276,7 @@
       "id": 35,
       "name": "Aruppukottai",
       "agm": "Venkadesan",
-      "overall": 2113,
+      "overall": 2115,
       "star_rating": 4.8,
       "monthly": 90
     },
@@ -284,7 +284,7 @@
       "id": 36,
       "name": "Aruppukottai -2",
       "agm": "Venkadesan",
-      "overall": 1071,
+      "overall": 1061,
       "star_rating": 5.0,
       "monthly": 117
     },
@@ -292,7 +292,7 @@
       "id": 37,
       "name": "Sivakasi",
       "agm": "Venkadesan",
-      "overall": 1249,
+      "overall": 1253,
       "star_rating": 4.8,
       "monthly": 49
     }
@@ -14960,7 +14960,267 @@
         "monthly": 49
       }
     },
-    "2026-07-28": {}
+    "2026-07-28": {
+      "1": {
+        "daily_count": 24,
+        "total_snap": 7392,
+        "monthly": 590,
+        "star_rating": 4.9,
+        "method": "excel"
+      },
+      "19": {
+        "daily_count": 9,
+        "total_snap": 2551,
+        "monthly": 205,
+        "star_rating": 4.8,
+        "method": "excel"
+      },
+      "18": {
+        "daily_count": 8,
+        "total_snap": 2673,
+        "monthly": 202,
+        "star_rating": 4.7,
+        "method": "excel"
+      },
+      "28": {
+        "daily_count": 8,
+        "total_snap": 4042,
+        "monthly": 226,
+        "star_rating": 5.0,
+        "method": "excel"
+      },
+      "7": {
+        "daily_count": 7,
+        "total_snap": 4496,
+        "monthly": 362,
+        "star_rating": 4.8,
+        "method": "excel"
+      },
+      "22": {
+        "daily_count": 5,
+        "total_snap": 675,
+        "monthly": 56,
+        "star_rating": 4.8,
+        "method": "excel"
+      },
+      "29": {
+        "daily_count": 5,
+        "total_snap": 2330,
+        "monthly": 75,
+        "star_rating": 4.9,
+        "method": "excel"
+      },
+      "11": {
+        "daily_count": 4,
+        "total_snap": 3228,
+        "monthly": 201,
+        "star_rating": 4.8,
+        "method": "excel"
+      },
+      "30": {
+        "daily_count": 4,
+        "total_snap": 1043,
+        "monthly": 57,
+        "star_rating": 4.9,
+        "method": "excel"
+      },
+      "2": {
+        "daily_count": 3,
+        "total_snap": 6560,
+        "monthly": 172,
+        "star_rating": 4.8,
+        "method": "excel"
+      },
+      "10": {
+        "daily_count": 3,
+        "total_snap": 748,
+        "monthly": 46,
+        "star_rating": 4.9,
+        "method": "excel"
+      },
+      "17": {
+        "daily_count": 3,
+        "total_snap": 820,
+        "monthly": 84,
+        "star_rating": 4.9,
+        "method": "excel"
+      },
+      "20": {
+        "daily_count": 3,
+        "total_snap": 1211,
+        "monthly": 97,
+        "star_rating": 4.9,
+        "method": "excel"
+      },
+      "21": {
+        "daily_count": 3,
+        "total_snap": 712,
+        "monthly": 55,
+        "star_rating": 4.9,
+        "method": "excel"
+      },
+      "27": {
+        "daily_count": 3,
+        "total_snap": 6220,
+        "monthly": 132,
+        "star_rating": 4.9,
+        "method": "excel"
+      },
+      "31": {
+        "daily_count": 3,
+        "total_snap": 763,
+        "monthly": 50,
+        "star_rating": 5.0,
+        "method": "excel"
+      },
+      "4": {
+        "daily_count": 2,
+        "total_snap": 431,
+        "monthly": 55,
+        "star_rating": 4.9,
+        "method": "excel"
+      },
+      "8": {
+        "daily_count": 2,
+        "total_snap": 1222,
+        "monthly": 71,
+        "star_rating": 4.8,
+        "method": "excel"
+      },
+      "9": {
+        "daily_count": 2,
+        "total_snap": 995,
+        "monthly": 108,
+        "star_rating": 4.9,
+        "method": "excel"
+      },
+      "32": {
+        "daily_count": 2,
+        "total_snap": 2121,
+        "monthly": 118,
+        "star_rating": 4.8,
+        "method": "excel"
+      },
+      "34": {
+        "daily_count": 2,
+        "total_snap": 1763,
+        "monthly": 88,
+        "star_rating": 4.9,
+        "method": "excel"
+      },
+      "35": {
+        "daily_count": 2,
+        "total_snap": 2115,
+        "monthly": 90,
+        "star_rating": 4.8,
+        "method": "excel"
+      },
+      "3": {
+        "daily_count": 1,
+        "total_snap": 1329,
+        "monthly": 94,
+        "star_rating": 4.9,
+        "method": "excel"
+      },
+      "5": {
+        "daily_count": 1,
+        "total_snap": 1147,
+        "monthly": 60,
+        "star_rating": 4.9,
+        "method": "excel"
+      },
+      "6": {
+        "daily_count": 1,
+        "total_snap": 2071,
+        "monthly": 56,
+        "star_rating": 4.9,
+        "method": "excel"
+      },
+      "12": {
+        "daily_count": 1,
+        "total_snap": 1149,
+        "monthly": 33,
+        "star_rating": 4.7,
+        "method": "excel"
+      },
+      "13": {
+        "daily_count": 1,
+        "total_snap": 1171,
+        "monthly": 59,
+        "star_rating": 4.7,
+        "method": "excel"
+      },
+      "16": {
+        "daily_count": 1,
+        "total_snap": 407,
+        "monthly": 64,
+        "star_rating": 4.9,
+        "method": "excel"
+      },
+      "36": {
+        "daily_count": 1,
+        "total_snap": 1061,
+        "monthly": 117,
+        "star_rating": 5.0,
+        "method": "excel"
+      },
+      "14": {
+        "daily_count": 0,
+        "total_snap": 311,
+        "monthly": 40,
+        "star_rating": 4.9,
+        "method": "excel"
+      },
+      "15": {
+        "daily_count": 0,
+        "total_snap": 455,
+        "monthly": 31,
+        "star_rating": 4.9,
+        "method": "excel"
+      },
+      "23": {
+        "daily_count": 0,
+        "total_snap": 1017,
+        "monthly": 57,
+        "star_rating": 4.8,
+        "method": "excel"
+      },
+      "24": {
+        "daily_count": 0,
+        "total_snap": 1066,
+        "monthly": 54,
+        "star_rating": 4.9,
+        "method": "excel"
+      },
+      "25": {
+        "daily_count": 0,
+        "total_snap": 1042,
+        "monthly": 104,
+        "star_rating": 5.0,
+        "method": "excel"
+      },
+      "26": {
+        "daily_count": 0,
+        "total_snap": 20,
+        "monthly": 21,
+        "star_rating": 5.0,
+        "method": "excel"
+      },
+      "33": {
+        "daily_count": 0,
+        "total_snap": 2173,
+        "monthly": 44,
+        "star_rating": 4.8,
+        "method": "excel"
+      },
+      "37": {
+        "daily_count": 0,
+        "total_snap": 1253,
+        "monthly": 49,
+        "star_rating": 4.8,
+        "method": "excel"
+      }
+    }
   },
   "logs": [
     {
