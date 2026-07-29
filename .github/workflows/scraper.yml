@@ -5,6 +5,9 @@ on:
   workflow_dispatch:
 permissions:
   contents: write
+concurrency:
+  group: scraper-push
+  cancel-in-progress: false
 jobs:
   scrape:
     runs-on: ubuntu-latest
@@ -19,4 +22,4 @@ jobs:
           git config user.name "scraper-bot"
           git config user.email "bot@sathya"
           git add docs/data/
-          git diff --cached --quiet || (git commit -m "scrape $(date -u +%Y-%m-%d)" && git push)
+          git diff --cached --quiet || (git commit -m "scrape $(date -u +%Y-%m-%d)" && git fetch origin main && git push --force-with-lease origin main)
