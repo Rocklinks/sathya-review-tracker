@@ -18,7 +18,6 @@ DATA_FILE = os.path.join(os.path.dirname(__file__), "..", "docs", "data", "revie
 BACKUP_DIR = os.path.join(os.path.dirname(DATA_FILE), "backups")
 
 MAX_CONCURRENT = 6
-TOTAL_BRANCHES = 37
 IST_OFFSET = timedelta(hours=5, minutes=30)
 
 BRANCHES = [
@@ -42,7 +41,7 @@ BRANCHES = [
     {"id":15, "name":"Kulasekharam-1", "place_id":"ChIJw0Ep-kNXBDsRe5ad32jAeAk", "agm":"Jeeva"},
     {"id":16, "name":"Monday Market", "place_id":"ChIJTceRGAD5BDsR65i3YNTcYHk", "agm":"Jeeva"},
     {"id":17, "name":"Karungal-1", "place_id":"ChIJfTP5ASr_BDsRgsBaeQltkw4", "agm":"Jeeva"},
-    # ── Seenivasan (8 branches)
+    # ── Seenivasan (9 branches)
     {"id":18, "name":"Kovilpatti", "place_id":"ChIJHY0o-26yBjsRt7wbXB1pDUE", "agm":"Seenivasan"},
     {"id":19, "name":"Ramnad", "place_id":"ChIJNVVVVaGiATsRnunSgOTvbE8", "agm":"Seenivasan"},
     {"id":20, "name":"Paramakudi", "place_id":"ChIJ-dgjBzQHATsRf27FWAJgmsA", "agm":"Seenivasan"},
@@ -66,6 +65,9 @@ BRANCHES = [
     {"id":36, "name":"Aruppukottai-2", "place_id":"ChIJY04wY58xATsRuoJSichVQQE", "agm":"Venkadesan"},
     {"id":37, "name":"Sivakasi", "place_id":"ChIJI2JvEePOBjsREh8b-x4WF4U", "agm":"Venkadesan"},
 ]
+
+# Derived from the actual list so it can never drift out of sync with BRANCHES.
+TOTAL_BRANCHES = len(BRANCHES)
 
 
 def load_data():
@@ -175,11 +177,9 @@ async def _get_overall_and_rating(page):
     count, stars = None, None
 
     # ── STRATEGY 1: Intercept API responses already captured ──
-    # The page may have already loaded API data. Search for it in scripts/text.
     try:
         api_data = await page.evaluate("""() => {
             const results = [];
-            // Check all script tags for embedded JSON with review data
             const scripts = document.querySelectorAll('script');
             for (const s of scripts) {
                 const t = s.textContent || '';
@@ -188,7 +188,6 @@ async def _get_overall_and_rating(page):
                     results.push(t.substring(0, 8000));
                 }
             }
-            // Check window globals
             try {
                 const keys = Object.keys(window).filter(k =>
                     k.includes('APP') || k.includes('INIT') || k.includes('DATA')
@@ -208,7 +207,6 @@ async def _get_overall_and_rating(page):
     except Exception:
         api_data = ""
 
-    # Search for review count in API data
     for pat in [
         r'"userRatingCount"[:\s]*(\d+)',
         r'"reviewCount"[:\s]*(\d+)',
@@ -224,7 +222,6 @@ async def _get_overall_and_rating(page):
                 count = v
                 break
 
-    # Search for star rating in API data
     for pat in [
         r'"ratingValue"[:\s]*"?([\d.]+)"?',
         r'"starRating"[:\s]*"?([\d.]+)"?',
@@ -395,9 +392,15 @@ async def _count_reviews_by_scroll(page, snap_date):
             continue
 
     seen, count, stop, no_new = set(), 0, False, 0
+    # BUG FIX: this cap was declared but never enforced in the original file,
+    # so a branch whose reviews never resolved to a date older than snap_date
+    # (e.g. malformed date text) could scroll forever. It's now checked in
+    # the loop condition below.
     max_scroll_attempts = 20
+    scroll_attempts = 0
 
-    while not stop and no_new < 8:
+    while not stop and no_new < 8 and scroll_attempts < max_scroll_attempts:
+        scroll_attempts += 1
         cards = await page.query_selector_all(
             'div[data-review-id], div.jftiEf, div[data-href*="review"], '
             'div.gMBQx, div.Svr5Qb, div[class*="review"]'
@@ -452,15 +455,29 @@ async def _count_reviews_by_scroll(page, snap_date):
     return count
 
 
-async def scrape_branch(context, branch, snap_date, old_stars):
+async def scrape_branch(context, branch, snap_date, old_stars, data):
     """Scrape a single branch. Uses response interception to capture
-    Google Maps internal API data for overall count + rating."""
+    Google Maps internal API data for overall count + rating.
+
+    NOTE (bug fix): `data` is now passed in explicitly instead of being
+    referenced as an undefined global. In the original file this function
+    read a bare `data` name that only existed as a local variable inside
+    run(), so any time the fallback branch below was reached the whole
+    scrape crashed with a NameError.
+    """
     name = branch["name"]
     place_id = branch["place_id"]
     page = None
     result = {"live": None, "stars": None, "daily": 0, "method": "scroll", "error": None}
 
     for attempt in range(1, 6):
+        # BUG FIX: reset per-attempt state. Previously `result["error"]` was
+        # only ever set (never cleared), so if attempt 1 failed and attempt 2
+        # then succeeded, the stale error from attempt 1 was still present
+        # when the loop hit `break`, causing bounded_scrape() to log a
+        # succeeded branch as FAILED and drop its data.
+        result["error"] = None
+
         try:
             if attempt > 1:
                 wait = attempt * 3 + random.randint(1, 4)
@@ -469,7 +486,6 @@ async def scrape_branch(context, branch, snap_date, old_stars):
 
             page = await context.new_page()
 
-            # Capture all network responses for API data
             captured_responses = []
 
             async def on_response(response):
@@ -493,7 +509,6 @@ async def scrape_branch(context, branch, snap_date, old_stars):
             url = f"https://www.google.com/maps/search/?api=1&place_id={place_id}"
             await page.goto(url, wait_until="networkidle", timeout=45000)
 
-            # Handle Google consent/cookie wall
             for consent_sel in [
                 '#L2AGLb',
                 'button:has-text("Accept all")',
@@ -512,11 +527,9 @@ async def scrape_branch(context, branch, snap_date, old_stars):
 
             await page.wait_for_timeout(random.randint(2000, 4000))
 
-            # ── Extract from captured API responses ──
             if captured_responses:
                 api_text = "\n".join(captured_responses)
 
-                # Search for review count
                 for pat in [
                     r'"userRatingCount"[:\s,]*(\d+)',
                     r'"reviewCount"[:\s,]*(\d+)',
@@ -531,7 +544,6 @@ async def scrape_branch(context, branch, snap_date, old_stars):
                             result["live"] = v
                             break
 
-                # Search for star rating
                 for pat in [
                     r'"ratingValue"[:\s,]*"?([\d.]+)"?',
                     r'"averageRating"[:\s,]*"?([\d.]+)"?',
@@ -549,19 +561,16 @@ async def scrape_branch(context, branch, snap_date, old_stars):
                         except ValueError:
                             pass
 
-            # ── Fallback: DOM extraction ──
             if result["live"] is None:
                 live, stars = await _get_overall_and_rating(page)
                 result["live"] = live
                 if stars:
                     result["stars"] = stars
 
-            # Apply old stars if none found
             if not result["stars"]:
                 result["stars"] = old_stars
 
             if result["live"] is None:
-                # Use last known data as fallback
                 old_overall = data.get("branches", {}).get(str(branch["id"]), {}).get("overall", 0)
                 if old_overall and old_overall > 0:
                     result["live"] = old_overall
@@ -663,7 +672,6 @@ async def run():
             bypass_csp=True,
         )
 
-        # Stealth: remove webdriver property
         await context.add_init_script("""
             Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
             Object.defineProperty(navigator, 'plugins', { get: () => [1, 2, 3, 4, 5] });
@@ -672,7 +680,6 @@ async def run():
         """)
 
         try:
-            # Accept Google consent cookie if present
             wp = await context.new_page()
             await wp.goto(
                 "https://www.google.com/maps",
@@ -680,13 +687,12 @@ async def run():
                 timeout=20000,
             )
             await wp.wait_for_timeout(1500)
-            # Try to accept consent/cookie dialog
             for consent_sel in [
                 'button:has-text("Accept all")',
                 'button:has-text("I agree")',
                 'button:has-text("Agree")',
                 'button[aria-label="Accept all"]',
-                '#L2AGLb',  # Google's consent button ID
+                '#L2AGLb',
             ]:
                 try:
                     btn = wp.locator(consent_sel).first
@@ -716,7 +722,9 @@ async def run():
                     flush=True,
                 )
 
-                res = await scrape_branch(context, branch, snap_date, old_stars)
+                # BUG FIX: `data` is now passed through explicitly (see
+                # scrape_branch's docstring above).
+                res = await scrape_branch(context, branch, snap_date, old_stars, data)
 
                 if res["error"]:
                     failed.append(name)
