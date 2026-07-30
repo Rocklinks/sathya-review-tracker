@@ -2,8 +2,14 @@
 Sathya Review Scraper - Async Parallel + Scroll-Only Counting
 Scrapes 37 branches using controlled concurrency.
 Uses ONLY the scroll method to count reviews by date (no diff fallback).
-"""
 
+Routes through Obscura (stealth browser, CDP) instead of launching a
+vanilla Chromium — vanilla Chromium gets fingerprinted/blocked by Google
+Maps, which is why every branch was timing out on networkidle.
+Also removes all page.evaluate() usage — Obscura returns {} for JS
+evaluate calls, so extraction now relies only on native Playwright
+locator APIs (page.content(), locator().inner_text(), get_attribute()).
+"""
 import re
 import json
 import os
@@ -16,9 +22,12 @@ from playwright.async_api import async_playwright
 
 DATA_FILE = os.path.join(os.path.dirname(__file__), "..", "docs", "data", "reviews.json")
 BACKUP_DIR = os.path.join(os.path.dirname(DATA_FILE), "backups")
-
 MAX_CONCURRENT = 6
 IST_OFFSET = timedelta(hours=5, minutes=30)
+
+# Obscura serves a CDP endpoint locally. Confirm/adjust the port to match
+# how you're running Obscura — override via env var if it differs.
+OBSCURA_CDP_URL = os.environ.get("OBSCURA_CDP_URL", "http://127.0.0.1:9222")
 
 BRANCHES = [
     # ── Siva (6 branches)
@@ -66,7 +75,6 @@ BRANCHES = [
     {"id":37, "name":"Sivakasi", "place_id":"ChIJI2JvEePOBjsREh8b-x4WF4U", "agm":"Venkadesan"},
 ]
 
-# Derived from the actual list so it can never drift out of sync with BRANCHES.
 TOTAL_BRANCHES = len(BRANCHES)
 
 
@@ -80,7 +88,6 @@ def load_data():
                 return data
         except Exception as e:
             print(f" [Data] reviews.json corrupted ({e}) — checking backups...")
-
     if os.path.exists(BACKUP_DIR):
         backups = sorted(
             [f for f in os.listdir(BACKUP_DIR) if f.endswith(".json")], reverse=True
@@ -95,7 +102,6 @@ def load_data():
                     return data
             except Exception:
                 continue
-
     print(" [Data] No valid data found — starting fresh.")
     return {"branches": {}, "daily": {}, "logs": []}
 
@@ -104,14 +110,12 @@ def save_data(data):
     os.makedirs(os.path.dirname(DATA_FILE), exist_ok=True)
     with open(DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
-
     os.makedirs(BACKUP_DIR, exist_ok=True)
     today_str = (datetime.utcnow() + IST_OFFSET).strftime("%Y-%m-%d")
     backup_path = os.path.join(BACKUP_DIR, f"reviews_{today_str}.json")
     with open(backup_path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
     print(f" [Data] Backup saved: backups/reviews_{today_str}.json")
-
     cutoff = datetime.utcnow()
     cleaned = 0
     for fname in os.listdir(BACKUP_DIR):
@@ -136,7 +140,6 @@ def resolve_date(rel, snap_date_str):
     r = rel.lower().strip()
     snap = datetime.strptime(snap_date_str, "%Y-%m-%d").date()
     today_ist = (datetime.utcnow() + IST_OFFSET).date()
-
     if any(x in r for x in ["just now", "second", "minute", "moment"]):
         return str(today_ist)
     if "hour" in r:
@@ -172,64 +175,72 @@ def resolve_date(rel, snap_date_str):
 
 
 async def _get_overall_and_rating(page):
-    """Extract overall review count and star rating by intercepting Google Maps
-    internal API responses. Falls back to DOM text extraction."""
+    """Extract overall review count and star rating.
+    NO page.evaluate() anywhere — Obscura returns {} for JS-evaluate calls.
+    Uses only native Playwright APIs: page.content(), locator().inner_text(),
+    locator().get_attribute().
+    """
     count, stars = None, None
 
-    # ── STRATEGY 1: Intercept API responses already captured ──
+    # ── Raw HTML via CDP (not JS evaluate) ──
     try:
-        api_data = await page.evaluate("""() => {
-            const results = [];
-            const scripts = document.querySelectorAll('script');
-            for (const s of scripts) {
-                const t = s.textContent || '';
-                if (t.includes('reviewCount') || t.includes('userRatingCount')
-                    || t.includes('ratingCount') || t.includes('totalScore')) {
-                    results.push(t.substring(0, 8000));
-                }
-            }
-            try {
-                const keys = Object.keys(window).filter(k =>
-                    k.includes('APP') || k.includes('INIT') || k.includes('DATA')
-                );
-                for (const k of keys) {
-                    try {
-                        const v = JSON.stringify(window[k]);
-                        if (v.includes('reviewCount') || v.includes('ratingCount')
-                            || v.includes('userRatingCount')) {
-                            results.push(v.substring(0, 8000));
-                        }
-                    } catch(e) {}
-                }
-            } catch(e) {}
-            return results.join('\\n---SPLIT---\\n');
-        }""")
+        html = await page.content()
     except Exception:
-        api_data = ""
+        html = ""
+
+    # ── Visible body text via locator (not evaluate/treewalker) ──
+    try:
+        body_text = await page.locator("body").inner_text(timeout=5000)
+    except Exception:
+        body_text = ""
+
+    # ── aria-label values via locator API ──
+    aria_text = ""
+    try:
+        aria_locator = page.locator("[aria-label]")
+        n = await aria_locator.count()
+        labels = []
+        for i in range(min(n, 300)):
+            try:
+                al = await aria_locator.nth(i).get_attribute("aria-label")
+                if al:
+                    labels.append(al)
+            except Exception:
+                continue
+        aria_text = "\n".join(labels)
+    except Exception:
+        pass
+
+    combined = "\n".join([html, body_text, aria_text])
 
     for pat in [
-        r'"userRatingCount"[:\s]*(\d+)',
-        r'"reviewCount"[:\s]*(\d+)',
-        r'"ratingCount"[:\s]*(\d+)',
-        r'"totalReviewCount"[:\s]*(\d+)',
-        r'"numReviews"[:\s]*(\d+)',
-        r'"reviewsCount"[:\s]*(\d+)',
+        r'"userRatingCount"[:\s,]*(\d+)',
+        r'"reviewCount"[:\s,]*(\d+)',
+        r'"ratingCount"[:\s,]*(\d+)',
+        r'"totalReviewCount"[:\s,]*(\d+)',
+        r'"numReviews"[:\s,]*(\d+)',
+        r'"reviewsCount"[:\s,]*(\d+)',
+        r'([\d,]+)\s*Google\s+reviews?',
+        r'([\d,]+)\s*reviews?',
     ]:
-        m = re.search(pat, api_data)
+        m = re.search(pat, combined, re.IGNORECASE)
         if m:
-            v = int(m.group(1))
-            if v > 0:
+            v = int(m.group(1).replace(",", ""))
+            if v > 5:
                 count = v
                 break
 
     for pat in [
-        r'"ratingValue"[:\s]*"?([\d.]+)"?',
-        r'"starRating"[:\s]*"?([\d.]+)"?',
-        r'"averageRating"[:\s]*"?([\d.]+)"?',
-        r'"score"[:\s]*"?([\d.]+)"?',
-        r'"rating"[:\s]*"?([\d.]+)"?',
+        r'"ratingValue"[:\s,]*"?([\d.]+)"?',
+        r'"starRating"[:\s,]*"?([\d.]+)"?',
+        r'"averageRating"[:\s,]*"?([\d.]+)"?',
+        r'"score"[:\s,]*"?([\d.]+)"?',
+        r'(\d\.\d)\s*stars?',
+        r'(\d\.\d)\s*out\s+of\s+5',
+        r'Rated\s+(\d\.\d)',
+        r'"rating"[:\s,]*"?([\d.]+)"?',
     ]:
-        m = re.search(pat, api_data)
+        m = re.search(pat, combined, re.IGNORECASE)
         if m:
             try:
                 v = float(m.group(1))
@@ -239,108 +250,12 @@ async def _get_overall_and_rating(page):
             except ValueError:
                 pass
 
-    # ── STRATEGY 2: Walk visible DOM text ──
-    if not count or not stars:
-        try:
-            all_text = await page.evaluate("""() => {
-                const walker = document.createTreeWalker(
-                    document.body, NodeFilter.SHOW_TEXT, null, false
-                );
-                const texts = [];
-                let node;
-                while (node = walker.nextNode()) {
-                    const t = node.textContent.trim();
-                    if (t && t.length < 200) texts.push(t);
-                }
-                return texts.join('\\n');
-            }""")
-        except Exception:
-            all_text = ""
-
-        try:
-            aria_labels = await page.evaluate("""() => {
-                const els = document.querySelectorAll('[aria-label]');
-                return Array.from(els).map(e => e.getAttribute('aria-label')).join('\\n');
-            }""")
-        except Exception:
-            aria_labels = ""
-
-        combined = all_text + "\n" + aria_labels
-
-        if not count:
-            for pat in [
-                r'([\d,]+)\s*Google\s+reviews?',
-                r'([\d,]+)\s*reviews?',
-                r'aria-label="[^"]*?(\d[\d,]+)\s*review',
-            ]:
-                m = re.search(pat, combined, re.IGNORECASE)
-                if m:
-                    v = int(m.group(1).replace(",", ""))
-                    if v > 5:
-                        count = v
-                        break
-
-        if not stars:
-            for pat in [
-                r'(\d\.\d)\s*stars?',
-                r'(\d\.\d)\s*out\s+of\s+5',
-                r'Rated\s+(\d\.\d)',
-                r'aria-label="[^"]*?(\d\.\d)\s*star',
-                r'aria-label="[^"]*?Rated\s+(\d\.\d)',
-            ]:
-                m = re.search(pat, combined, re.IGNORECASE)
-                if m:
-                    try:
-                        v = float(m.group(1))
-                        if 1.0 <= v <= 5.0:
-                            stars = v
-                            break
-                    except ValueError:
-                        pass
-
-    # ── STRATEGY 3: Raw HTML fallback ──
-    if not count or not stars:
-        try:
-            content = await page.content()
-        except Exception:
-            content = ""
-
-        if not count:
-            for pat in [
-                r'"userRatingCount"[:\s]*(\d+)',
-                r'"reviewCount"[:\s]*(\d+)',
-                r'([\d,]+)\s*Google\s+reviews?',
-                r'([\d,]+)\s*reviews?',
-            ]:
-                m = re.search(pat, content, re.IGNORECASE)
-                if m:
-                    v = int(m.group(1).replace(",", ""))
-                    if v > 5:
-                        count = v
-                        break
-
-        if not stars:
-            for pat in [
-                r'"ratingValue"[:\s]*"?([\d.]+)"?',
-                r'"starRating"[:\s]*"?([\d.]+)"?',
-                r'"aggregateRating".*?"ratingValue"[:\s]*"?([\d.]+)"?',
-                r'(\d\.\d)\s*stars?',
-            ]:
-                m = re.search(pat, content, re.IGNORECASE)
-                if m:
-                    try:
-                        v = float(m.group(1))
-                        if 1.0 <= v <= 5.0:
-                            stars = v
-                            break
-                    except ValueError:
-                        pass
-
     return count, stars
 
 
 async def _count_reviews_by_scroll(page, snap_date):
-    """Click Reviews tab, sort Newest, scroll and count reviews dated snap_date."""
+    """Click Reviews tab, sort Newest, scroll and count reviews dated snap_date.
+    Locator-only, no evaluate."""
     for sel in [
         'button[aria-label="Reviews"]',
         'button[aria-label*="Reviews"]',
@@ -392,13 +307,8 @@ async def _count_reviews_by_scroll(page, snap_date):
             continue
 
     seen, count, stop, no_new = set(), 0, False, 0
-    # BUG FIX: this cap was declared but never enforced in the original file,
-    # so a branch whose reviews never resolved to a date older than snap_date
-    # (e.g. malformed date text) could scroll forever. It's now checked in
-    # the loop condition below.
     max_scroll_attempts = 20
     scroll_attempts = 0
-
     while not stop and no_new < 8 and scroll_attempts < max_scroll_attempts:
         scroll_attempts += 1
         cards = await page.query_selector_all(
@@ -414,7 +324,6 @@ async def _count_reviews_by_scroll(page, snap_date):
                 continue
             seen.add(rid)
             new += 1
-
             date_str = ""
             for dsel in [
                 'span.rsqaWe', 'span[class*="DU9Pgb"]', 'span[class*="xRkPPb"]',
@@ -427,15 +336,12 @@ async def _count_reviews_by_scroll(page, snap_date):
                     if not date_str:
                         date_str = await de.get_attribute("datetime") or ""
                     break
-
             resolved = resolve_date(date_str, snap_date)
-
             if resolved == snap_date:
                 count += 1
             elif resolved and resolved < snap_date:
                 stop = True
                 break
-
         no_new = 0 if new else no_new + 1
         if not stop:
             try:
@@ -445,47 +351,29 @@ async def _count_reviews_by_scroll(page, snap_date):
                     'div.m6QErb.DxyBCb, div.m6QErb.KFu5E'
                 )
                 if pane:
-                    await pane.evaluate("el=>el.scrollBy(0,2000)")
+                    await page.mouse.wheel(0, 2000)
                 else:
                     await page.keyboard.press("End")
             except Exception:
                 pass
             await page.wait_for_timeout(random.randint(800, 1500))
-
     return count
 
 
 async def scrape_branch(context, branch, snap_date, old_stars, data):
-    """Scrape a single branch. Uses response interception to capture
-    Google Maps internal API data for overall count + rating.
-
-    NOTE (bug fix): `data` is now passed in explicitly instead of being
-    referenced as an undefined global. In the original file this function
-    read a bare `data` name that only existed as a local variable inside
-    run(), so any time the fallback branch below was reached the whole
-    scrape crashed with a NameError.
-    """
+    """Scrape a single branch. `data` is passed in explicitly (not a global)."""
     name = branch["name"]
     place_id = branch["place_id"]
     page = None
     result = {"live": None, "stars": None, "daily": 0, "method": "scroll", "error": None}
-
     for attempt in range(1, 6):
-        # BUG FIX: reset per-attempt state. Previously `result["error"]` was
-        # only ever set (never cleared), so if attempt 1 failed and attempt 2
-        # then succeeded, the stale error from attempt 1 was still present
-        # when the loop hit `break`, causing bounded_scrape() to log a
-        # succeeded branch as FAILED and drop its data.
         result["error"] = None
-
         try:
             if attempt > 1:
                 wait = attempt * 3 + random.randint(1, 4)
                 print(f"    retry in {wait}s...", end=" ", flush=True)
                 await asyncio.sleep(wait)
-
             page = await context.new_page()
-
             captured_responses = []
 
             async def on_response(response):
@@ -505,7 +393,6 @@ async def scrape_branch(context, branch, snap_date, old_stars, data):
                     pass
 
             page.on("response", on_response)
-
             url = f"https://www.google.com/maps/search/?api=1&place_id={place_id}"
             await page.goto(url, wait_until="networkidle", timeout=45000)
 
@@ -529,7 +416,6 @@ async def scrape_branch(context, branch, snap_date, old_stars, data):
 
             if captured_responses:
                 api_text = "\n".join(captured_responses)
-
                 for pat in [
                     r'"userRatingCount"[:\s,]*(\d+)',
                     r'"reviewCount"[:\s,]*(\d+)',
@@ -543,7 +429,6 @@ async def scrape_branch(context, branch, snap_date, old_stars, data):
                         if v > 0:
                             result["live"] = v
                             break
-
                 for pat in [
                     r'"ratingValue"[:\s,]*"?([\d.]+)"?',
                     r'"averageRating"[:\s,]*"?([\d.]+)"?',
@@ -587,7 +472,6 @@ async def scrape_branch(context, branch, snap_date, old_stars, data):
             result["daily"] = count
             result["method"] = "scroll"
             break
-
         except Exception as e:
             result["error"] = str(e)
         finally:
@@ -597,7 +481,6 @@ async def scrape_branch(context, branch, snap_date, old_stars, data):
                 except Exception:
                     pass
             page = None
-
     return result
 
 
@@ -605,20 +488,18 @@ async def run():
     now_ist = datetime.utcnow() + IST_OFFSET
     snap_date = (now_ist.date() - timedelta(days=1)).strftime("%Y-%m-%d")
     run_time = datetime.utcnow().isoformat()
-
     print(f"=== Sathya Review Scraper (Async Parallel + Scroll) ===")
     print(f"Snap date     : {snap_date}")
     print(f"Run time (IST): {now_ist.strftime('%Y-%m-%d %H:%M IST')}")
     print(f"Concurrency   : {MAX_CONCURRENT}")
-    print(f"Branches      : {TOTAL_BRANCHES}\n")
+    print(f"Branches      : {TOTAL_BRANCHES}")
+    print(f"Obscura CDP   : {OBSCURA_CDP_URL}\n")
 
     data = load_data()
-
     all_dates_before = sorted(
         [d for d in data.get("daily", {}) if d < snap_date], reverse=True
     )
     baseline_date = all_dates_before[0] if all_dates_before else None
-
     if baseline_date:
         gap = (
             datetime.strptime(snap_date, "%Y-%m-%d")
@@ -635,11 +516,7 @@ async def run():
 
     snap_month = snap_date[:7]
     same_month_dates = sorted(
-        [
-            d
-            for d in data.get("daily", {})
-            if d.startswith(snap_month) and d < snap_date
-        ],
+        [d for d in data.get("daily", {}) if d.startswith(snap_month) and d < snap_date],
         reverse=True,
     )
     monthly_baseline_date = same_month_dates[0] if same_month_dates else None
@@ -652,32 +529,19 @@ async def run():
     failed = []
 
     async with async_playwright() as p:
-        browser = await p.chromium.launch(
-            headless=True,
-            args=[
-                "--no-sandbox",
-                "--disable-dev-shm-usage",
-                "--disable-blink-features=AutomationControlled",
-                "--disable-gpu",
-                "--disable-features=IsolateOrigins,site-per-process",
-                "--disable-web-security",
-            ],
-        )
+        # Connect to Obscura's CDP endpoint instead of launching vanilla
+        # Chromium. Vanilla Chromium gets fingerprinted/blocked by Google
+        # Maps — that's why every branch previously timed out on networkidle.
+        try:
+            browser = await p.chromium.connect_over_cdp(OBSCURA_CDP_URL)
+        except Exception as e:
+            print(f"[FATAL] Could not connect to Obscura at {OBSCURA_CDP_URL}: {e}")
+            print("        Confirm Obscura is running and OBSCURA_CDP_URL is correct.")
+            sys.exit(1)
 
-        context = await browser.new_context(
-            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36",
-            locale="en-IN",
-            viewport={"width": 1366, "height": 768},
-            java_script_enabled=True,
-            bypass_csp=True,
-        )
-
-        await context.add_init_script("""
-            Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
-            Object.defineProperty(navigator, 'plugins', { get: () => [1, 2, 3, 4, 5] });
-            Object.defineProperty(navigator, 'languages', { get: () => ['en-IN', 'en-US', 'en'] });
-            window.chrome = { runtime: {} };
-        """)
+        # Use Obscura's existing context — it already manages its own
+        # fingerprint/stealth profile, so we don't override UA/viewport here.
+        context = browser.contexts[0] if browser.contexts else await browser.new_context()
 
         try:
             wp = await context.new_page()
@@ -715,17 +579,12 @@ async def run():
                 bid = str(branch["id"])
                 name = branch["name"]
                 old_stars = data.get("branches", {}).get(bid, {}).get("star_rating", 0)
-
                 print(
                     f" [{branch['id']:02d}/{TOTAL_BRANCHES}] {name:<25}",
                     end=" ",
                     flush=True,
                 )
-
-                # BUG FIX: `data` is now passed through explicitly (see
-                # scrape_branch's docstring above).
                 res = await scrape_branch(context, branch, snap_date, old_stars, data)
-
                 if res["error"]:
                     failed.append(name)
                     print(f"→ FAILED: {res['error']} ✗")
@@ -739,30 +598,25 @@ async def run():
                         f"→ {res['live']:,} total {delta_str} new {stars_str} {method_str} ✓"
                     )
                     success += 1
-
                 await asyncio.sleep(random.randint(1, 3))
 
         tasks = [bounded_scrape(b) for b in BRANCHES]
         await asyncio.gather(*tasks)
-
+        # Don't close a browser we don't own — just disconnect.
         await browser.close()
 
     for b in BRANCHES:
         bid = str(b["id"])
         if bid not in results:
             continue
-
         r = results[bid]
         live = r["live"]
         stars = r["stars"]
         daily = r["daily"]
-
         old_stars = data["branches"].get(bid, {}).get("star_rating", 0)
         final_stars = stars if stars else old_stars
-
         prev_monthly = monthly_daily_snap.get(bid, {}).get("monthly", 0)
         monthly = max(0, prev_monthly + daily)
-
         data["daily"][snap_date][bid] = {
             "total_snap": live,
             "daily_count": daily,
@@ -770,7 +624,6 @@ async def run():
             "star_rating": final_stars,
             "method": r["method"],
         }
-
         data["branches"][bid] = {
             "id": b["id"],
             "name": b["name"],
@@ -793,7 +646,6 @@ async def run():
     )
     data["logs"] = data["logs"][:50]
     data["last_updated"] = run_time
-
     save_data(data)
     print(f"\nDone: {success}/{TOTAL_BRANCHES} branches saved for {snap_date}")
 
