@@ -1,16 +1,8 @@
 """
-Sathya Review Scraper - Async Parallel + Scroll-Only Counting
-Scrapes 37 branches using controlled concurrency.
-Uses ONLY the scroll method to count reviews by date (no diff fallback).
-
-Routes through Obscura (stealth browser, CDP) instead of launching a
-vanilla Chromium — vanilla Chromium gets fingerprinted/blocked by Google
-Maps, which is why every branch was timing out on networkidle.
-Also removes all page.evaluate() usage — Obscura returns {} for JS
-evaluate calls, so extraction now relies only on native Playwright
-locator APIs (page.content(), locator().inner_text(), get_attribute()).
+Reviews Scraper.
 """
 import re
+import io
 import json
 import os
 import asyncio
@@ -19,6 +11,15 @@ import sys
 import random
 from datetime import datetime, timedelta
 from playwright.async_api import async_playwright
+
+# Pixel/OCR method — screenshot + tesseract, no selectors/evaluate/API keys.
+# Setup once: apt-get install -y tesseract-ocr && pip install pytesseract pillow
+try:
+    import pytesseract
+    from PIL import Image
+    OCR_AVAILABLE = True
+except ImportError:
+    OCR_AVAILABLE = False
 
 DATA_FILE = os.path.join(os.path.dirname(__file__), "..", "docs", "data", "reviews.json")
 BACKUP_DIR = os.path.join(os.path.dirname(DATA_FILE), "backups")
@@ -172,6 +173,44 @@ def resolve_date(rel, snap_date_str):
         except ValueError:
             pass
     return ""
+
+
+async def _ocr_overview(page):
+    """PIXEL METHOD: screenshot header region, OCR text, regex parse.
+    No selectors, no evaluate, no HTML parsing — reads what a human sees.
+    Sidesteps class-name churn / obfuscated markup entirely."""
+    if not OCR_AVAILABLE:
+        return None, None
+    count, stars = None, None
+    try:
+        png = await page.screenshot(clip={"x": 0, "y": 0, "width": 500, "height": 500})
+        img = Image.open(io.BytesIO(png))
+        text = pytesseract.image_to_string(img)
+    except Exception:
+        return None, None
+
+    for pat in [
+        r'([\d,]+)\s*Google\s+reviews?',
+        r'([\d,]+)\s*reviews?',
+    ]:
+        m = re.search(pat, text, re.IGNORECASE)
+        if m:
+            v = int(m.group(1).replace(",", "").replace(".", ""))
+            if v > 5:
+                count = v
+                break
+
+    for pat in [r'(\d[.,]\d)\s', r'(\d[.,]\d)$']:
+        m = re.search(pat, text.strip())
+        if m:
+            try:
+                v = float(m.group(1).replace(",", "."))
+                if 1.0 <= v <= 5.0:
+                    stars = v
+                    break
+            except ValueError:
+                pass
+    return count, stars
 
 
 async def _get_overall_and_rating(page):
@@ -445,6 +484,14 @@ async def scrape_branch(context, branch, snap_date, old_stars, data):
                                 break
                         except ValueError:
                             pass
+
+            if result["live"] is None:
+                live, stars = await _ocr_overview(page)
+                if live:
+                    result["live"] = live
+                    result["method"] = "pixel"
+                if stars:
+                    result["stars"] = stars
 
             if result["live"] is None:
                 live, stars = await _get_overall_and_rating(page)
