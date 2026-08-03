@@ -22,13 +22,9 @@ except ImportError:
     OCR_AVAILABLE = False
 
 DATA_FILE = os.path.join(os.path.dirname(__file__), "..", "docs", "data", "reviews.json")
-BACKUP_DIR = os.path.join(os.path.dirname(DATA_FILE), "backups")
+BACKUP_DIR = None  # backups disabled
 MAX_CONCURRENT = 6
 IST_OFFSET = timedelta(hours=5, minutes=30)
-
-# Obscura serves a CDP endpoint locally. Confirm/adjust the port to match
-# how you're running Obscura — override via env var if it differs.
-OBSCURA_CDP_URL = os.environ.get("OBSCURA_CDP_URL", "http://127.0.0.1:9222")
 
 BRANCHES = [
     # ── Siva (6 branches)
@@ -88,21 +84,7 @@ def load_data():
                 print(f" [Data] Loaded {len(data['branches'])} branches from reviews.json")
                 return data
         except Exception as e:
-            print(f" [Data] reviews.json corrupted ({e}) — checking backups...")
-    if os.path.exists(BACKUP_DIR):
-        backups = sorted(
-            [f for f in os.listdir(BACKUP_DIR) if f.endswith(".json")], reverse=True
-        )
-        for backup_file in backups:
-            backup_path = os.path.join(BACKUP_DIR, backup_file)
-            try:
-                with open(backup_path, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-                if data.get("branches"):
-                    print(f" [Data] RESTORED from backup: {backup_file}")
-                    return data
-            except Exception:
-                continue
+            print(f" [Data] reviews.json corrupted ({e})")
     print(" [Data] No valid data found — starting fresh.")
     return {"branches": {}, "daily": {}, "logs": []}
 
@@ -111,27 +93,7 @@ def save_data(data):
     os.makedirs(os.path.dirname(DATA_FILE), exist_ok=True)
     with open(DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
-    os.makedirs(BACKUP_DIR, exist_ok=True)
-    today_str = (datetime.utcnow() + IST_OFFSET).strftime("%Y-%m-%d")
-    backup_path = os.path.join(BACKUP_DIR, f"reviews_{today_str}.json")
-    with open(backup_path, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
-    print(f" [Data] Backup saved: backups/reviews_{today_str}.json")
-    cutoff = datetime.utcnow()
-    cleaned = 0
-    for fname in os.listdir(BACKUP_DIR):
-        if not fname.endswith(".json"):
-            continue
-        fpath = os.path.join(BACKUP_DIR, fname)
-        try:
-            age_days = (cutoff - datetime.fromtimestamp(os.path.getmtime(fpath))).days
-            if age_days > 90:
-                os.remove(fpath)
-                cleaned += 1
-        except Exception:
-            pass
-    if cleaned:
-        print(f" [Data] Cleaned {cleaned} old backups")
+    print(f" [Data] Saved reviews.json")
 
 
 def resolve_date(rel, snap_date_str):
@@ -167,11 +129,20 @@ def resolve_date(rel, snap_date_str):
         m = re.search(r"(\d+)", r)
         n = int(m.group(1)) if m else 1
         return str(today_ist - timedelta(days=n * 365))
-    for fmt in ["%b %d, %Y", "%d %B %Y", "%B %d, %Y", "%d %b %Y", "%Y-%m-%d"]:
+    # Try absolute date formats
+    for fmt in [
+        "%b %d, %Y", "%d %B %Y", "%B %d, %Y", "%d %b %Y",
+        "%Y-%m-%d", "%d/%m/%Y", "%m/%d/%Y", "%d-%m-%Y",
+        "%b %d %Y", "%d %b %Y",
+    ]:
         try:
             return datetime.strptime(rel.strip(), fmt).strftime("%Y-%m-%d")
         except ValueError:
             pass
+    # Handle "Edited" prefix
+    if "edited" in r:
+        cleaned = re.sub(r'^edited\s+', '', r).strip()
+        return resolve_date(cleaned, snap_date_str)
     return ""
 
 
@@ -215,23 +186,45 @@ async def _ocr_overview(page):
 
 async def _get_overall_and_rating(page):
     """Extract overall review count and star rating.
-    NO page.evaluate() anywhere — Obscura returns {} for JS-evaluate calls.
     Uses only native Playwright APIs: page.content(), locator().inner_text(),
-    locator().get_attribute().
+    locator().get_attribute(). NO page.evaluate().
     """
     count, stars = None, None
 
-    # ── Raw HTML via CDP (not JS evaluate) ──
+    # ── Raw HTML via CDP ──
     try:
         html = await page.content()
     except Exception:
         html = ""
 
-    # ── Visible body text via locator (not evaluate/treewalker) ──
+    # ── Try JSON-LD structured data first (most reliable) ──
+    for ld_match in re.finditer(r'<script[^>]*type="application/ld\+json"[^>]*>(.*?)</script>', html, re.DOTALL):
+        ld_text = ld_match.group(1)
+        # Extract aggregateRating
+        for pat in [
+            r'"aggregateRating"\s*:\s*\{[^}]*"ratingCount"\s*:\s*(\d+)',
+            r'"aggregateRating"\s*:\s*\{[^}]*"reviewCount"\s*:\s*(\d+)',
+            r'"aggregateRating"\s*:\s*\{[^}]*"ratingValue"\s*:\s*"?([\d.]+)"?',
+        ]:
+            m = re.search(pat, ld_text)
+            if m:
+                try:
+                    v = float(m.group(1))
+                    if v > 5:
+                        count = int(v)
+                    elif 1.0 <= v <= 5.0:
+                        stars = v
+                except ValueError:
+                    pass
+        if count or stars:
+            return count, stars
+
+    # ── Visible body text via locator ──
+    body_text = ""
     try:
-        body_text = await page.locator("body").inner_text(timeout=5000)
+        body_text = await page.locator("body").inner_text(timeout=8000)
     except Exception:
-        body_text = ""
+        pass
 
     # ── aria-label values via locator API ──
     aria_text = ""
@@ -252,6 +245,7 @@ async def _get_overall_and_rating(page):
 
     combined = "\n".join([html, body_text, aria_text])
 
+    # ── Extract review count ──
     for pat in [
         r'"userRatingCount"[:\s,]*(\d+)',
         r'"reviewCount"[:\s,]*(\d+)',
@@ -259,6 +253,7 @@ async def _get_overall_and_rating(page):
         r'"totalReviewCount"[:\s,]*(\d+)',
         r'"numReviews"[:\s,]*(\d+)',
         r'"reviewsCount"[:\s,]*(\d+)',
+        r'"review_total"[:\s,]*(\d+)',
         r'([\d,]+)\s*Google\s+reviews?',
         r'([\d,]+)\s*reviews?',
     ]:
@@ -269,6 +264,7 @@ async def _get_overall_and_rating(page):
                 count = v
                 break
 
+    # ── Extract star rating ──
     for pat in [
         r'"ratingValue"[:\s,]*"?([\d.]+)"?',
         r'"starRating"[:\s,]*"?([\d.]+)"?',
@@ -278,6 +274,7 @@ async def _get_overall_and_rating(page):
         r'(\d\.\d)\s*out\s+of\s+5',
         r'Rated\s+(\d\.\d)',
         r'"rating"[:\s,]*"?([\d.]+)"?',
+        r'(\d\.\d)\s*Google\s+reviews',
     ]:
         m = re.search(pat, combined, re.IGNORECASE)
         if m:
@@ -289,113 +286,209 @@ async def _get_overall_and_rating(page):
             except ValueError:
                 pass
 
+    # ── Fallback: look for "X reviews" pattern in aria-labels ──
+    if count is None:
+        for label in aria_text.split("\n"):
+            m = re.search(r'([\d,]+)\s*reviews?', label, re.IGNORECASE)
+            if m:
+                v = int(m.group(1).replace(",", ""))
+                if v > 5:
+                    count = v
+                    break
+
     return count, stars
 
 
 async def _count_reviews_by_scroll(page, snap_date):
-    """Click Reviews tab, sort Newest, scroll and count reviews dated snap_date.
-    Locator-only, no evaluate."""
+    """Click Reviews tab, sort Newest, scroll the review PANEL and count
+    reviews dated snap_date. Uses locator API only (no evaluate)."""
+
+    # ── 1. Click the Reviews tab ──
+    reviews_clicked = False
     for sel in [
         'button[aria-label="Reviews"]',
         'button[aria-label*="Reviews"]',
         'button[data-tab-index="1"]',
+        'div[role="tab"][data-tab-index="1"]',
         'div[role="tab"]:has-text("Reviews")',
         'button:has-text("Reviews")',
         'a:has-text("Reviews")',
         '[data-tab-id="1"]',
     ]:
         try:
-            t = await page.wait_for_selector(sel, timeout=4000)
-            if t:
-                await t.click()
-                await page.wait_for_timeout(1500)
+            t = page.locator(sel).first
+            if await t.count():
+                await t.click(timeout=4000)
+                await page.wait_for_timeout(2000)
+                reviews_clicked = True
                 break
         except Exception:
             continue
 
+    if not reviews_clicked:
+        return 0
+
+    # ── 2. Sort by Newest ──
+    sort_clicked = False
     for sel in [
         'button[aria-label="Sort reviews"]',
-        'button[aria-label*="Sort"]',
+        'button[aria-label*="Sort reviews"]',
+        'button[aria-label*="Sort by"]',
         'button[data-value="Sort"]',
         'button:has-text("Sort")',
         'div[role="button"]:has-text("Sort")',
-        'span:has-text("Newest"):not([class])',
+        'span:has-text("Sort by"):not([class])',
     ]:
         try:
-            sb = await page.wait_for_selector(sel, timeout=4000)
-            if sb:
-                await sb.click()
-                await page.wait_for_timeout(800)
-                for ns in [
-                    'li[data-index="1"]',
-                    'li:has-text("Newest")',
-                    'div[role="menuitemradio"]:has-text("Newest")',
-                    'div[role="option"]:has-text("Newest")',
-                    'div:has-text("Newest"):not([class])',
-                ]:
-                    try:
-                        n = await page.wait_for_selector(ns, timeout=2000)
-                        if n:
-                            await n.click()
-                            await page.wait_for_timeout(1500)
-                            break
-                    except Exception:
-                        continue
+            sb = page.locator(sel).first
+            if await sb.count():
+                await sb.click(timeout=3000)
+                await page.wait_for_timeout(1000)
+                sort_clicked = True
                 break
         except Exception:
             continue
 
+    if sort_clicked:
+        for ns in [
+            'li[data-index="1"]',
+            'li:has-text("Newest")',
+            'div[role="menuitemradio"]:has-text("Newest")',
+            'div[role="option"]:has-text("Newest")',
+            'div[role="menuitem"]:has-text("Newest")',
+            'span:has-text("Newest"):not([class])',
+        ]:
+            try:
+                n = page.locator(ns).first
+                if await n.count():
+                    await n.click(timeout=2000)
+                    await page.wait_for_timeout(2000)
+                    break
+            except Exception:
+                continue
+
+    # ── 3. Find the scrollable review panel ──
+    review_panel = None
+    for psel in [
+        'div.m6QErb.DxyBCb.kA9KIf.dS8AEf',   # classic review scrollable
+        'div[role="main"] div.m6QErb.DxyBCb',
+        'div.m6QErb[aria-label]',
+        'div[role="feed"]',
+        'div.m6QErb',
+    ]:
+        try:
+            p = page.locator(psel).first
+            if await p.count():
+                review_panel = p
+                break
+        except Exception:
+            continue
+
+    # ── 4. Initial scroll inside the review panel ──
+    for _ in range(3):
+        try:
+            if review_panel:
+                await review_panel.evaluate("el => el.scrollTop = el.scrollHeight")
+            else:
+                await page.evaluate("() => { const el = document.querySelector('div.m6QErb.DxyBCb'); if(el) el.scrollTop = el.scrollHeight; }")
+        except Exception:
+            try:
+                await page.keyboard.press("End")
+            except Exception:
+                pass
+        await page.wait_for_timeout(1500)
+
+    # ── 5. Scroll loop ──
     seen, count, stop, no_new = set(), 0, False, 0
-    max_scroll_attempts = 20
+    max_scroll_attempts = 25
     scroll_attempts = 0
+
+    # Modern selectors for review cards
+    CARD_SELECTORS = [
+        'div[data-review-id]',
+        'div.jftiEf',
+        'div[data-href*="review"]',
+        'div[aria-label*="review by"]',
+        'div[jscontroller][data-review-id]',
+    ]
+
+    # Modern selectors for date spans inside cards
+    DATE_SELECTORS = [
+        'span.rsqaWe',
+        'span.DU9Pgb',
+        'span.xRkPPb',
+        'span.deyGud',
+        'span.fYySGc',
+        'span[class*="rsqaWe"]',
+        'span[class*="DU9Pgb"]',
+        'span[datetime]',
+        'span.WNBkpb',
+        'span[aria-label]',
+    ]
+
     while not stop and no_new < 8 and scroll_attempts < max_scroll_attempts:
         scroll_attempts += 1
-        cards = await page.query_selector_all(
-            'div[data-review-id], div.jftiEf, div[data-href*="review"], '
-            'div.gMBQx, div.Svr5Qb, div[class*="review"]'
-        )
-        if not cards:
-            cards = await page.query_selector_all('div.jftiEf, div[data-review-id]')
-        new = 0
+
+        # Collect cards from all selectors
+        cards = []
+        for cs in CARD_SELECTORS:
+            try:
+                found = await page.query_selector_all(cs)
+                cards.extend(found)
+            except Exception:
+                pass
+        # Deduplicate by data-review-id or element ref
+        seen_ids = set()
+        unique_cards = []
         for card in cards:
+            rid = await card.get_attribute("data-review-id") or str(id(card))
+            if rid not in seen_ids:
+                seen_ids.add(rid)
+                unique_cards.append(card)
+
+        new = 0
+        for card in unique_cards:
             rid = await card.get_attribute("data-review-id") or str(id(card))
             if rid in seen:
                 continue
             seen.add(rid)
             new += 1
+
             date_str = ""
-            for dsel in [
-                'span.rsqaWe', 'span[class*="DU9Pgb"]', 'span[class*="xRkPPb"]',
-                'span[class*="rsqaWe"]', 'span[class*="deyGud"]', 'span.fYySGc',
-                'span[datetime]', 'span[class*="date"]', 'span[class*="time"]',
-            ]:
-                de = await card.query_selector(dsel)
-                if de:
-                    date_str = (await de.inner_text()).strip()
-                    if not date_str:
-                        date_str = await de.get_attribute("datetime") or ""
-                    break
+            for dsel in DATE_SELECTORS:
+                try:
+                    de = await card.query_selector(dsel)
+                    if de:
+                        date_str = (await de.inner_text()).strip()
+                        if not date_str:
+                            date_str = await de.get_attribute("datetime") or ""
+                        if date_str:
+                            break
+                except Exception:
+                    continue
+
             resolved = resolve_date(date_str, snap_date)
             if resolved == snap_date:
                 count += 1
             elif resolved and resolved < snap_date:
                 stop = True
                 break
+
         no_new = 0 if new else no_new + 1
+
         if not stop:
             try:
-                pane = await page.query_selector(
-                    'div.m6QErb[tabindex="-1"], div.m6QErb, '
-                    'div[role="main"] div[tabindex="-1"], '
-                    'div.m6QErb.DxyBCb, div.m6QErb.KFu5E'
-                )
-                if pane:
-                    await page.mouse.wheel(0, 2000)
+                if review_panel:
+                    await review_panel.evaluate("el => el.scrollTop = el.scrollHeight")
                 else:
-                    await page.keyboard.press("End")
+                    await page.evaluate("() => { const el = document.querySelector('div.m6QErb.DxyBCb'); if(el) el.scrollTop = el.scrollHeight; }")
             except Exception:
-                pass
+                try:
+                    await page.keyboard.press("End")
+                except Exception:
+                    pass
             await page.wait_for_timeout(random.randint(800, 1500))
+
     return count
 
 
@@ -421,6 +514,7 @@ async def scrape_branch(context, branch, snap_date, old_stars, data):
                     if any(kw in url for kw in [
                         '/maps/preview/place', '/maps/preview/review',
                         '/maps/api/js', '/place', '/review',
+                        '/maps/place/', '/maps/preview',
                     ]):
                         try:
                             body = await response.text()
@@ -432,8 +526,10 @@ async def scrape_branch(context, branch, snap_date, old_stars, data):
                     pass
 
             page.on("response", on_response)
-            url = f"https://www.google.com/maps/search/?api=1&place_id={place_id}"
-            await page.goto(url, wait_until="networkidle", timeout=45000)
+            url = f"https://www.google.com/maps/place/?q=place_id:{place_id}"
+            await page.goto(url, wait_until="load", timeout=45000)
+            # Wait for API responses to arrive
+            await page.wait_for_timeout(6000)
 
             for consent_sel in [
                 '#L2AGLb',
@@ -446,13 +542,15 @@ async def scrape_branch(context, branch, snap_date, old_stars, data):
                     if await btn.count():
                         await btn.click()
                         await page.wait_for_timeout(2000)
-                        await page.goto(url, wait_until="networkidle", timeout=45000)
+                        await page.goto(url, wait_until="load", timeout=45000)
+                        await page.wait_for_timeout(6000)
                         break
                 except Exception:
                     pass
 
             await page.wait_for_timeout(random.randint(2000, 4000))
 
+            # ── Tier 1: Parse captured API responses ──
             if captured_responses:
                 api_text = "\n".join(captured_responses)
                 for pat in [
@@ -485,6 +583,7 @@ async def scrape_branch(context, branch, snap_date, old_stars, data):
                         except ValueError:
                             pass
 
+            # ── Tier 2: OCR screenshot method ──
             if result["live"] is None:
                 live, stars = await _ocr_overview(page)
                 if live:
@@ -493,6 +592,7 @@ async def scrape_branch(context, branch, snap_date, old_stars, data):
                 if stars:
                     result["stars"] = stars
 
+            # ── Tier 3: DOM / HTML parsing ──
             if result["live"] is None:
                 live, stars = await _get_overall_and_rating(page)
                 result["live"] = live
@@ -502,6 +602,7 @@ async def scrape_branch(context, branch, snap_date, old_stars, data):
             if not result["stars"]:
                 result["stars"] = old_stars
 
+            # ── Tier 4: Fallback to previous data ──
             if result["live"] is None:
                 old_overall = data.get("branches", {}).get(str(branch["id"]), {}).get("overall", 0)
                 if old_overall and old_overall > 0:
@@ -515,6 +616,7 @@ async def scrape_branch(context, branch, snap_date, old_stars, data):
                 result["error"] = "no count"
                 continue
 
+            # ── Count daily reviews via scroll ──
             count = await _count_reviews_by_scroll(page, snap_date)
             result["daily"] = count
             result["method"] = "scroll"
@@ -539,8 +641,7 @@ async def run():
     print(f"Snap date     : {snap_date}")
     print(f"Run time (IST): {now_ist.strftime('%Y-%m-%d %H:%M IST')}")
     print(f"Concurrency   : {MAX_CONCURRENT}")
-    print(f"Branches      : {TOTAL_BRANCHES}")
-    print(f"Obscura CDP   : {OBSCURA_CDP_URL}\n")
+    print(f"Branches      : {TOTAL_BRANCHES}\n")
 
     data = load_data()
     all_dates_before = sorted(
@@ -576,34 +677,61 @@ async def run():
     failed = []
 
     async with async_playwright() as p:
-        # Connect to Obscura's CDP endpoint instead of launching vanilla
-        # Chromium. Vanilla Chromium gets fingerprinted/blocked by Google
-        # Maps — that's why every branch previously timed out on networkidle.
-        try:
-            browser = await p.chromium.connect_over_cdp(OBSCURA_CDP_URL)
-        except Exception as e:
-            print(f"[FATAL] Could not connect to Obscura at {OBSCURA_CDP_URL}: {e}")
-            print("        Confirm Obscura is running and OBSCURA_CDP_URL is correct.")
+        # Launch browser directly — Obscura can't render Google Maps JS.
+        import shutil as _shutil
+        brave = (
+            _shutil.which("brave") or _shutil.which("brave-browser")
+            or _shutil.which("google-chrome") or _shutil.which("chromium")
+        )
+        if not brave:
+            # Fallback: find Playwright's installed Chromium
+            import glob as _glob
+            from pathlib import Path as _Path
+            candidates = _glob.glob(
+                str(_Path.home() / ".cache" / "ms-playwright" / "chromium-*" / "chrome-linux" / "chrome")
+            )
+            if not candidates:
+                candidates = _glob.glob(
+                    str(_Path.home() / ".cache" / "ms-playwright" / "chromium-*" / "chrome-linux" / "chromium")
+                )
+            if candidates:
+                brave = candidates[0]
+        if not brave:
+            print("[FATAL] No browser found. Install brave, google-chrome, or run: playwright install chromium")
             sys.exit(1)
 
-        # Use Obscura's existing context — it already manages its own
-        # fingerprint/stealth profile, so we don't override UA/viewport here.
-        context = browser.contexts[0] if browser.contexts else await browser.new_context()
+        browser = await p.chromium.launch(
+            executable_path=brave,
+            headless=True,
+            args=[
+                "--no-sandbox", "--disable-gpu", "--disable-dev-shm-usage",
+                "--disable-blink-features=AutomationControlled",
+            ],
+        )
+        context = await browser.new_context(
+            locale="en-IN",
+            viewport={"width": 1366, "height": 768},
+            extra_http_headers={"Accept-Language": "en-IN,en;q=0.9"},
+            user_agent=(
+                "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
+                "(KHTML, like Gecko) Chrome/136.0.7103.25 Safari/537.36"
+            ),
+        )
+        print(f" [browser] Launched {brave} ✓")
 
         try:
             wp = await context.new_page()
             await wp.goto(
                 "https://www.google.com/maps",
-                wait_until="domcontentloaded",
+                wait_until="load",
                 timeout=20000,
             )
-            await wp.wait_for_timeout(1500)
+            await wp.wait_for_timeout(2000)
             for consent_sel in [
+                '#L2AGLb',
                 'button:has-text("Accept all")',
                 'button:has-text("I agree")',
-                'button:has-text("Agree")',
-                'button[aria-label="Accept all"]',
-                '#L2AGLb',
+                'button:has-text("Reject all")',
             ]:
                 try:
                     btn = wp.locator(consent_sel).first
@@ -649,7 +777,6 @@ async def run():
 
         tasks = [bounded_scrape(b) for b in BRANCHES]
         await asyncio.gather(*tasks)
-        # Don't close a browser we don't own — just disconnect.
         await browser.close()
 
     for b in BRANCHES:
