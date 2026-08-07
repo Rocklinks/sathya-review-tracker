@@ -18719,7 +18719,7 @@
       "1": {
         "total_snap": 7568,
         "daily_count": 14,
-        "raw_delta": 13,
+        "raw_delta": 0,
         "has_deletion": false,
         "monthly": 157,
         "star_rating": 4.9,
@@ -18728,7 +18728,7 @@
       "2": {
         "total_snap": 6600,
         "daily_count": 4,
-        "raw_delta": 4,
+        "raw_delta": 0,
         "has_deletion": false,
         "monthly": 28,
         "star_rating": 4.8,
@@ -18737,7 +18737,7 @@
       "3": {
         "total_snap": 1351,
         "daily_count": 1,
-        "raw_delta": 1,
+        "raw_delta": 0,
         "has_deletion": false,
         "monthly": 9,
         "star_rating": 4.9,
@@ -18746,7 +18746,7 @@
       "4": {
         "total_snap": 452,
         "daily_count": 4,
-        "raw_delta": 4,
+        "raw_delta": 0,
         "has_deletion": false,
         "monthly": 19,
         "star_rating": 4.9,
@@ -18755,7 +18755,7 @@
       "5": {
         "total_snap": 1164,
         "daily_count": 5,
-        "raw_delta": 5,
+        "raw_delta": 0,
         "has_deletion": false,
         "monthly": 14,
         "star_rating": 4.9,
@@ -18764,7 +18764,7 @@
       "6": {
         "total_snap": 2088,
         "daily_count": 3,
-        "raw_delta": 2,
+        "raw_delta": 0,
         "has_deletion": false,
         "monthly": 13,
         "star_rating": 4.9,
@@ -18773,7 +18773,7 @@
       "7": {
         "total_snap": 4592,
         "daily_count": 16,
-        "raw_delta": 17,
+        "raw_delta": 0,
         "has_deletion": false,
         "monthly": 97,
         "star_rating": 4.8,
@@ -18782,7 +18782,7 @@
       "8": {
         "total_snap": 1246,
         "daily_count": 4,
-        "raw_delta": 4,
+        "raw_delta": 0,
         "has_deletion": false,
         "monthly": 21,
         "star_rating": 4.8,
@@ -18791,7 +18791,7 @@
       "9": {
         "total_snap": 1024,
         "daily_count": 4,
-        "raw_delta": 4,
+        "raw_delta": 0,
         "has_deletion": false,
         "monthly": 28,
         "star_rating": 4.9,
@@ -18800,7 +18800,7 @@
       "10": {
         "total_snap": 774,
         "daily_count": 6,
-        "raw_delta": 6,
+        "raw_delta": 0,
         "has_deletion": false,
         "monthly": 21,
         "star_rating": 4.9,
@@ -18809,7 +18809,7 @@
       "11": {
         "total_snap": 3273,
         "daily_count": 2,
-        "raw_delta": 2,
+        "raw_delta": 0,
         "has_deletion": false,
         "monthly": 39,
         "star_rating": 4.8,
@@ -18818,7 +18818,7 @@
       "12": {
         "total_snap": 1173,
         "daily_count": 3,
-        "raw_delta": 3,
+        "raw_delta": 0,
         "has_deletion": false,
         "monthly": 13,
         "star_rating": 4.7,
@@ -18827,7 +18827,7 @@
       "13": {
         "total_snap": 1144,
         "daily_count": 2,
-        "raw_delta": 2,
+        "raw_delta": 0,
         "has_deletion": false,
         "monthly": 11,
         "star_rating": 4.7,
@@ -18836,7 +18836,7 @@
       "14": {
         "total_snap": 315,
         "daily_count": 1,
-        "raw_delta": 1,
+        "raw_delta": 0,
         "has_deletion": false,
         "monthly": 2,
         "star_rating": 4.9,
@@ -18845,7 +18845,7 @@
       "15": {
         "total_snap": 458,
         "daily_count": 1,
-        "raw_delta": 1,
+        "raw_delta": 0,
         "has_deletion": false,
         "monthly": 1,
         "star_rating": 4.9,
@@ -18854,7 +18854,7 @@
       "16": {
         "total_snap": 419,
         "daily_count": 1,
-        "raw_delta": 1,
+        "raw_delta": 0,
         "has_deletion": false,
         "monthly": 7,
         "star_rating": 4.9,
@@ -18863,7 +18863,7 @@
       "17": {
         "total_snap": 836,
         "daily_count": 3,
-        "raw_delta": 3,
+        "raw_delta": 0,
         "has_deletion": false,
         "monthly": 14,
         "star_rating": 4.9,
@@ -18872,7 +18872,7 @@
       "18": {
         "total_snap": 2758,
         "daily_count": 5,
-        "raw_delta": 5,
+        "raw_delta": 0,
         "has_deletion": false,
         "monthly": 64,
         "star_rating": 4.7,
@@ -18881,7 +18881,7 @@
       "19": {
         "total_snap": 2615,
         "daily_count": 3,
-        "raw_delta": 3,
+        "raw_delta": 0,
         "has_deletion": false,
         "monthly": 59,
         "star_rating": 4.8,
@@ -18890,7 +18890,7 @@
       "20": {
         "total_snap": 1238,
         "daily_count": 1,
-        "raw_delta": 1,
+        "raw_delta": 0,
         "has_deletion": false,
         "monthly": 20,
         "star_rating": 4.9,
@@ -18899,7 +18899,7 @@
       "21": {
         "total_snap": 740,
         "daily_count": 5,
-        "raw_delta": 5,
+        "raw_delta": 0,
         "has_deletion": false,
         "monthly": 18,
         "star_rating": 4.9,
@@ -18908,7 +18908,7 @@
       "22": {
         "total_snap": 697,
         "daily_count": 2,
-        "raw_delta": 2,
+        "raw_delta": 0,
         "has_deletion": false,
         "monthly": 11,
         "star_rating": 4.8,
@@ -18917,7 +18917,7 @@
       "23": {
         "total_snap": 1023,
         "daily_count": 3,
-        "raw_delta": 3,
+        "raw_delta": 0,
         "has_deletion": false,
         "monthly": 7,
         "star_rating": 4.8,
@@ -18926,7 +18926,7 @@
       "24": {
         "total_snap": 1088,
         "daily_count": 1,
-        "raw_delta": 1,
+        "raw_delta": 0,
         "has_deletion": false,
         "monthly": 17,
         "star_rating": 4.9,
@@ -18935,7 +18935,7 @@
       "25": {
         "total_snap": 1070,
         "daily_count": 1,
-        "raw_delta": 1,
+        "raw_delta": 0,
         "has_deletion": false,
         "monthly": 20,
         "star_rating": 5.0,
@@ -18944,7 +18944,7 @@
       "26": {
         "total_snap": 37,
         "daily_count": 1,
-        "raw_delta": 1,
+        "raw_delta": 0,
         "has_deletion": false,
         "monthly": 9,
         "star_rating": 5.0,
@@ -18953,7 +18953,7 @@
       "27": {
         "total_snap": 6238,
         "daily_count": 7,
-        "raw_delta": 7,
+        "raw_delta": 0,
         "has_deletion": false,
         "monthly": 18,
         "star_rating": 4.9,
@@ -18962,7 +18962,7 @@
       "28": {
         "total_snap": 4077,
         "daily_count": 6,
-        "raw_delta": 5,
+        "raw_delta": 0,
         "has_deletion": false,
         "monthly": 30,
         "star_rating": 5.0,
@@ -18971,7 +18971,7 @@
       "29": {
         "total_snap": 2363,
         "daily_count": 3,
-        "raw_delta": 3,
+        "raw_delta": 0,
         "has_deletion": false,
         "monthly": 18,
         "star_rating": 4.9,
@@ -18980,7 +18980,7 @@
       "30": {
         "total_snap": 1043,
         "daily_count": 1,
-        "raw_delta": 1,
+        "raw_delta": 0,
         "has_deletion": false,
         "monthly": 14,
         "star_rating": 4.9,
@@ -18998,7 +18998,7 @@
       "32": {
         "total_snap": 2166,
         "daily_count": 4,
-        "raw_delta": 4,
+        "raw_delta": 0,
         "has_deletion": false,
         "monthly": 38,
         "star_rating": 4.8,
@@ -19007,7 +19007,7 @@
       "33": {
         "total_snap": 2185,
         "daily_count": 3,
-        "raw_delta": 3,
+        "raw_delta": 0,
         "has_deletion": false,
         "monthly": 8,
         "star_rating": 4.8,
@@ -19016,7 +19016,7 @@
       "34": {
         "total_snap": 1782,
         "daily_count": 3,
-        "raw_delta": 3,
+        "raw_delta": 0,
         "has_deletion": false,
         "monthly": 17,
         "star_rating": 4.9,
@@ -19025,7 +19025,7 @@
       "35": {
         "total_snap": 2156,
         "daily_count": 2,
-        "raw_delta": 2,
+        "raw_delta": 0,
         "has_deletion": false,
         "monthly": 38,
         "star_rating": 4.8,
@@ -19043,7 +19043,7 @@
       "37": {
         "total_snap": 1274,
         "daily_count": 2,
-        "raw_delta": 2,
+        "raw_delta": 0,
         "has_deletion": false,
         "monthly": 15,
         "star_rating": 4.8,
@@ -19052,6 +19052,26 @@
     }
   },
   "logs": [
+    {
+      "ran_at": "2026-08-07T05:47:04.476687+00:00",
+      "snap_date": "2026-08-06",
+      "baseline_date": "2026-08-05",
+      "success": 37,
+      "failed": 0,
+      "failed_names": [],
+      "total_reviews": 129,
+      "source": "Jre.xlsx (rev.sh)"
+    },
+    {
+      "ran_at": "2026-08-07T05:42:16.098842+00:00",
+      "snap_date": "2026-08-06",
+      "baseline_date": "2026-08-05",
+      "success": 37,
+      "failed": 0,
+      "failed_names": [],
+      "total_reviews": 129,
+      "source": "Jre.xlsx (rev.sh)"
+    },
     {
       "ran_at": "2026-08-07T03:31:04.048209+00:00",
       "snap_date": "2026-08-05",
@@ -19482,23 +19502,7 @@
       "success": 36,
       "failed": 0,
       "failed_names": []
-    },
-    {
-      "ran_at": "2026-06-29T20:51:10.284180",
-      "snap_date": "2026-06-29",
-      "baseline_date": "2026-06-28",
-      "success": 36,
-      "failed": 0,
-      "failed_names": []
-    },
-    {
-      "ran_at": "2026-06-29T20:25:25.955468",
-      "snap_date": "2026-06-29",
-      "baseline_date": "2026-06-28",
-      "success": 36,
-      "failed": 0,
-      "failed_names": []
     }
   ],
-  "last_updated": "2026-08-07T03:31:04.048256+00:00"
+  "last_updated": "2026-08-07T05:47:04.476716+00:00"
 }
