@@ -19386,7 +19386,7 @@
       }
     }
   },
-  "last_updated": "2026-08-08T05:47:22.656715+00:00",
+  "last_updated": "2026-08-08T05:47:35.382000+00:00",
   "reviews": [
     {
       "review_id": "Ci9DQUlRQUNvZENodHljRjlvT21aeFlWWm5ZMWxmWVVKTFJGQlJWbTlrV2xKRlkyYxAB",
@@ -45735,6 +45735,16 @@
     }
   ],
   "logs": [
+    {
+      "ran_at": "2026-08-08T05:47:35.381958+00:00",
+      "snap_date": "2026-08-07",
+      "baseline_date": "2026-08-06",
+      "success": 37,
+      "failed": 0,
+      "failed_names": [],
+      "total_reviews": 132,
+      "source": "Jre.xlsx (rev.sh)"
+    },
     {
       "ran_at": "2026-08-08T05:47:22.656677+00:00",
       "snap_date": "2026-08-07",
