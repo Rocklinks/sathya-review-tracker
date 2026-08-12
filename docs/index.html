@@ -380,10 +380,6 @@ input[type=date]{background:var(--surface2);border:1px solid var(--border2);bord
     <div class="live-pill"><span class="live-dot"></span>Auto-updated nightly</div>
     <span id="last-update"></span>
     <span id="clock"></span>
-    <button class="btn-reviews" onclick="openRevPanel()" title="Full Reviews Explorer">
-      ⭐ <span class="rev-btn-lbl">Reviews</span>
-      <span class="btn-reviews-badge" id="rev-neg-badge">!</span>
-    </button>
     <button class="exp-save" onclick="openModal('xls')" title="Export as Excel or PDF">Save</button>
   </div>
 </div>
@@ -395,28 +391,14 @@ input[type=date]{background:var(--surface2);border:1px solid var(--border2);bord
       <div class="s-item active" onclick="showView('dashboard',this)"><span class="s-icon">&#x1F4CA;</span>Dashboard</div>
       <div class="s-item" onclick="showView('branches',this)"><span class="s-icon">&#x1F3E2;</span>All Branches</div>
       <div class="s-item" onclick="showView('agm',this)"><span class="s-icon">&#x1F464;</span>By AGM</div>
-      <div class="s-item" onclick="showView('history',this)"><span class="s-icon">&#x1F4C5;</span>History</div>
-      <div class="s-item" onclick="showView('logs',this)"><span class="s-icon">&#x1F4CB;</span>Scrape Logs</div>
-      <div class="s-item" onclick="showView('backups',this)"><span class="s-icon">&#x1F6E1;&#xFE0F;</span>Backups</div>
       <div class="s-item" onclick="showView('edit',this)"><span class="s-icon">&#x270F;&#xFE0F;</span>Edit Data</div>
     </div>
     <div class="s-group">
-      <div class="s-label">Tools</div>
-      <div class="s-item s-item-tracker" onclick="window.location.href='https://rocklinks.github.io/sathya-reviews-explorer/sathya-mob.html'">
-        <span class="s-icon">&#x1F4F1;</span>Mobiles<span class="s-ext-badge" style="color:var(--teal)">&#x2197;</span>
-      </div>
-      <div class="s-item s-item-tracker" onclick="window.location.href='sathya_jupyter.html'">
-        <span class="s-icon">&#x1F4BB;</span>Live Tracker<span class="s-ext-badge" style="color:var(--teal)">&#x2197;</span>
-      </div>
-      <div class="s-item s-item-weather" onclick="window.location.href='sathya-weather.html'">
-        <span class="s-icon">&#x26C5;</span>Weather<span class="s-ext-badge" style="color:var(--amber)">&#x2197;</span>
-      </div>
-      <div class="s-item" onclick="window.location.href='Enquiries_Filter_Tool.html'">
-        <span class="s-icon">&#x1F4CA;</span>PDF Tool<span class="s-ext-badge" style="color:#6366f1">&#x2197;</span>
-      </div>
-      <div class="s-item" onclick="window.location.href='branch_check.html'">
-        <span class="s-icon">&#x1F50D;</span>Branch Check<span class="s-ext-badge" style="color:#0891b2">&#x2197;</span>
-      </div>
+      <div class="s-label">Quick Links</div>
+      <div class="s-item active" onclick="window.location.href='index.html'"><span class="s-icon">&#x1F3E0;</span>Home</div>
+      <div class="s-item" onclick="window.location.href='https://ew-mauve.vercel.app/index.html'"><span class="s-icon">&#x1F4BC;</span>EW<span class="s-ext-badge" style="color:var(--teal)">&#x2197;</span></div>
+      <div class="s-item" onclick="window.location.href='https://ew-mauve.vercel.app/he.html'"><span class="s-icon">&#x1F48E;</span>HighEnd<span class="s-ext-badge" style="color:var(--teal)">&#x2197;</span></div>
+      <div class="s-item" onclick="window.location.href='https://ew-mauve.vercel.app/growth.html'"><span class="s-icon">&#x1F4C8;</span>Growth<span class="s-ext-badge" style="color:var(--teal)">&#x2197;</span></div>
     </div>
     <div class="s-group">
       <div class="s-label">Filter by AGM</div>
