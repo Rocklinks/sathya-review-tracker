@@ -1073,7 +1073,7 @@ function exportPdf(){openModal('pdf');}
 function toggleSidebar(){var sb=document.getElementById('main-sidebar'),ov=document.getElementById('sb-overlay');sb.classList.toggle('mob-open');ov.classList.toggle('show');}
 function closeSidebar(){document.getElementById('main-sidebar').classList.remove('mob-open');document.getElementById('sb-overlay').classList.remove('show');}
 
-async function init(){await loadData();setInterval(loadData,300000);}
+async function init(){var ic=document.getElementById("theme-icon");if(ic)ic.innerHTML=document.documentElement.getAttribute("data-theme")==="dark"?"☀️":"🌙";await loadData();setInterval(loadData,300000);}
 
 function toggleTheme(){var cur=document.documentElement.getAttribute("data-theme");var next=cur==="dark"?"light":"dark";document.documentElement.setAttribute("data-theme",next);var ic=document.getElementById("theme-icon");if(ic)ic.innerHTML=next==="dark"?"☀️":"🌙";try{localStorage.setItem("theme",next);}catch(e){}}
 
