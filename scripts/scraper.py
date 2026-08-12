@@ -412,19 +412,17 @@ async def _count_reviews_by_scroll(page, snap_date):
         'div[jscontroller][data-review-id]',
     ]
 
-    # Modern selectors for date spans inside cards
-    DATE_SELECTORS = [
-        'span.rsqaWe',
-        'span.DU9Pgb',
-        'span.xRkPPb',
-        'span.deyGud',
-        'span.fYySGc',
-        'span[class*="rsqaWe"]',
-        'span[class*="DU9Pgb"]',
-        'span[datetime]',
-        'span.WNBkpb',
-        'span[aria-label]',
-    ]
+    # Date patterns to match inside review card text (relative + absolute)
+    DATE_REL_PATTERNS = re.compile(
+        r'(?:\d+\s+(?:hour|minute|second|day|week|month|year)s?\s+ago'
+        r'|a\s+(?:day|week|month|year)\s+ago'
+        r'|yesterday'
+        r'|just\s+now'
+        r'|(?:\d{1,2}\s+)?(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{4}'
+        r'|(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{1,2},?\s+\d{4}'
+        r'|\d{4}[-/]\d{2}[-/]\d{2})',
+        re.IGNORECASE,
+    )
 
     while not stop and no_new < 8 and scroll_attempts < max_scroll_attempts:
         scroll_attempts += 1
@@ -455,17 +453,35 @@ async def _count_reviews_by_scroll(page, snap_date):
             new += 1
 
             date_str = ""
-            for dsel in DATE_SELECTORS:
-                try:
-                    de = await card.query_selector(dsel)
-                    if de:
-                        date_str = (await de.inner_text()).strip()
-                        if not date_str:
-                            date_str = await de.get_attribute("datetime") or ""
+            try:
+                card_text = await card.inner_text(timeout=3000)
+                for line in card_text.split("\n"):
+                    line = line.strip()
+                    if not line:
+                        continue
+                    # Check if this line contains a date-like pattern
+                    if DATE_REL_PATTERNS.search(line):
+                        # Skip lines that are just ratings like "4.5" or "⭐ 4"
+                        if re.match(r'^[\d.★\s]+$', line):
+                            continue
+                        date_str = line
+                        break
+                # Also try individual child spans for more precise matching
+                if not date_str:
+                    for tag in ['span', 'time', 'div']:
+                        elements = await card.query_selector_all(tag)
+                        for el in elements:
+                            try:
+                                txt = (await el.inner_text(timeout=1000)).strip()
+                                if txt and DATE_REL_PATTERNS.search(txt) and not re.match(r'^[\d.★\s]+$', txt):
+                                    date_str = txt
+                                    break
+                            except Exception:
+                                continue
                         if date_str:
                             break
-                except Exception:
-                    continue
+            except Exception:
+                pass
 
             resolved = resolve_date(date_str, snap_date)
             if resolved == snap_date:
@@ -610,16 +626,23 @@ async def scrape_branch(context, branch, snap_date, old_stars, data):
                     result["stars"] = old_stars if old_stars else result["stars"]
                     result["method"] = "fallback"
                     result["error"] = None
-                    count = await _count_reviews_by_scroll(page, snap_date)
-                    result["daily"] = count
-                    break
-                result["error"] = "no count"
-                continue
+                else:
+                    result["error"] = "no count"
+                    continue
 
             # ── Count daily reviews via scroll ──
             count = await _count_reviews_by_scroll(page, snap_date)
+
+            # ── Fallback: if scroll found 0 but total increased, use delta ──
+            if count == 0 and result["live"]:
+                old_overall = data.get("branches", {}).get(str(branch["id"]), {}).get("overall", 0)
+                if old_overall and result["live"] > old_overall:
+                    count = result["live"] - old_overall
+                    result["method"] = "scroll+delta"
+                    print(f"[delta-fallback] {name}: scroll=0 but total {old_overall}→{result['live']}, using delta={count}")
+
             result["daily"] = count
-            result["method"] = "scroll"
+            result["method"] = "scroll" if result.get("method") != "scroll+delta" else "scroll+delta"
             break
         except Exception as e:
             result["error"] = str(e)
