@@ -632,17 +632,8 @@ async def scrape_branch(context, branch, snap_date, old_stars, data):
 
             # ── Count daily reviews via scroll ──
             count = await _count_reviews_by_scroll(page, snap_date)
-
-            # ── Fallback: if scroll found 0 but total increased, use delta ──
-            if count == 0 and result["live"]:
-                old_overall = data.get("branches", {}).get(str(branch["id"]), {}).get("overall", 0)
-                if old_overall and result["live"] > old_overall:
-                    count = result["live"] - old_overall
-                    result["method"] = "scroll+delta"
-                    print(f"[delta-fallback] {name}: scroll=0 but total {old_overall}→{result['live']}, using delta={count}")
-
             result["daily"] = count
-            result["method"] = "scroll" if result.get("method") != "scroll+delta" else "scroll+delta"
+            result["method"] = "scroll"
             break
         except Exception as e:
             result["error"] = str(e)
@@ -788,12 +779,16 @@ async def run():
                     print(f"→ FAILED: {res['error']} ✗")
                 else:
                     results[bid] = res
-                    delta = res["daily"]
+                    # Show delta from previous total for accurate daily count
+                    prev = data.get("branches", {}).get(bid, {}).get("overall", 0)
+                    if res["live"] and prev and res["live"] > prev:
+                        delta = res["live"] - prev
+                    else:
+                        delta = res["daily"]
                     delta_str = f"+{delta}" if delta >= 0 else str(delta)
                     stars_str = f"{res['stars']}★" if res["stars"] else "—"
-                    method_str = f"({res['method']})"
                     print(
-                        f"→ {res['live']:,} total {delta_str} new {stars_str} {method_str} ✓"
+                        f"→ {res['live']:,} total {delta_str} new {stars_str} ✓"
                     )
                     success += 1
                 await asyncio.sleep(random.randint(1, 3))
@@ -809,9 +804,17 @@ async def run():
         r = results[bid]
         live = r["live"]
         stars = r["stars"]
-        daily = r["daily"]
+        old_overall = data["branches"].get(bid, {}).get("overall", 0)
         old_stars = data["branches"].get(bid, {}).get("star_rating", 0)
         final_stars = stars if stars else old_stars
+
+        # Compute daily count from total_snap delta (scroll date extraction is unreliable)
+        if live and old_overall and live > old_overall:
+            daily = live - old_overall
+            r["method"] = "delta"
+        else:
+            daily = r["daily"]
+
         prev_monthly = monthly_daily_snap.get(bid, {}).get("monthly", 0)
         monthly = max(0, prev_monthly + daily)
         data["daily"][snap_date][bid] = {
