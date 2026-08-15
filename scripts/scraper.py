@@ -658,10 +658,11 @@ async def run():
     print(f"Branches      : {TOTAL_BRANCHES}\n")
 
     data = load_data()
-    all_dates_before = sorted(
-        [d for d in data.get("daily", {}) if d < snap_date], reverse=True
-    )
-    baseline_date = all_dates_before[0] if all_dates_before else None
+    all_dates_sorted = sorted(data.get("daily", {}).keys())
+    dates_before = [d for d in all_dates_sorted if d < snap_date]
+    baseline_date = dates_before[-1] if dates_before else None
+    baseline_snap = data["daily"].get(baseline_date, {}) if baseline_date else {}
+
     if baseline_date:
         gap = (
             datetime.strptime(snap_date, "%Y-%m-%d")
@@ -677,13 +678,8 @@ async def run():
         data["daily"][snap_date] = {}
 
     snap_month = snap_date[:7]
-    same_month_dates = sorted(
-        [d for d in data.get("daily", {}) if d.startswith(snap_month) and d < snap_date],
-        reverse=True,
-    )
-    monthly_baseline_date = same_month_dates[0] if same_month_dates else None
-    monthly_daily_snap = (
-        data["daily"].get(monthly_baseline_date, {}) if monthly_baseline_date else {}
+    month_dates_before = sorted(
+        [d for d in all_dates_sorted if d.startswith(snap_month) and d < snap_date]
     )
 
     results = {}
@@ -768,6 +764,8 @@ async def run():
                 bid = str(branch["id"])
                 name = branch["name"]
                 old_stars = data.get("branches", {}).get(bid, {}).get("star_rating", 0)
+                prev_total = baseline_snap.get(bid, {}).get("total_snap",
+                             data.get("branches", {}).get(bid, {}).get("overall", 0))
                 print(
                     f" [{branch['id']:02d}/{TOTAL_BRANCHES}] {name:<25}",
                     end=" ",
@@ -779,10 +777,8 @@ async def run():
                     print(f"→ FAILED: {res['error']} ✗")
                 else:
                     results[bid] = res
-                    # Show delta from previous total for accurate daily count
-                    prev = data.get("branches", {}).get(bid, {}).get("overall", 0)
-                    if res["live"] and prev and res["live"] > prev:
-                        delta = res["live"] - prev
+                    if res["live"] and prev_total and res["live"] > prev_total:
+                        delta = res["live"] - prev_total
                     else:
                         delta = res["daily"]
                     delta_str = f"+{delta}" if delta >= 0 else str(delta)
@@ -804,19 +800,26 @@ async def run():
         r = results[bid]
         live = r["live"]
         stars = r["stars"]
-        old_overall = data["branches"].get(bid, {}).get("overall", 0)
         old_stars = data["branches"].get(bid, {}).get("star_rating", 0)
         final_stars = stars if stars else old_stars
 
-        # Compute daily count from total_snap delta (scroll date extraction is unreliable)
-        if live and old_overall and live > old_overall:
-            daily = live - old_overall
+        prev_total = baseline_snap.get(bid, {}).get("total_snap",
+                     data["branches"].get(bid, {}).get("overall", 0))
+
+        if r["daily"] > 0:
+            daily = r["daily"]
+        elif live and prev_total and live > prev_total:
+            daily = live - prev_total
             r["method"] = "delta"
         else:
-            daily = r["daily"]
+            daily = max(0, r["daily"])
 
-        prev_monthly = monthly_daily_snap.get(bid, {}).get("monthly", 0)
-        monthly = max(0, prev_monthly + daily)
+        month_daily_sum = sum(
+            (data["daily"].get(d, {}).get(bid, {}).get("daily_count", 0) for d in month_dates_before),
+            0,
+        )
+        monthly = month_daily_sum + daily
+
         data["daily"][snap_date][bid] = {
             "total_snap": live,
             "daily_count": daily,

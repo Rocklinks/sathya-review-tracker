@@ -280,8 +280,9 @@ async def run():
     print(f"Concurrent : {MAX_CONCURRENT}\n")
 
     data = load_data()
-    all_dates_before = sorted([d for d in data.get("daily",{}) if d < snap_date], reverse=True)
-    baseline_date = all_dates_before[0] if all_dates_before else None
+    all_dates_sorted = sorted(data.get("daily",{}).keys())
+    dates_before = [d for d in all_dates_sorted if d < snap_date]
+    baseline_date = dates_before[-1] if dates_before else None
     baseline_snap = data["daily"].get(baseline_date,{}) if baseline_date else {}
 
     if baseline_date:
@@ -292,8 +293,7 @@ async def run():
     if snap_date not in data["daily"]: data["daily"][snap_date] = {}
 
     snap_month = snap_date[:7]
-    same_month = sorted([d for d in data.get("daily",{}) if d.startswith(snap_month) and d < snap_date], reverse=True)
-    monthly_snap = data["daily"].get(same_month[0],{}) if same_month else {}
+    month_dates_before = sorted([d for d in all_dates_sorted if d.startswith(snap_month) and d < snap_date])
 
     results = {}; success = 0; failed = []
 
@@ -341,14 +341,27 @@ async def run():
         bid = str(b["id"])
         if bid not in results: continue
         r = results[bid]
-        prev_monthly = monthly_snap.get(bid,{}).get("monthly",0)
-        monthly = max(0, prev_monthly + r["daily"])
-        raw_delta = (r["live"] - baseline_snap.get(bid,{}).get("total_snap",
-                    data.get("branches",{}).get(bid,{}).get("overall",0)))
+        prev_total = baseline_snap.get(bid,{}).get("total_snap",
+                     data.get("branches",{}).get(bid,{}).get("overall",0))
+
+        if r["daily"] > 0:
+            daily = r["daily"]
+        elif r["live"] and prev_total and r["live"] > prev_total:
+            daily = r["live"] - prev_total
+            r["method"] = "delta"
+        else:
+            daily = max(0, r["daily"])
+
+        raw_delta = (r["live"] - prev_total) if prev_total else 0
+        month_daily_sum = sum(
+            (data["daily"].get(d,{}).get(bid,{}).get("daily_count",0) for d in month_dates_before),
+            0,
+        )
+        monthly = month_daily_sum + daily
 
         data["daily"][snap_date][bid] = {
             "total_snap":  r["live"],
-            "daily_count": max(0, r["daily"]),
+            "daily_count": daily,
             "raw_delta":   raw_delta,
             "has_deletion":raw_delta < 0,
             "monthly":     monthly,
