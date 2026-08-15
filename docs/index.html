@@ -136,6 +136,18 @@ body{
 }
 .btn-save:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(99,102,241,.4);filter:brightness(1.08)}
 .btn-save:active{transform:translateY(0)}
+.btn{
+  padding:8px 20px;border-radius:var(--radius-sm);border:none;cursor:pointer;
+  font-size:12px;font-weight:600;font-family:inherit;transition:.2s;
+  display:inline-flex;align-items:center;gap:6px;white-space:nowrap;
+}
+.btn:hover{transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn-primary{
+  background:linear-gradient(135deg,var(--indigo),var(--teal));color:#fff;
+  box-shadow:0 4px 16px rgba(99,102,241,.3);
+}
+.btn-primary:hover{box-shadow:0 6px 20px rgba(99,102,241,.4);filter:brightness(1.08)}
 
 /* ═══════════════════════════════════════════
    LAYOUT
@@ -472,7 +484,7 @@ tbody td{padding:13px 18px;white-space:nowrap}
 <div class="modal-backdrop" id="exp-modal" onclick="closeModalBg(event)">
   <div class="modal">
     <div class="modal-hdr">
-      <div class="modal-title">&#x2B07;&#xFE0F; Export Report</div>
+      <div class="modal-title">&#x2B07;&#xFE0F; Save Report</div>
       <button class="modal-close" onclick="closeModal()">&#x2715;</button>
     </div>
     <div class="modal-body">
@@ -519,7 +531,7 @@ tbody td{padding:13px 18px;white-space:nowrap}
     </div>
     <div class="modal-footer">
       <button class="btn" style="border:1px solid var(--border);background:var(--surface);color:var(--text2)" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" id="exp-go-btn" onclick="runExport()">&#x2B07; Export Excel</button>
+      <button class="btn btn-primary" id="exp-go-btn" onclick="runExport()">&#x2B07; Save Excel</button>
     </div>
   </div>
 </div>
@@ -537,7 +549,7 @@ tbody td{padding:13px 18px;white-space:nowrap}
     <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
       <span id="theme-icon">&#x263E;&#xFE0F;</span>
     </button>
-    <button class="btn-save" onclick="openModal('xls')" title="Export">&#x2B07; Export</button>
+    <button class="btn-save" onclick="openModal('xls')" title="Save">&#x2B07; Save</button>
   </div>
 </div>
 
@@ -766,7 +778,7 @@ function setFmt(f, silent){
   modalFmt=f;
   document.getElementById('fmt-xls').className='fmt-btn'+(f==='xls'?' active-xls':'');
   document.getElementById('fmt-pdf').className='fmt-btn'+(f==='pdf'?' active-pdf':'');
-  document.getElementById('exp-go-btn').innerHTML=(f==='xls'?'&#x2B07; Export Excel':'&#x1F5A8; Export PDF');
+  document.getElementById('exp-go-btn').innerHTML=(f==='xls'?'&#x2B07; Save Excel':'&#x1F5A8; Save PDF');
   if(!silent)updatePreview();
 }
 function setMode(m, silent){
