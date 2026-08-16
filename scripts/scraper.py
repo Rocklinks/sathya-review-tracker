@@ -23,7 +23,7 @@ except ImportError:
 
 DATA_FILE = os.path.join(os.path.dirname(__file__), "..", "docs", "data", "reviews.json")
 BACKUP_DIR = None  # backups disabled
-MAX_CONCURRENT = 6
+MAX_CONCURRENT = 3
 IST_OFFSET = timedelta(hours=5, minutes=30)
 
 BRANCHES = [
@@ -630,10 +630,8 @@ async def scrape_branch(context, branch, snap_date, old_stars, data):
                     result["error"] = "no count"
                     continue
 
-            # ── Count daily reviews via scroll ──
-            count = await _count_reviews_by_scroll(page, snap_date)
-            result["daily"] = count
-            result["method"] = "scroll"
+            # Skip expensive scroll method — daily count calculated from delta
+            result["method"] = "api"
             break
         except Exception as e:
             result["error"] = str(e)
@@ -648,9 +646,11 @@ async def scrape_branch(context, branch, snap_date, old_stars, data):
 
 
 async def run():
-    now_ist = datetime.utcnow() + IST_OFFSET
+    from datetime import timezone
+    now_utc = datetime.now(timezone.utc)
+    now_ist = now_utc + IST_OFFSET
     snap_date = (now_ist.date() - timedelta(days=1)).strftime("%Y-%m-%d")
-    run_time = datetime.utcnow().isoformat()
+    run_time = now_utc.isoformat()
     print(f"=== Sathya Review Scraper (Async Parallel + Scroll) ===")
     print(f"Snap date     : {snap_date}")
     print(f"Run time (IST): {now_ist.strftime('%Y-%m-%d %H:%M IST')}")
@@ -771,7 +771,10 @@ async def run():
                     end=" ",
                     flush=True,
                 )
-                res = await scrape_branch(context, branch, snap_date, old_stars, data)
+                try:
+                    res = await scrape_branch(context, branch, snap_date, old_stars, data)
+                except Exception as e:
+                    res = {"live": None, "stars": None, "daily": 0, "method": "error", "error": str(e)}
                 if res["error"]:
                     failed.append(name)
                     print(f"→ FAILED: {res['error']} ✗")
@@ -787,7 +790,7 @@ async def run():
                         f"→ {res['live']:,} total {delta_str} new {stars_str} ✓"
                     )
                     success += 1
-                await asyncio.sleep(random.randint(1, 3))
+                await asyncio.sleep(random.randint(2, 5))
 
         tasks = [bounded_scrape(b) for b in BRANCHES]
         await asyncio.gather(*tasks)
