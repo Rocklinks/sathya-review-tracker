@@ -40,9 +40,12 @@ except ImportError:
 # Obscura — lightweight Rust headless browser (CDP-compatible)
 OBSCURA_BIN = shutil.which("obscura") or ""
 
-# HeadlessX — self-hosted headless browser API (configure via env)
-HEADLESSX_URL = os.environ.get("HEADLESSX_URL", "").rstrip("/")
-HEADLESSX_TOKEN = os.environ.get("HEADLESSX_TOKEN", "")
+# undetected-chromedriver — Selenium with bot-detection bypass
+try:
+    import undetected_chromedriver as uc
+    UC_AVAILABLE = True
+except ImportError:
+    UC_AVAILABLE = False
 
 DATA_FILE = os.path.join(os.path.dirname(__file__), "..", "docs", "data", "reviews.json")
 BACKUP_DIR = None  # backups disabled
@@ -408,32 +411,38 @@ def _obscura_fetch_place(place_id):
         return None, None
 
 
-def _headlessx_fetch_place(place_id):
-    """Tier 6: Use HeadlessX self-hosted API to render the page with
-    Camoufox (patched Firefox, 0% detection) and extract HTML.
-    Requires HEADLESSX_URL and HEADLESSX_TOKEN env vars.
+def _undetected_chrome_fetch_place(place_id):
+    """Tier 6: Use undetected-chromedriver (Selenium with bot-detection bypass)
+    to render Google Maps and extract HTML. Fully open source, pip install.
     Returns (count, stars) or (None, None) on failure."""
-    if not HEADLESSX_URL or not HEADLESSX_TOKEN:
+    if not UC_AVAILABLE:
         return None, None
-    import urllib.request
-    import urllib.error
     url = f"https://www.google.com/maps/place/?q=place_id:{place_id}"
-    api_url = f"{HEADLESSX_URL}/api/html?token={HEADLESSX_TOKEN}"
-    payload = json.dumps({"url": url, "timeout": 30000, "humanBehavior": True}).encode()
+    driver = None
     try:
-        req = urllib.request.Request(
-            api_url, data=payload,
-            headers={"Content-Type": "application/json"},
-            method="POST",
-        )
-        with urllib.request.urlopen(req, timeout=25) as resp:
-            data = json.loads(resp.read().decode())
-        html = data.get("data", {}).get("html", "") or data.get("html", "")
-        if not html:
+        options = uc.ChromeOptions()
+        options.add_argument("--headless=new")
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
+        options.add_argument("--disable-gpu")
+        options.add_argument("--window-size=1366,768")
+        driver = uc.Chrome(options=options, version_main=None)
+        driver.set_page_load_timeout(25)
+        driver.get(url)
+        import time
+        time.sleep(6)
+        html = driver.page_source
+        if not html or len(html) < 200:
             return None, None
         return _parse_html_for_reviews(html)
     except Exception:
         return None, None
+    finally:
+        if driver:
+            try:
+                driver.quit()
+            except Exception:
+                pass
 
 
 async def _scrapling_fetch_place(place_id):
@@ -836,17 +845,17 @@ async def scrape_branch(context, branch, snap_date, old_stars, data):
                 except Exception:
                     pass
 
-            # ── Tier 6: HeadlessX (Camoufox patched Firefox, 0% detection) ──
+            # ── Tier 6: undetected-chromedriver (Selenium bot-detection bypass) ──
             if result["live"] is None:
                 try:
-                    h_count, h_stars = await asyncio.get_event_loop().run_in_executor(
-                        None, _headlessx_fetch_place, place_id
+                    u_count, u_stars = await asyncio.get_event_loop().run_in_executor(
+                        None, _undetected_chrome_fetch_place, place_id
                     )
-                    if h_count:
-                        result["live"] = h_count
-                        result["method"] = "headlessx"
-                    if h_stars:
-                        result["stars"] = h_stars
+                    if u_count:
+                        result["live"] = u_count
+                        result["method"] = "undetected"
+                    if u_stars:
+                        result["stars"] = u_stars
                 except Exception:
                     pass
 
@@ -881,7 +890,7 @@ async def scrape_branch(context, branch, snap_date, old_stars, data):
                 result["error"] = "all scrape methods failed"
                 continue
 
-            if result["method"] in ("scroll", "obscura", "headlessx", "scrapling", "curlcffi"):
+            if result["method"] in ("scroll", "obscura", "undetected", "scrapling", "curlcffi"):
                 pass  # already set
             else:
                 result["method"] = "api"
