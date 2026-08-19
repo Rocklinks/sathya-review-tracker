@@ -876,19 +876,12 @@ async def scrape_branch(context, branch, snap_date, old_stars, data):
                 except Exception:
                     pass
 
-            # ── Tier 9: Fallback to previous data ──
+            # ── All 8 tiers failed — report failure, no stale data ──
             if result["live"] is None:
-                old_overall = data.get("branches", {}).get(str(branch["id"]), {}).get("overall", 0)
-                if old_overall and old_overall > 0:
-                    result["live"] = old_overall
-                    result["stars"] = old_stars if old_stars else result["stars"]
-                    result["method"] = "fallback"
-                    result["error"] = None
-                else:
-                    result["error"] = "no count"
-                    continue
+                result["error"] = "all scrape methods failed"
+                continue
 
-            if result["method"] in ("scroll", "obscura", "headlessx", "scrapling", "curlcffi", "fallback"):
+            if result["method"] in ("scroll", "obscura", "headlessx", "scrapling", "curlcffi"):
                 pass  # already set
             else:
                 result["method"] = "api"
