@@ -6,6 +6,8 @@ import io
 import json
 import os
 import asyncio
+import subprocess
+import shutil
 import traceback
 import sys
 import random
@@ -20,6 +22,27 @@ try:
     OCR_AVAILABLE = True
 except ImportError:
     OCR_AVAILABLE = False
+
+# Scrapling — adaptive scraper with anti-bot bypass (StealthyFetcher)
+try:
+    from scrapling.fetchers import StealthyFetcher
+    SCRAPLING_AVAILABLE = True
+except ImportError:
+    SCRAPLING_AVAILABLE = False
+
+# curl_cffi — HTTP requests with browser TLS fingerprint spoofing
+try:
+    from curl_cffi import requests as cffi_requests
+    CURLCFFI_AVAILABLE = True
+except ImportError:
+    CURLCFFI_AVAILABLE = False
+
+# Obscura — lightweight Rust headless browser (CDP-compatible)
+OBSCURA_BIN = shutil.which("obscura") or ""
+
+# HeadlessX — self-hosted headless browser API (configure via env)
+HEADLESSX_URL = os.environ.get("HEADLESSX_URL", "").rstrip("/")
+HEADLESSX_TOKEN = os.environ.get("HEADLESSX_TOKEN", "")
 
 DATA_FILE = os.path.join(os.path.dirname(__file__), "..", "docs", "data", "reviews.json")
 BACKUP_DIR = None  # backups disabled
@@ -299,15 +322,173 @@ async def _get_overall_and_rating(page):
     return count, stars
 
 
+def _parse_html_for_reviews(html):
+    """Shared regex extraction of (count, stars) from raw HTML string."""
+    count, stars = None, None
+
+    # JSON-LD structured data
+    for ld_match in re.finditer(
+        r'<script[^>]*type="application/ld\+json"[^>]*>(.*?)</script>',
+        html, re.DOTALL,
+    ):
+        ld_text = ld_match.group(1)
+        for pat in [
+            r'"aggregateRating"\s*:\s*\{[^}]*"ratingCount"\s*:\s*(\d+)',
+            r'"aggregateRating"\s*:\s*\{[^}]*"reviewCount"\s*:\s*(\d+)',
+            r'"aggregateRating"\s*:\s*\{[^}]*"ratingValue"\s*:\s*"?([\d.]+)"?',
+        ]:
+            m = re.search(pat, ld_text)
+            if m:
+                try:
+                    v = float(m.group(1))
+                    if v > 5:
+                        count = int(v)
+                    elif 1.0 <= v <= 5.0:
+                        stars = v
+                except ValueError:
+                    pass
+        if count or stars:
+            return count, stars
+
+    # Regex on full HTML
+    for pat in [
+        r'"userRatingCount"[:\s,]*(\d+)',
+        r'"reviewCount"[:\s,]*(\d+)',
+        r'"ratingCount"[:\s,]*(\d+)',
+        r'"totalReviewCount"[:\s,]*(\d+)',
+        r'"numReviews"[:\s,]*(\d+)',
+        r'([\d,]+)\s*Google\s+reviews?',
+        r'([\d,]+)\s*reviews?',
+    ]:
+        m = re.search(pat, html, re.IGNORECASE)
+        if m:
+            v = int(m.group(1).replace(",", ""))
+            if v > 5:
+                count = v
+                break
+
+    for pat in [
+        r'"ratingValue"[:\s,]*"?([\d.]+)"?',
+        r'"starRating"[:\s,]*"?([\d.]+)"?',
+        r'"averageRating"[:\s,]*"?([\d.]+)"?',
+        r'"rating"[:\s,]*"?([\d.]+)"?',
+    ]:
+        m = re.search(pat, html, re.IGNORECASE)
+        if m:
+            try:
+                v = float(m.group(1))
+                if 1.0 <= v <= 5.0:
+                    stars = v
+                    break
+            except ValueError:
+                pass
+
+    return count, stars
+
+
+def _obscura_fetch_place(place_id):
+    """Tier 5: Use Obscura CLI to fetch Google Maps HTML with a different
+    browser engine (Rust/V8, not Chromium). Stealth mode built-in.
+    Returns (count, stars) or (None, None) on failure."""
+    if not OBSCURA_BIN:
+        return None, None
+    url = f"https://www.google.com/maps/place/?q=place_id:{place_id}"
+    try:
+        proc = subprocess.run(
+            [OBSCURA_BIN, "fetch", url,
+             "--dump", "html", "--stealth",
+             "--wait-until", "networkidle0",
+             "--timeout", "20"],
+            capture_output=True, text=True, timeout=30,
+        )
+        if proc.returncode != 0 or not proc.stdout.strip():
+            return None, None
+        return _parse_html_for_reviews(proc.stdout)
+    except Exception:
+        return None, None
+
+
+def _headlessx_fetch_place(place_id):
+    """Tier 6: Use HeadlessX self-hosted API to render the page with
+    Camoufox (patched Firefox, 0% detection) and extract HTML.
+    Requires HEADLESSX_URL and HEADLESSX_TOKEN env vars.
+    Returns (count, stars) or (None, None) on failure."""
+    if not HEADLESSX_URL or not HEADLESSX_TOKEN:
+        return None, None
+    import urllib.request
+    import urllib.error
+    url = f"https://www.google.com/maps/place/?q=place_id:{place_id}"
+    api_url = f"{HEADLESSX_URL}/api/html?token={HEADLESSX_TOKEN}"
+    payload = json.dumps({"url": url, "timeout": 30000, "humanBehavior": True}).encode()
+    try:
+        req = urllib.request.Request(
+            api_url, data=payload,
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        with urllib.request.urlopen(req, timeout=25) as resp:
+            data = json.loads(resp.read().decode())
+        html = data.get("data", {}).get("html", "") or data.get("html", "")
+        if not html:
+            return None, None
+        return _parse_html_for_reviews(html)
+    except Exception:
+        return None, None
+
+
+async def _scrapling_fetch_place(place_id):
+    """Tier 7: Use Scrapling's StealthyFetcher to load the Google Maps page
+    with anti-bot bypass and extract review count + stars from the HTML.
+    Returns (count, stars) or (None, None) on failure."""
+    if not SCRAPLING_AVAILABLE:
+        return None, None
+    url = f"https://www.google.com/maps/place/?q=place_id:{place_id}"
+    try:
+        page = StealthyFetcher.fetch(url, headless=True, network_idle=True)
+    except Exception:
+        return None, None
+    try:
+        html = page.html_content if hasattr(page, "html_content") else str(page)
+    except Exception:
+        return None, None
+    return _parse_html_for_reviews(html)
+
+
+def _curlcffi_fetch_place(place_id):
+    """Tier 8: Use curl_cffi with browser TLS fingerprint to fetch the Google
+    Maps page as plain HTTP and extract review count + stars from raw HTML.
+    Returns (count, stars) or (None, None) on failure."""
+    if not CURLCFFI_AVAILABLE:
+        return None, None
+    url = f"https://www.google.com/maps/place/?q=place_id:{place_id}"
+    try:
+        resp = cffi_requests.get(
+            url,
+            impersonate="chrome",
+            headers={
+                "Accept-Language": "en-IN,en;q=0.9",
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            },
+            timeout=20,
+        )
+        if resp.status_code != 200:
+            return None, None
+    except Exception:
+        return None, None
+    return _parse_html_for_reviews(resp.text)
+
+
 async def _count_reviews_by_scroll(page, snap_date):
     """Click Reviews tab, sort Newest, scroll the review PANEL and count
-    reviews dated snap_date. Uses locator API only (no evaluate)."""
+    reviews dated snap_date. Uses locator API consistently (no low-level
+    query_selector_all, no page.evaluate for scrolling)."""
 
     # ── 1. Click the Reviews tab ──
     reviews_clicked = False
     for sel in [
         'button[aria-label="Reviews"]',
         'button[aria-label*="Reviews"]',
+        'div[role="tab"][aria-label*="Reviews"]',
         'button[data-tab-index="1"]',
         'div[role="tab"][data-tab-index="1"]',
         'div[role="tab"]:has-text("Reviews")',
@@ -319,7 +500,7 @@ async def _count_reviews_by_scroll(page, snap_date):
             t = page.locator(sel).first
             if await t.count():
                 await t.click(timeout=4000)
-                await page.wait_for_timeout(2000)
+                await page.wait_for_timeout(2500)
                 reviews_clicked = True
                 break
         except Exception:
@@ -337,7 +518,6 @@ async def _count_reviews_by_scroll(page, snap_date):
         'button[data-value="Sort"]',
         'button:has-text("Sort")',
         'div[role="button"]:has-text("Sort")',
-        'span:has-text("Sort by"):not([class])',
     ]:
         try:
             sb = page.locator(sel).first
@@ -356,13 +536,12 @@ async def _count_reviews_by_scroll(page, snap_date):
             'div[role="menuitemradio"]:has-text("Newest")',
             'div[role="option"]:has-text("Newest")',
             'div[role="menuitem"]:has-text("Newest")',
-            'span:has-text("Newest"):not([class])',
         ]:
             try:
                 n = page.locator(ns).first
                 if await n.count():
                     await n.click(timeout=2000)
-                    await page.wait_for_timeout(2000)
+                    await page.wait_for_timeout(2500)
                     break
             except Exception:
                 continue
@@ -370,10 +549,10 @@ async def _count_reviews_by_scroll(page, snap_date):
     # ── 3. Find the scrollable review panel ──
     review_panel = None
     for psel in [
-        'div.m6QErb.DxyBCb.kA9KIf.dS8AEf',   # classic review scrollable
-        'div[role="main"] div.m6QErb.DxyBCb',
-        'div.m6QErb[aria-label]',
         'div[role="feed"]',
+        'div[role="main"] div[role="feed"]',
+        'div.m6QErb[aria-label]',
+        'div.m6QErb.DxyBCb',
         'div.m6QErb',
     ]:
         try:
@@ -384,18 +563,12 @@ async def _count_reviews_by_scroll(page, snap_date):
         except Exception:
             continue
 
-    # ── 4. Initial scroll inside the review panel ──
+    # ── 4. Initial scroll via keyboard to load first batch ──
     for _ in range(3):
         try:
-            if review_panel:
-                await review_panel.evaluate("el => el.scrollTop = el.scrollHeight")
-            else:
-                await page.evaluate("() => { const el = document.querySelector('div.m6QErb.DxyBCb'); if(el) el.scrollTop = el.scrollHeight; }")
+            await page.keyboard.press("End")
         except Exception:
-            try:
-                await page.keyboard.press("End")
-            except Exception:
-                pass
+            pass
         await page.wait_for_timeout(1500)
 
     # ── 5. Scroll loop ──
@@ -403,16 +576,14 @@ async def _count_reviews_by_scroll(page, snap_date):
     max_scroll_attempts = 25
     scroll_attempts = 0
 
-    # Modern selectors for review cards
+    # Selectors for review cards (attribute-based, no class names)
     CARD_SELECTORS = [
         'div[data-review-id]',
-        'div.jftiEf',
-        'div[data-href*="review"]',
         'div[aria-label*="review by"]',
         'div[jscontroller][data-review-id]',
+        'div[data-href*="review"]',
     ]
 
-    # Date patterns to match inside review card text (relative + absolute)
     DATE_REL_PATTERNS = re.compile(
         r'(?:\d+\s+(?:hour|minute|second|day|week|month|year)s?\s+ago'
         r'|a\s+(?:day|week|month|year)\s+ago'
@@ -427,26 +598,37 @@ async def _count_reviews_by_scroll(page, snap_date):
     while not stop and no_new < 8 and scroll_attempts < max_scroll_attempts:
         scroll_attempts += 1
 
-        # Collect cards from all selectors
+        # Collect review cards using locator API (no query_selector_all)
         cards = []
         for cs in CARD_SELECTORS:
             try:
-                found = await page.query_selector_all(cs)
-                cards.extend(found)
+                loc = page.locator(cs)
+                n = await loc.count()
+                for i in range(n):
+                    cards.append(loc.nth(i))
             except Exception:
                 pass
-        # Deduplicate by data-review-id or element ref
+
+        # Deduplicate by data-review-id attribute
         seen_ids = set()
         unique_cards = []
         for card in cards:
-            rid = await card.get_attribute("data-review-id") or str(id(card))
+            try:
+                rid = await card.get_attribute("data-review-id")
+                rid = rid or f"idx-{id(card)}"
+            except Exception:
+                rid = f"idx-{id(card)}"
             if rid not in seen_ids:
                 seen_ids.add(rid)
                 unique_cards.append(card)
 
         new = 0
         for card in unique_cards:
-            rid = await card.get_attribute("data-review-id") or str(id(card))
+            try:
+                rid = await card.get_attribute("data-review-id")
+                rid = rid or f"idx-{id(card)}"
+            except Exception:
+                rid = f"idx-{id(card)}"
             if rid in seen:
                 continue
             seen.add(rid)
@@ -459,25 +641,23 @@ async def _count_reviews_by_scroll(page, snap_date):
                     line = line.strip()
                     if not line:
                         continue
-                    # Check if this line contains a date-like pattern
                     if DATE_REL_PATTERNS.search(line):
-                        # Skip lines that are just ratings like "4.5" or "⭐ 4"
                         if re.match(r'^[\d.★\s]+$', line):
                             continue
                         date_str = line
                         break
-                # Also try individual child spans for more precise matching
                 if not date_str:
                     for tag in ['span', 'time', 'div']:
-                        elements = await card.query_selector_all(tag)
-                        for el in elements:
-                            try:
-                                txt = (await el.inner_text(timeout=1000)).strip()
+                        try:
+                            children = card.locator(tag)
+                            cn = await children.count()
+                            for ci in range(cn):
+                                txt = (await children.nth(ci).inner_text(timeout=1000)).strip()
                                 if txt and DATE_REL_PATTERNS.search(txt) and not re.match(r'^[\d.★\s]+$', txt):
                                     date_str = txt
                                     break
-                            except Exception:
-                                continue
+                        except Exception:
+                            continue
                         if date_str:
                             break
             except Exception:
@@ -492,13 +672,19 @@ async def _count_reviews_by_scroll(page, snap_date):
 
         no_new = 0 if new else no_new + 1
 
+        # Scroll: try panel first, fallback to keyboard
         if not stop:
-            try:
-                if review_panel:
-                    await review_panel.evaluate("el => el.scrollTop = el.scrollHeight")
-                else:
-                    await page.evaluate("() => { const el = document.querySelector('div.m6QErb.DxyBCb'); if(el) el.scrollTop = el.scrollHeight; }")
-            except Exception:
+            scrolled = False
+            if review_panel:
+                try:
+                    box = await review_panel.bounding_box()
+                    if box:
+                        await page.mouse.move(box["x"] + box["width"] / 2, box["y"] + box["height"] / 2)
+                        await page.mouse.wheel(0, box["height"] * 2)
+                        scrolled = True
+                except Exception:
+                    pass
+            if not scrolled:
                 try:
                     await page.keyboard.press("End")
                 except Exception:
@@ -618,7 +804,79 @@ async def scrape_branch(context, branch, snap_date, old_stars, data):
             if not result["stars"]:
                 result["stars"] = old_stars
 
-            # ── Tier 4: Fallback to previous data ──
+            # ── Tier 4: Scroll-based daily count + total from page ──
+            if result["live"] is None:
+                try:
+                    scroll_daily = await _count_reviews_by_scroll(page, snap_date)
+                    result["daily"] = scroll_daily
+                    try:
+                        body = await page.locator("body").inner_text(timeout=5000)
+                        m = re.search(r'([\d,]+)\s*(?:Google\s+)?reviews?', body, re.IGNORECASE)
+                        if m:
+                            v = int(m.group(1).replace(",", ""))
+                            if v > 5:
+                                result["live"] = v
+                                result["method"] = "scroll"
+                    except Exception:
+                        pass
+                except Exception:
+                    pass
+
+            # ── Tier 5: Obscura (Rust headless browser, stealth built-in) ──
+            if result["live"] is None:
+                try:
+                    o_count, o_stars = await asyncio.get_event_loop().run_in_executor(
+                        None, _obscura_fetch_place, place_id
+                    )
+                    if o_count:
+                        result["live"] = o_count
+                        result["method"] = "obscura"
+                    if o_stars:
+                        result["stars"] = o_stars
+                except Exception:
+                    pass
+
+            # ── Tier 6: HeadlessX (Camoufox patched Firefox, 0% detection) ──
+            if result["live"] is None:
+                try:
+                    h_count, h_stars = await asyncio.get_event_loop().run_in_executor(
+                        None, _headlessx_fetch_place, place_id
+                    )
+                    if h_count:
+                        result["live"] = h_count
+                        result["method"] = "headlessx"
+                    if h_stars:
+                        result["stars"] = h_stars
+                except Exception:
+                    pass
+
+            # ── Tier 7: Scrapling StealthyFetcher (anti-bot bypass) ──
+            if result["live"] is None:
+                try:
+                    s_count, s_stars = await _scrapling_fetch_place(place_id)
+                    if s_count:
+                        result["live"] = s_count
+                        result["method"] = "scrapling"
+                    if s_stars:
+                        result["stars"] = s_stars
+                except Exception:
+                    pass
+
+            # ── Tier 8: curl_cffi TLS fingerprint spoofing (HTTP-only) ──
+            if result["live"] is None:
+                try:
+                    c_count, c_stars = await asyncio.get_event_loop().run_in_executor(
+                        None, _curlcffi_fetch_place, place_id
+                    )
+                    if c_count:
+                        result["live"] = c_count
+                        result["method"] = "curlcffi"
+                    if c_stars:
+                        result["stars"] = c_stars
+                except Exception:
+                    pass
+
+            # ── Tier 9: Fallback to previous data ──
             if result["live"] is None:
                 old_overall = data.get("branches", {}).get(str(branch["id"]), {}).get("overall", 0)
                 if old_overall and old_overall > 0:
@@ -630,8 +888,10 @@ async def scrape_branch(context, branch, snap_date, old_stars, data):
                     result["error"] = "no count"
                     continue
 
-            # Skip expensive scroll method — daily count calculated from delta
-            result["method"] = "api"
+            if result["method"] in ("scroll", "obscura", "headlessx", "scrapling", "curlcffi", "fallback"):
+                pass  # already set
+            else:
+                result["method"] = "api"
             break
         except Exception as e:
             result["error"] = str(e)
