@@ -21,5 +21,5 @@ jobs:
       - run: |
           git config user.name "scraper-bot"
           git config user.email "bot@sathya"
-          git add docs/data/
+          git add docs/data/ data/
           git diff --cached --quiet || (git commit -m "scrape $(date -u +%Y-%m-%d)" && git fetch origin main && git push --force-with-lease origin main)
