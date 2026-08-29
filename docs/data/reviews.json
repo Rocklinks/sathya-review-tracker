@@ -212,7 +212,7 @@
       "id": 16,
       "name": "Monday Market",
       "agm": "Jeeva",
-      "overall": 431,
+      "overall": 423,
       "star_rating": 4.9,
       "monthly": 32
     },
@@ -25970,7 +25970,7 @@
         "method": "delta"
       },
       "16": {
-        "total_snap": 431,
+        "total_snap": 423,
         "daily_count": 0,
         "monthly": 32,
         "star_rating": 4.9,
@@ -26126,6 +26126,14 @@
     }
   },
   "logs": [
+    {
+      "ran_at": "2026-08-29T02:20:55.234250+00:00",
+      "snap_date": "2026-08-28",
+      "baseline_date": "2026-08-27",
+      "success": 37,
+      "failed": 0,
+      "failed_names": []
+    },
     {
       "ran_at": "2026-08-29T01:50:14.586998+00:00",
       "snap_date": "2026-08-28",
@@ -26451,5 +26459,5 @@
       "source": "Jre.xlsx (rev.sh)"
     }
   ],
-  "last_updated": "2026-08-29T01:50:14.586998+00:00"
+  "last_updated": "2026-08-29T02:20:55.234250+00:00"
 }
