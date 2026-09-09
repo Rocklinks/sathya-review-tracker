@@ -3,7 +3,7 @@
     "1": {
       "id": 1,
       "name": "Tuticorin-1",
-      "agm": "Siva",
+      "agm": "Sivaperumal",
       "overall": 7986,
       "star_rating": 4.9,
       "monthly": 193
@@ -11,10 +11,10 @@
     "7": {
       "id": 7,
       "name": "Tirunelveli-1",
-      "agm": "John",
+      "agm": "Johnson",
       "overall": 4875,
       "star_rating": 4.9,
-      "monthly": 86
+      "monthly": 91
     },
     "28": {
       "id": 28,
@@ -51,15 +51,15 @@
     "2": {
       "id": 2,
       "name": "Tuticorin-2",
-      "agm": "Siva",
+      "agm": "Sivaperumal",
       "overall": 6742,
       "star_rating": 4.8,
-      "monthly": 32
+      "monthly": 33
     },
     "9": {
       "id": 9,
       "name": "Ambasamudram-1",
-      "agm": "John",
+      "agm": "Johnson",
       "overall": 1089,
       "star_rating": 4.9,
       "monthly": 30
@@ -75,7 +75,7 @@
     "34": {
       "id": 34,
       "name": "Virudhunagar-2",
-      "agm": "Venkatesh",
+      "agm": "Venkadesan",
       "overall": 1825,
       "star_rating": 4.9,
       "monthly": 17
@@ -115,7 +115,7 @@
     "35": {
       "id": 35,
       "name": "Aruppukottai",
-      "agm": "Venkatesh",
+      "agm": "Venkadesan",
       "overall": 2196,
       "star_rating": 4.8,
       "monthly": 20
@@ -123,7 +123,7 @@
     "36": {
       "id": 36,
       "name": "Aruppukottai -2",
-      "agm": "Venkatesh",
+      "agm": "Venkadesan",
       "overall": 1064,
       "star_rating": 5.0,
       "monthly": 13
@@ -131,7 +131,7 @@
     "4": {
       "id": 4,
       "name": "Thisayanvilai-1",
-      "agm": "Siva",
+      "agm": "Sivaperumal",
       "overall": 506,
       "star_rating": 4.9,
       "monthly": 22
@@ -139,10 +139,10 @@
     "3": {
       "id": 3,
       "name": "Thiruchendur-1",
-      "agm": "Siva",
+      "agm": "Sivaperumal",
       "overall": 1405,
       "star_rating": 4.9,
-      "monthly": 15
+      "monthly": 16
     },
     "12": {
       "id": 12,
@@ -179,7 +179,7 @@
     "5": {
       "id": 5,
       "name": "Eral-2",
-      "agm": "Siva",
+      "agm": "Sivaperumal",
       "overall": 1181,
       "star_rating": 4.9,
       "monthly": 7
@@ -187,7 +187,7 @@
     "6": {
       "id": 6,
       "name": "Udankudi",
-      "agm": "Siva",
+      "agm": "Sivaperumal",
       "overall": 2153,
       "star_rating": 4.9,
       "monthly": 13
@@ -243,7 +243,7 @@
     "33": {
       "id": 33,
       "name": "Virudhunagar",
-      "agm": "Venkatesh",
+      "agm": "Venkadesan",
       "overall": 2249,
       "star_rating": 4.8,
       "monthly": 16
@@ -251,7 +251,7 @@
     "37": {
       "id": 37,
       "name": "Sivakasi",
-      "agm": "Venkatesh",
+      "agm": "Venkadesan",
       "overall": 1319,
       "star_rating": 4.8,
       "monthly": 13
@@ -259,7 +259,7 @@
     "8": {
       "id": 8,
       "name": "Valliyur-1",
-      "agm": "John",
+      "agm": "Johnson",
       "overall": 1323,
       "star_rating": 4.8,
       "monthly": 30
@@ -267,7 +267,7 @@
     "10": {
       "id": 10,
       "name": "Anjugramam-1",
-      "agm": "John",
+      "agm": "Johnson",
       "overall": 811,
       "star_rating": 4.9,
       "monthly": 17
@@ -29033,266 +29033,350 @@
     "2026-09-08": {
       "1": {
         "total_snap": 7986,
-        "daily_count": 24,
+        "daily_count": 26,
+        "raw_delta": 17,
+        "has_deletion": false,
         "monthly": 193,
         "star_rating": 4.9,
-        "method": "scroll"
+        "yesterday_reviews": 0
       },
       "2": {
         "total_snap": 6742,
         "daily_count": 4,
-        "monthly": 32,
+        "raw_delta": 5,
+        "has_deletion": false,
+        "monthly": 33,
         "star_rating": 4.8,
-        "method": "scroll"
+        "yesterday_reviews": 0
       },
       "3": {
         "total_snap": 1405,
-        "daily_count": 3,
-        "monthly": 15,
+        "daily_count": 4,
+        "raw_delta": 3,
+        "has_deletion": false,
+        "monthly": 16,
         "star_rating": 4.9,
-        "method": "scroll"
+        "yesterday_reviews": 0
       },
       "4": {
         "total_snap": 506,
         "daily_count": 2,
+        "raw_delta": 2,
+        "has_deletion": false,
         "monthly": 22,
         "star_rating": 4.9,
-        "method": "scroll"
+        "yesterday_reviews": 0
       },
       "5": {
         "total_snap": 1181,
         "daily_count": 1,
+        "raw_delta": 0,
+        "has_deletion": false,
         "monthly": 7,
         "star_rating": 4.9,
-        "method": "scroll"
+        "yesterday_reviews": 0
       },
       "6": {
         "total_snap": 2153,
         "daily_count": 1,
+        "raw_delta": 1,
+        "has_deletion": false,
         "monthly": 13,
         "star_rating": 4.9,
-        "method": "scroll"
+        "yesterday_reviews": 0
       },
       "7": {
         "total_snap": 4875,
-        "daily_count": 0,
-        "monthly": 86,
+        "daily_count": 5,
+        "raw_delta": -1,
+        "has_deletion": true,
+        "monthly": 91,
         "star_rating": 4.9,
-        "method": "scroll"
+        "yesterday_reviews": 0
       },
       "8": {
         "total_snap": 1323,
         "daily_count": 2,
+        "raw_delta": 1,
+        "has_deletion": false,
         "monthly": 30,
         "star_rating": 4.8,
-        "method": "scroll"
+        "yesterday_reviews": 0
       },
       "9": {
         "total_snap": 1089,
         "daily_count": 1,
+        "raw_delta": -1,
+        "has_deletion": true,
         "monthly": 30,
         "star_rating": 4.9,
-        "method": "scroll"
+        "yesterday_reviews": 0
       },
       "10": {
         "total_snap": 811,
         "daily_count": 4,
+        "raw_delta": 1,
+        "has_deletion": false,
         "monthly": 17,
         "star_rating": 4.9,
-        "method": "scroll"
+        "yesterday_reviews": 0
       },
       "11": {
         "total_snap": 3338,
         "daily_count": 5,
+        "raw_delta": 4,
+        "has_deletion": false,
         "monthly": 51,
         "star_rating": 4.8,
-        "method": "scroll"
+        "yesterday_reviews": 0
       },
       "12": {
         "total_snap": 1214,
         "daily_count": 2,
+        "raw_delta": 2,
+        "has_deletion": false,
         "monthly": 21,
         "star_rating": 4.7,
-        "method": "delta"
+        "yesterday_reviews": 0
       },
       "13": {
         "total_snap": 1168,
         "daily_count": 1,
+        "raw_delta": 1,
+        "has_deletion": false,
         "monthly": 10,
         "star_rating": 4.7,
-        "method": "delta"
+        "yesterday_reviews": 0
       },
       "14": {
         "total_snap": 351,
         "daily_count": 2,
+        "raw_delta": -1,
+        "has_deletion": true,
         "monthly": 14,
         "star_rating": 4.9,
-        "method": "scroll"
+        "yesterday_reviews": 0
       },
       "15": {
         "total_snap": 457,
         "daily_count": 0,
+        "raw_delta": 0,
+        "has_deletion": false,
         "monthly": 5,
         "star_rating": 4.9,
-        "method": "scroll"
+        "yesterday_reviews": 0
       },
       "16": {
         "total_snap": 416,
         "daily_count": 0,
+        "raw_delta": -1,
+        "has_deletion": true,
         "monthly": 7,
         "star_rating": 4.9,
-        "method": "scroll"
+        "yesterday_reviews": 0
       },
       "17": {
         "total_snap": 904,
         "daily_count": 6,
+        "raw_delta": 5,
+        "has_deletion": false,
         "monthly": 26,
         "star_rating": 4.9,
-        "method": "scroll"
+        "yesterday_reviews": 0
       },
       "18": {
         "total_snap": 2854,
         "daily_count": 7,
+        "raw_delta": 7,
+        "has_deletion": false,
         "monthly": 66,
         "star_rating": 4.7,
-        "method": "delta"
+        "yesterday_reviews": 0
       },
       "19": {
         "total_snap": 2708,
         "daily_count": 2,
+        "raw_delta": 2,
+        "has_deletion": false,
         "monthly": 28,
         "star_rating": 4.8,
-        "method": "delta"
+        "yesterday_reviews": 0
       },
       "20": {
         "total_snap": 1388,
         "daily_count": 7,
+        "raw_delta": 8,
+        "has_deletion": false,
         "monthly": 49,
         "star_rating": 4.9,
-        "method": "scroll"
+        "yesterday_reviews": 0
       },
       "21": {
         "total_snap": 729,
         "daily_count": 1,
+        "raw_delta": 1,
+        "has_deletion": false,
         "monthly": 20,
         "star_rating": 4.9,
-        "method": "scroll"
+        "yesterday_reviews": 0
       },
       "22": {
         "total_snap": 733,
         "daily_count": 1,
+        "raw_delta": 1,
+        "has_deletion": false,
         "monthly": 4,
         "star_rating": 4.8,
-        "method": "scroll"
+        "yesterday_reviews": 0
       },
       "23": {
         "total_snap": 1024,
         "daily_count": 1,
+        "raw_delta": 1,
+        "has_deletion": false,
         "monthly": 8,
         "star_rating": 4.8,
-        "method": "scroll"
+        "yesterday_reviews": 0
       },
       "24": {
         "total_snap": 1130,
         "daily_count": 0,
+        "raw_delta": 0,
+        "has_deletion": false,
         "monthly": 4,
         "star_rating": 4.9,
-        "method": "scroll"
+        "yesterday_reviews": 0
       },
       "25": {
         "total_snap": 1134,
         "daily_count": 4,
+        "raw_delta": 3,
+        "has_deletion": false,
         "monthly": 31,
         "star_rating": 5.0,
-        "method": "scroll"
+        "yesterday_reviews": 0
       },
       "26": {
         "total_snap": 97,
         "daily_count": 1,
+        "raw_delta": -2,
+        "has_deletion": true,
         "monthly": 22,
         "star_rating": 4.9,
-        "method": "scroll"
+        "yesterday_reviews": 0
       },
       "27": {
         "total_snap": 6325,
         "daily_count": 0,
+        "raw_delta": 0,
+        "has_deletion": false,
         "monthly": 32,
         "star_rating": 4.9,
-        "method": "scroll"
+        "yesterday_reviews": 0
       },
       "28": {
         "total_snap": 4198,
         "daily_count": 5,
+        "raw_delta": 4,
+        "has_deletion": false,
         "monthly": 32,
         "star_rating": 5.0,
-        "method": "scroll"
+        "yesterday_reviews": 0
       },
       "29": {
         "total_snap": 2469,
         "daily_count": 5,
+        "raw_delta": 5,
+        "has_deletion": false,
         "monthly": 22,
         "star_rating": 4.9,
-        "method": "scroll"
+        "yesterday_reviews": 0
       },
       "30": {
         "total_snap": 1086,
         "daily_count": 2,
+        "raw_delta": 2,
+        "has_deletion": false,
         "monthly": 12,
         "star_rating": 4.9,
-        "method": "scroll"
+        "yesterday_reviews": 0
       },
       "31": {
         "total_snap": 772,
         "daily_count": 1,
+        "raw_delta": 1,
+        "has_deletion": false,
         "monthly": 15,
         "star_rating": 5.0,
-        "method": "scroll"
+        "yesterday_reviews": 0
       },
       "32": {
         "total_snap": 2284,
         "daily_count": 1,
+        "raw_delta": -1,
+        "has_deletion": true,
         "monthly": 23,
         "star_rating": 4.8,
-        "method": "scroll"
+        "yesterday_reviews": 0
       },
       "33": {
         "total_snap": 2249,
         "daily_count": 1,
+        "raw_delta": 1,
+        "has_deletion": false,
         "monthly": 16,
         "star_rating": 4.8,
-        "method": "scroll"
+        "yesterday_reviews": 0
       },
       "34": {
         "total_snap": 1825,
         "daily_count": 2,
+        "raw_delta": 2,
+        "has_deletion": false,
         "monthly": 17,
         "star_rating": 4.9,
-        "method": "scroll"
+        "yesterday_reviews": 0
       },
       "35": {
         "total_snap": 2196,
         "daily_count": 0,
+        "raw_delta": 0,
+        "has_deletion": false,
         "monthly": 20,
         "star_rating": 4.8,
-        "method": "scroll"
+        "yesterday_reviews": 0
       },
       "36": {
         "total_snap": 1064,
         "daily_count": 1,
+        "raw_delta": 1,
+        "has_deletion": false,
         "monthly": 13,
         "star_rating": 5.0,
-        "method": "delta"
+        "yesterday_reviews": 0
       },
       "37": {
         "total_snap": 1319,
         "daily_count": 1,
+        "raw_delta": 1,
+        "has_deletion": false,
         "monthly": 13,
         "star_rating": 4.8,
-        "method": "scroll"
+        "yesterday_reviews": 0
       }
     }
   },
   "logs": [
+    {
+      "ran_at": "2026-09-09T11:17:20.255848+00:00",
+      "snap_date": "2026-09-08",
+      "baseline_date": "2026-09-07",
+      "success": 37,
+      "failed": 0,
+      "failed_names": [],
+      "total_reviews": 109,
+      "source": "Jre.xlsx (rev.sh)"
+    },
     {
       "ran_at": "2026-09-08T21:19:28.910687+00:00",
       "snap_date": "2026-09-08",
@@ -29722,17 +29806,7 @@
       "failed_names": [],
       "total_reviews": 148,
       "source": "Jre.xlsx (rev.sh)"
-    },
-    {
-      "ran_at": "2026-08-11T03:35:36.684032+00:00",
-      "snap_date": "2026-08-10",
-      "baseline_date": "2026-08-09",
-      "success": 37,
-      "failed": 0,
-      "failed_names": [],
-      "total_reviews": 161,
-      "source": "Jre.xlsx (rev.sh)"
     }
   ],
-  "last_updated": "2026-09-08T21:19:28.910687+00:00"
+  "last_updated": "2026-09-09T11:17:20.255879+00:00"
 }
