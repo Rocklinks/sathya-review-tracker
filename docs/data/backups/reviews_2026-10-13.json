@@ -148,9 +148,9 @@
       "id": 12,
       "name": "Marthandam",
       "agm": "Jeeva",
-      "overall": 81,
+      "overall": 1245,
       "star_rating": 4.7,
-      "monthly": 9
+      "monthly": 10
     },
     "17": {
       "id": 17,
@@ -38945,11 +38945,11 @@
         "method": "delta"
       },
       "12": {
-        "total_snap": 81,
-        "daily_count": 0,
-        "monthly": 9,
+        "total_snap": 1245,
+        "daily_count": 1,
+        "monthly": 10,
         "star_rating": 4.7,
-        "method": "scroll"
+        "method": "delta"
       },
       "13": {
         "total_snap": 1210,
@@ -39129,6 +39129,14 @@
     }
   },
   "logs": [
+    {
+      "ran_at": "2026-10-13T00:54:40.764439+00:00",
+      "snap_date": "2026-10-12",
+      "baseline_date": "2026-10-11",
+      "success": 37,
+      "failed": 0,
+      "failed_names": []
+    },
     {
       "ran_at": "2026-10-13T00:37:03.374038+00:00",
       "snap_date": "2026-10-12",
@@ -39552,17 +39560,7 @@
       "failed_names": [],
       "total_reviews": 121,
       "source": "Jre.xlsx (rev.sh)"
-    },
-    {
-      "ran_at": "2026-09-10T04:38:18.523463+00:00",
-      "snap_date": "2026-09-09",
-      "baseline_date": "2026-09-08",
-      "success": 37,
-      "failed": 0,
-      "failed_names": [],
-      "total_reviews": 121,
-      "source": "Jre.xlsx (rev.sh)"
     }
   ],
-  "last_updated": "2026-10-13T00:37:03.374038+00:00"
+  "last_updated": "2026-10-13T00:54:40.764439+00:00"
 }
