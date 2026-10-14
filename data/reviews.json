@@ -4,9 +4,9 @@
       "id": 1,
       "name": "Tuticorin-1",
       "agm": "Siva",
-      "overall": 8471,
+      "overall": 8470,
       "star_rating": 4.9,
-      "monthly": 276
+      "monthly": 275
     },
     "7": {
       "id": 7,
@@ -39203,9 +39203,9 @@
     },
     "2026-10-13": {
       "1": {
-        "total_snap": 8471,
-        "daily_count": 17,
-        "monthly": 276,
+        "total_snap": 8470,
+        "daily_count": 16,
+        "monthly": 275,
         "star_rating": 4.9,
         "method": "delta"
       },
@@ -39464,6 +39464,14 @@
     }
   },
   "logs": [
+    {
+      "ran_at": "2026-10-14T00:27:11.815460+00:00",
+      "snap_date": "2026-10-13",
+      "baseline_date": "2026-10-12",
+      "success": 37,
+      "failed": 0,
+      "failed_names": []
+    },
     {
       "ran_at": "2026-10-13T23:00:32.250078+00:00",
       "snap_date": "2026-10-13",
@@ -39887,15 +39895,7 @@
       "success": 37,
       "failed": 0,
       "failed_names": []
-    },
-    {
-      "ran_at": "2026-09-11T21:09:10.445140+00:00",
-      "snap_date": "2026-09-11",
-      "baseline_date": "2026-09-10",
-      "success": 37,
-      "failed": 0,
-      "failed_names": []
     }
   ],
-  "last_updated": "2026-10-13T23:00:32.250078+00:00"
+  "last_updated": "2026-10-14T00:27:11.815460+00:00"
 }
