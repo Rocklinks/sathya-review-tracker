@@ -47509,6 +47509,16 @@
   },
   "logs": [
     {
+      "ran_at": "2026-11-09T06:53:39.571732+00:00",
+      "snap_date": "2026-11-08",
+      "baseline_date": "2026-11-07",
+      "success": 37,
+      "failed": 0,
+      "failed_names": [],
+      "total_reviews": 60,
+      "source": "Jre.xlsx (rev.sh)"
+    },
+    {
       "ran_at": "2026-11-09T06:48:57.219603+00:00",
       "snap_date": "2026-11-08",
       "baseline_date": "2026-11-07",
@@ -47941,15 +47951,7 @@
       "failed_names": [],
       "total_reviews": 99,
       "source": "Jre.xlsx (rev.sh)"
-    },
-    {
-      "ran_at": "2026-10-13T00:54:40.764439+00:00",
-      "snap_date": "2026-10-12",
-      "baseline_date": "2026-10-11",
-      "success": 37,
-      "failed": 0,
-      "failed_names": []
     }
   ],
-  "last_updated": "2026-11-09T06:48:57.219628+00:00"
+  "last_updated": "2026-11-09T06:53:39.571754+00:00"
 }
